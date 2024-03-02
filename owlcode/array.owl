@@ -1,0 +1,5 @@
+program 'arrayEx';
+begin
+    let j: int := 4;
+    let x[5]: int;
+end

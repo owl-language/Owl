@@ -1,0 +1,11 @@
+program 'simpler';
+begin 
+    let x: int := 1;
+    {* add the constant two to variable n *}
+    func addTwo(n: int) begin
+        return (n+2);
+    end;
+    {* display the result on the console *}
+    x := addTwo(5);
+    print x;
+end

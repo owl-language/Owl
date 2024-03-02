@@ -1,0 +1,9 @@
+program 'param';
+begin
+    let x: int := 7;
+    let y: int := 13;
+    func addTwo(a: int, b: int) begin
+        print(a + b);
+    end;
+    addTwo(x, y);
+end

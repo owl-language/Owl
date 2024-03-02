@@ -1,0 +1,11 @@
+program 'euclids';
+begin
+    let x: int := 72;
+    let y: int := 56;
+    while (a != b) begin
+        if (b < a) then
+            a := a - b;
+        else
+            b := b - a;
+    end;
+end

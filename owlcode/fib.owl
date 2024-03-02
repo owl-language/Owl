@@ -1,0 +1,17 @@
+program 'fibonacciEx';
+begin
+    let p: int := 1;
+    let n: int := 2;
+    let c: int := 0;
+    let x: int := 0;
+    func calcAndPrint() begin
+        n := (p + c);
+        print (n);
+        p := c;
+        c := n;
+    end;
+    while (x < 10) begin
+        calcAndPrint();
+        x := (x + 1);
+    end;
+end

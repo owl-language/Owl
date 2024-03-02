@@ -1,0 +1,9 @@
+program 'ifEx';
+begin
+    let x: int := 7;
+    let y: int := 12;
+    if (x < y) then
+        x := (x+y);
+    end; 
+    print x;
+end
