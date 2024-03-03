@@ -20,3 +20,21 @@
      55
      13
      max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
+# iteration
+     program 'euclids';
+     begin
+        let a: int := 72;
+        let b: int := 42;
+        while (a != b) begin
+            if (b < a) then
+               a := a - b;
+            else
+               b := b - a;
+            end;
+        end;
+        print a;
+     end
+     max@MaxGorenLaptop:~/GitHub/OwlInterpreter$ ./owlcli owlcode/euclid.owl
+     6
+     max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
+     
