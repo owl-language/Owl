@@ -9,7 +9,7 @@ There are two ways of running owl scripts, via the command line interpreter, and
 they can be found in the tools subdir
 
        tools/cli_interpreter.cpp - run scripts from comman line as in the examples below
-       tools/repl_interpreter.cpp - not quite a reple, more of an interactive debugger.
+       tools/repl_interpreter.cpp - more of an interactive debugger, REPL functionality on the way ;)
 
 
 ## Scoping
