@@ -1,10 +1,11 @@
 # OwlInterpreter
- An AST walking interpreter for Owl
+ An AST walking interpreter for Owl.
+ 
  Owl is a statically typedv, procedural language with algol/wirthian syntax.
  It has support for recursion, looping, variables, arrays. right now the type system
  only works for integers but the current number 1 task is expanding the typeing.
 
-# scoping
+## Scoping
 
       program 'scope';
       begin
@@ -23,7 +24,8 @@
      55
      13
      max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
-# iteration
+
+## Iteration
      program 'euclids';
      begin
         let a: int := 72;
@@ -41,3 +43,20 @@
      6
      max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
      
+## Recursion
+    program 'factorial';
+    begin
+        let x: int := 0;
+        func factR(x: int) begin
+           let t: int := 1;
+           if (x <= 1) then
+              return 1;
+           else
+              t := (x * factR(x-1));
+           end;
+           return t;
+        end;
+        input n;
+        x := factR(n);
+       print x;
+    end
