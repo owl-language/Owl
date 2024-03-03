@@ -1,5 +1,8 @@
 # OwlInterpreter
  An AST walking interpreter for Owl
+ Owl is a statically typedv, procedural language with algol/wirthian syntax.
+ It has support for recursion, looping, variables, arrays. right now the type system
+ only works for integers but the current number 1 task is expanding the typeing.
 
 # scoping
 
