@@ -5,6 +5,13 @@
  It has support for recursion, looping, variables, arrays. right now the type system
  only works for integers but the current number 1 task is expanding the typeing.
 
+There are two ways of running owl scripts, via the command line interpreter, and via the interactiver debuger
+they can be found in the tools subdir
+
+       tools/cli_interpreter.cpp - run scripts from comman line as in the examples below
+       tools/repl_interpreter.cpp - not quite a reple, more of an interactive debugger.
+
+
 ## Scoping
 
       program 'scope';
