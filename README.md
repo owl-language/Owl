@@ -34,6 +34,7 @@ Some features of Owl are highlighted below. All code samples are real, working e
      max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
 
 ## Iteration
+
      program 'euclids';
      begin
         let a: int := 72;
@@ -52,6 +53,7 @@ Some features of Owl are highlighted below. All code samples are real, working e
      max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
      
 ## Recursion, user input
+
     program 'factorial';
     begin
         let x: int := 0;
@@ -68,31 +70,34 @@ Some features of Owl are highlighted below. All code samples are real, working e
         x := factR(n);
        print x;
     end
-   max@MaxGorenLaptop:~/GitHub/OwlInterpreter$ ./owlcli owlcode/fact.owl
-   5
-   120
-   max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
-
+    max@MaxGorenLaptop:~/GitHub/OwlInterpreter$ ./owlcli owlcode/fact.owl
+    5
+    120
+    max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
+    
 ## Arrays
-   program 'arrayEx';
-   begin
-      let i: int := 0;
-      let x[5]: int;
-      while (i < 5) begin
-        x[i] := i+1;
-        i := i + 1;
-      end;
-      i := 0;
-      while (i < 5) begin
-        print x[i];
-        i := i + 1;
-      end;
-   end
-   max@MaxGorenLaptop:~/GitHub/OwlInterpreter$ ./owlcli owlcode/array.owl
-   1
-   2
-   3
-   4
-   5
-   max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
+
+    program 'arrayEx';
+    begin
+       let i: int := 0;
+       let x[5]: int;
+       while (i < 5) begin
+          x[i] := i+1;
+          i := i + 1;
+       end;
+       i := 0;
+       while (i < 5) begin
+          print x[i];
+          i := i + 1;
+       end;
+    end
+    max@MaxGorenLaptop:~/GitHub/OwlInterpreter$ ./owlcli owlcode/array.owl
+    1
+    2
+    3
+    4
+    5
+    max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
       
+
+ 
