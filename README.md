@@ -11,6 +11,7 @@ they can be found in the tools subdir
        tools/cli_interpreter.cpp - run scripts from comman line as in the examples below
        tools/repl_interpreter.cpp - more of an interactive debugger, REPL functionality on the way ;)
 
+Some features of Owl are highlighted below. All code samples are real, working examples.
 
 ## Scoping
 
@@ -50,7 +51,7 @@ they can be found in the tools subdir
      6
      max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
      
-## Recursion
+## Recursion, user input
     program 'factorial';
     begin
         let x: int := 0;
@@ -67,3 +68,31 @@ they can be found in the tools subdir
         x := factR(n);
        print x;
     end
+   max@MaxGorenLaptop:~/GitHub/OwlInterpreter$ ./owlcli owlcode/fact.owl
+   5
+   120
+   max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
+
+## Arrays
+   program 'arrayEx';
+   begin
+      let i: int := 0;
+      let x[5]: int;
+      while (i < 5) begin
+        x[i] := i+1;
+        i := i + 1;
+      end;
+      i := 0;
+      while (i < 5) begin
+        print x[i];
+        i := i + 1;
+      end;
+   end
+   max@MaxGorenLaptop:~/GitHub/OwlInterpreter$ ./owlcli owlcode/array.owl
+   1
+   2
+   3
+   4
+   5
+   max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
+      
