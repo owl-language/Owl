@@ -89,12 +89,24 @@ int MemStore::allocate(int cells) {
         cout<<"ERROR: OUT OF MEMORY"<<endl;
         return -1;
     }
-    int baseAddr = ++nextFreeAddress;
-    for (int m = baseAddr; m < baseAddr + cells; m++) {
-        objmem[m] = Object(0);
+    int m, baseAddr;
+    if (cells == 1) {
+        if (free_list_count > 0) {
+            baseAddr = freedList[free_list_count-1];
+            free_list_count--;
+        } else {
+            baseAddr = ++nextFreeAddress;
+        }
+        objmem[baseAddr].type = INTEGER;
+        objmem[baseAddr].data.intValue = 0;
+    } else {
+        baseAddr = ++nextFreeAddress;
+        for (; nextFreeAddress < baseAddr + cells; nextFreeAddress++) {
+            objmem[nextFreeAddress].type = INTEGER;
+            objmem[nextFreeAddress].data.intValue = 0;
+        }
     }
-    nextFreeAddress = baseAddr + cells; 
-    return nextFreeAddress;
+    return baseAddr;
 }
 
 struct StackFrame {

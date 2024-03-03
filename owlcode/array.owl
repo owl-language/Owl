@@ -1,9 +1,14 @@
 program 'arrayEx';
 begin
-    let j: int := 4;
+    let i: int := 0;
     let x[5]: int;
-    j := j + 1;
-    x[1] := j;
-    x[2] := j + j;
-    print x[2];
+    while (i < 5) begin
+        x[i] := i+1;
+        i := i + 1;
+    end;
+    i := 0;
+    while (i < 5) begin
+        print x[i];
+        i := i + 1;
+    end;
 end

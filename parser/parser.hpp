@@ -410,7 +410,6 @@ ASTNode* Parser::var() {
         match(LSQBRACKET);
         node->child[0] = expression();
         match(RSQBRACKET);
-        node->child[0]->type.expr = ID_EXPR;
         node->type.expr = SUBSCRIPT_EXPR;
     }else
     if (lookahead().tokenval == LPAREN) {

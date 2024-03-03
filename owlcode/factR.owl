@@ -3,7 +3,6 @@ begin
     let x: int := 0;
     func factR(x: int) begin
         let t: int := 1;
-        print x;
         if (x <= 1) then
             return 1;
         else

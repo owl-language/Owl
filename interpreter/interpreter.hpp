@@ -48,11 +48,9 @@ int divide(int a, int b) {
 
 int Interpreter::eval(ASTNode* x) {
     onEnter("eval: " + tokenString[x->attribute.intValue]);
-
     int leftOperand, rightOperand, result = 0;
     leftOperand = interpretExpression(x->child[0]);
     rightOperand = interpretExpression(x->child[1]);
-
     switch (x->attribute.op) {
         case PLUS:
             result = leftOperand + rightOperand;
@@ -90,33 +88,69 @@ int Interpreter::eval(ASTNode* x) {
 }
 
 int Interpreter::handleIDEXPR(ASTNode* x) {
-    int retVal = 0, offset = 0;
-    if (x->kind == EXPRNODE && x->type.expr == SUBSCRIPT_EXPR) {
-        say("Array Reference!");
-        offset = x->child[0]->attribute.intValue;
-    }
-    if (rtStack.size()) {
-        if (rtStack.top()->symbolTable.find(x->attribute.name) != rtStack.top()->symbolTable.end()) {
-            retVal = memStore.get(rtStack.top()->symbolTable[x->attribute.name] + offset).data.intValue;
-            say("ID: " + x->attribute.name + " value: " + to_string(retVal));
-            onExit(" ");
-            return retVal;
-        }
-    }
-    if (variables.find(x->attribute.name) != variables.end()) {
-        retVal = memStore.get(variables[x->attribute.name] + offset).data.intValue;
-        say("ID: " + x->attribute.name + " value: " + to_string(retVal));
-        onExit(" ");
-        return retVal;
-    }
+    onEnter("handleIDExpr");
+    int retVal = 0;
+    int offset = 0;
     if (procedures.find(x->attribute.name) != procedures.end()) {
+        say("Procedure Found, Dispatching.");
         retVal = Dispatch(x);
         say("return from " + x->attribute.name + " value: " + to_string(retVal));
         onExit(" ");
         return retVal;
     }
+    if (x->kind == EXPRNODE && x->type.expr == SUBSCRIPT_EXPR) {
+        say("Calculating Offset.");
+        offset = interpretExpression(x->child[0]);
+        say("Array Reference, offset: " + to_string(offset));
+    }
+    if (rtStack.size()) {
+        if (rtStack.top()->symbolTable.find(x->attribute.name) != rtStack.top()->symbolTable.end()) {
+            int addr = rtStack.top()->symbolTable[x->attribute.name];
+            retVal = memStore.get(addr + offset).data.intValue;
+            say("ID: " + x->attribute.name + ", Address: " + to_string(addr) + ", offset: " +to_string(offset) + ", value: " + to_string(retVal));
+            onExit(" ");
+            return retVal;
+        }
+    }
+    if (variables.find(x->attribute.name) != variables.end()) {
+        int addr = variables[x->attribute.name];
+        retVal = memStore.get(addr + offset).data.intValue;
+        say("ID: " + x->attribute.name + ", Address: " + to_string(addr) + ", offset: " +to_string(offset) + ", value: " + to_string(retVal));
+        onExit(" ");
+        return retVal;
+    }
     cout<<"Uh oh, couldnt find: "<<x->attribute.name<<endl;
+    onExit(" ");
     return retVal;
+}
+
+void Interpreter::interpretAssignment(ASTNode* x) {
+    onEnter("AssignStatement ");
+    string varname = x->child[0]->attribute.name; //variable name
+    say("Assign to " + varname + ": ");
+    int ret = interpretExpression(x->child[1]);   //value to assign
+    int offset = 0;
+    if (x->child[0]->kind == EXPRNODE && x->child[0]->type.expr == SUBSCRIPT_EXPR) {
+        say("Retrieving subscript " + x->child[0]->attribute.name);
+        offset = interpretExpression(x->child[0]->child[0]);
+        say("Array Reference, offset: " + offset);
+    }
+    if (rtStack.size()) { //check procedure symbol table first if were in a subroutine.
+        if (rtStack.top()->symbolTable.find(varname) != rtStack.top()->symbolTable.end()) {
+            int addr = rtStack.top()->symbolTable[varname];
+            memStore.store(addr + offset, Object(ret));
+            say("stored local variable " + varname  + " " + to_string(ret) + " at " + to_string(addr) + " offset: " + to_string(offset));
+            onExit(" ");
+            return;
+        }
+    }
+    //not a local var, better check globals.
+    if (variables.find(varname) != variables.end()) {
+        int addr = variables[varname];
+        memStore.store(addr + offset, Object(ret));
+        say( "stored global variable " + varname + " value: " + to_string(ret) + " at " + to_string(addr) + " offset: " + to_string(offset));
+    }
+    onExit("AssignStatement ");
 }
 
 int Interpreter::interpretExpression(ASTNode* x) {
@@ -136,7 +170,6 @@ int Interpreter::interpretExpression(ASTNode* x) {
         case PROCDCALL:
             if (procedures.find(x->attribute.name) != procedures.end()) {
                 retVal = Dispatch(x);
-                say("return from " + x->attribute.name + " value: " + to_string(retVal));
                 onExit(" ");
                 return retVal;
             }
@@ -153,29 +186,28 @@ int Interpreter::interpretExpression(ASTNode* x) {
             return retVal;
     }
     onExit("Expression");
-    return 0;
+    return retVal;
 }
 
 void Interpreter::interpretVarDeclaration(ASTNode* x) {
+    string name;
+    int addr;
     if (x->child[0]->type.expr == SUBSCRIPT_EXPR) {
         ASTNode* t = x->child[0];
-        string name = t->attribute.name;
+        name = t->attribute.name;
         int size = t->child[0]->attribute.intValue;
-        int addr = memStore.allocate(size);
-        if (rtStack.empty())
-            variables[x->child[0]->attribute.name] = addr;
-        else rtStack.top()->symbolTable[x->child[0]->attribute.name] = addr;
-        say("Declaring Array: " + x->child[0]->attribute.name + " of size " + to_string(size));
+        addr = memStore.allocate(size);
+        say("Declaring Array: " + name + " of size " + to_string(size) + " at address " + to_string(addr));
     } else {
-        say("Declaring Variable: " + x->child[0]->attribute.name + " with value " + to_string(x->child[1]->attribute.intValue));
+        name = x->child[0]->attribute.name;
         Object obj;
         obj.type = INTEGER;
         obj.data.intValue = x->child[1]->attribute.intValue;
-        int addr = memStore.storeAtNextFree(obj);
-        if (rtStack.empty())
-            variables[x->child[0]->attribute.name] = addr;
-        else rtStack.top()->symbolTable[x->child[0]->attribute.name] = addr;
+        addr = memStore.storeAtNextFree(obj);
+        say("Declaring Variable: " + name + " with value " + to_string(x->child[1]->attribute.intValue));
     }
+    if (rtStack.empty())  variables[name] = addr;
+    else rtStack.top()->symbolTable[name] = addr;
 }
 
 
@@ -240,6 +272,7 @@ void Interpreter::interpretReturnStatement(ASTNode* x) {
     int retVal =  interpretExpression(x->child[0]);
     rtStack.top()->returnVal = retVal;
     say(to_string(retVal) + " saved as return value.");
+    onExit(" ");
 }
 
 
@@ -299,32 +332,6 @@ void Interpreter::interpretExprStatement(ASTNode* x) {
     onExit("ExprStatement ");
 }
 
-void Interpreter::interpretAssignment(ASTNode* x) {
-    onEnter("AssignStatement ");
-    string varname = x->child[0]->attribute.name; //variable name
-    int ret = interpretExpression(x->child[1]);   //value to assign
-    int offset = 0;                               //incase were in array ref
-    if (x->kind == EXPRNODE && x->type.expr == SUBSCRIPT_EXPR) {
-        say("Array Reference!");
-        offset = x->child[0]->attribute.intValue;
-    }
-    if (rtStack.size()) { //check procedure symbol table first if were in a subroutine.
-        if (rtStack.top()->symbolTable.find(varname) != rtStack.top()->symbolTable.end()) {
-            int addr = rtStack.top()->symbolTable[varname] + offset;
-            memStore.store(addr, Object(ret));
-            say("Stored: " + to_string(ret) + " at " + to_string(addr));
-            return;
-        }
-    }
-    //not a local var, better check globals.
-    if (variables.find(varname) != variables.end()) {
-        int addr = variables[varname] + offset;
-        memStore.store(addr, Object(ret));
-        say("Stored: " + to_string(ret) + " at " + to_string(addr));
-    }
-    onExit("AssignStatement ");
-}
-
 void Interpreter::interpretStatement(ASTNode* x) {
     switch (x->type.stmt) {
         case VARDECL:
@@ -349,7 +356,7 @@ void Interpreter::interpretStatement(ASTNode* x) {
             interpretExprStatement(x);
             break;
         case ASSIGNSTM:
-            interpretAssignment(x);
+            interpretAssignment(x->child[0]);
             break;
         case RETURNSTM:
             interpretReturnStatement(x);

@@ -33,6 +33,7 @@ int main(int argc, char* argv[]) {
     traceAST(ast);
     printToLog("[Running Program]");
     interpreter.Execute(ast);
+    freeTree(ast);
     endTrace();
     return 0;
 }
