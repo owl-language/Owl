@@ -25,12 +25,12 @@ int main(int argc, char* argv[]) {
         }
         ast = mp.start(ts);
         printTree(ast);
-        printToLog("[Parsing Complete.]");
-        traceAST(ast);
     } else {
         ts = lexer.tokenize(argv[1]);
         ast = mp.start(ts);
     }
+    printToLog("[Parsing Complete.]");
+    traceAST(ast);
     printToLog("[Running Program]");
     interpreter.Execute(ast);
     endTrace();

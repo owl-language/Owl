@@ -1,0 +1,8 @@
+program 'testy';
+begin
+    func ok(m: int) begin
+        return m+2;
+        print 13;
+    end;
+    print ok(40);
+end

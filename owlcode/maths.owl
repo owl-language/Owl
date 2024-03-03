@@ -3,6 +3,6 @@ begin
     let x: int := 17;
     let y: int := 30;
     let m: int := 0;
-    m := (100/2);
+    m := (100/2) + 6;
     print m;
 end

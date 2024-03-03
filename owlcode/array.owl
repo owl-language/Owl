@@ -2,4 +2,8 @@ program 'arrayEx';
 begin
     let j: int := 4;
     let x[5]: int;
+    j := j + 1;
+    x[1] := j;
+    x[2] := j + j;
+    print x[2];
 end

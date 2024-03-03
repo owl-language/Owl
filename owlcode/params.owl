@@ -2,8 +2,10 @@ program 'param';
 begin
     let x: int := 7;
     let y: int := 13;
-    func addTwo(a: int, b: int) begin
-        print(a + b);
+    let t: int := 0;
+    func add(a: int, b: int) begin
+        return a + b;
     end;
-    addTwo(x, y);
+    t := add(x, y);
+    print t;
 end

@@ -1,11 +1,13 @@
 program 'fibR';
 begin
     func fib(n: int) begin
-        let x: int := 1;
+        let t: int := 0;
+        print (n);
         if (n <= 1) then
             return n;
         end;
-        return fib(n-1) + fib(n-2);
+        t := n;
+        return ((fib(n-1)) + (fib(t - 2)));
     end;
-    print fib(3);
+    print fib(4);
 end
