@@ -1,0 +1,4 @@
+program 'strings';
+begin
+    let x: string := "this is a string";
+end

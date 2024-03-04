@@ -1,0 +1,18 @@
+[Owl Interpreter 0.1a started.]
+[Parsing Complete.]
+
+Abstract Syntax Tree:
+---------------------
+  [VARDECL] let
+    [ID_EXPR] x - 
+    [CONST_EXPR] 1 - 
+  [EXPRSTM] x
+    [ASSIGNSTM] :=
+      [ID_EXPR] x - 
+      [RAND_EXPR] rand - 
+        [CONST_EXPR] 10 - 
+  [PRINTSTMT] print
+    [ID_EXPR] x - 
+[Running Program]
+
+Trace Complete.

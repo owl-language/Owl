@@ -60,6 +60,7 @@ class Parser {
         ASTNode* parameterList();
         ASTNode* expression();
         ASTNode* simpleExpression();
+        ASTNode* randExpression();
         ASTNode* term();
         ASTNode* factor();
         ASTNode* var();
@@ -321,6 +322,15 @@ ASTNode* Parser::readStatement() {
     return node;
 }
 
+ASTNode* Parser::randExpression() {
+    ASTNode* node = makeExpressionNode(RAND_EXPR, {lookahead().stringval, lookahead().tokenval, lookahead().tokenval});
+    match(RAND);
+    match(LPAREN);
+    node->child[0] = expression();
+    match(RPAREN);
+    return node;
+}
+
 ASTNode* Parser::returnStatement() {
     ASTNode* t = makeStatementNode(RETURNSTM, { lookahead().stringval, lookahead().tokenval, lookahead().tokenval});
     onEnter("return statement");
@@ -390,6 +400,8 @@ ASTNode* Parser::factor() {
         node = makeExpressionNode(CONST_EXPR, {lookahead().stringval, lookahead().tokenval});
         node->attribute.intValue = lookahead().numval;
         match(NUM);
+    } else if (lookahead().tokenval == RAND) {
+        node = randExpression();
     } else if (lookahead().tokenval == LPAREN) {
         match(LPAREN);
         if (lookahead().tokenval != RPAREN)
@@ -411,8 +423,7 @@ ASTNode* Parser::var() {
         node->child[0] = expression();
         match(RSQBRACKET);
         node->type.expr = SUBSCRIPT_EXPR;
-    }else
-    if (lookahead().tokenval == LPAREN) {
+    }else if (lookahead().tokenval == LPAREN) {
         ASTNode* replace = procedureCall();
         replace->attribute.name = node->attribute.name;
         delete node;

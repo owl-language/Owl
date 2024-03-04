@@ -16,6 +16,7 @@ class OwlLexer {
         string extractFullWord();
         vector<Token> tokenize();
         bool inComment;
+        bool inString;
         void initReserved();
         unordered_map<string, TokenType> reserved;
     public:
@@ -47,6 +48,8 @@ void OwlLexer::initReserved() {
     reserved["program"] = PROG;
     reserved["return"] = RETURN;
     reserved["array"] = ARRAY;
+    reserved["string"] = STR;
+    reserved["rand"] = RAND;
 }
 
 TokenType OwlLexer::handleKeywordOrId(string word) {
@@ -134,7 +137,7 @@ Token OwlLexer::handleSpecials() {
         nextToken.lineno = sb.lineNumber();
         return nextToken;
     } else {
-        cout<<"ERROR\n";
+        cout<<"ERROR uknown token: "<<sb.Char()<<"\n";
         nextToken.tokenval = ERROR;
         nextToken.stringval = "ERROR";
         nextToken.numval = -1;   
@@ -167,7 +170,7 @@ vector<Token> OwlLexer::tokenize() {
     vector<Token> tokenList;
         Token nextToken;
         while (sb.Char() != sb.EOFMarker()) {
-        if (isalpha(sb.Char())) {
+        if (isalpha(sb.Char()) && inString == false) {
             string word = extractFullWord();
             nextToken.tokenval = handleKeywordOrId(word);
             nextToken.stringval = word;
@@ -175,7 +178,7 @@ vector<Token> OwlLexer::tokenize() {
             if (!inComment)
                 tokenList.push_back(nextToken);
             continue;
-        } else if (isdigit(sb.Char())) {
+        } else if (isdigit(sb.Char()) && inString == false) {
                 int num = extractFullNumber();
                 nextToken.tokenval = NUM;
                 nextToken.numval = num;
@@ -184,7 +187,7 @@ vector<Token> OwlLexer::tokenize() {
                 if (!inComment)
                     tokenList.push_back(nextToken);
                 continue;
-        } else {
+        } else 
             if (sb.Char() != ' ') {
                 nextToken = handleSpecials();
                 if (inComment == false && nextToken.tokenval != OPENCOMMENT)
@@ -195,7 +198,7 @@ vector<Token> OwlLexer::tokenize() {
                 }
                 if (nextToken.tokenval == CLOSECOMMENT)
                     inComment = false;
-            }
+            
         }
         sb.GetChar();
     }

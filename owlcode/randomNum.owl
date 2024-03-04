@@ -1,0 +1,6 @@
+program 'randomNumbers';
+begin
+    let x: int := 1;
+    x := rand(130);
+    print x;
+end

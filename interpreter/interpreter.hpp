@@ -185,7 +185,7 @@ void Interpreter::interpretAssignment(ASTNode* x) {
 }
 
 int Interpreter::interpretExpression(ASTNode* x) {
-    int retVal = 0;
+    int retVal = 0; int rbound = 1;
     string msg, result;
     onEnter("Expression " + ExprKindStr[x->type.expr]);
     switch (x->type.expr) {
@@ -194,6 +194,9 @@ int Interpreter::interpretExpression(ASTNode* x) {
             say(ExprKindStr[x->type.expr] + " value: " + to_string(retVal));
             onExit("");
             return retVal;
+        case RAND_EXPR:
+            rbound = x->child[0]->attribute.intValue;
+            return rand() % (rbound - 1) + 1;
         case SUBSCRIPT_EXPR:
         case ID_EXPR:
             return handleIDEXPR(x);
