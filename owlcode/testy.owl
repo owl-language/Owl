@@ -1,8 +1,11 @@
 program 'testy';
 begin
+    let t: int := 1;
+    let j: int := -65;
     func ok(m: int) begin
-        return m+2;
-        print 13;
+        return (m+2);
     end;
-    print ok(40);
+    t := ok(40);
+    print t;
+    print j;
 end

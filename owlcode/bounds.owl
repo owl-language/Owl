@@ -1,0 +1,14 @@
+program 'bounds';
+begin
+    let i: int := 1;
+    let x[5]: int;
+    while (i < 6) begin
+        x[i] := i;
+        i := i + 1;
+    end;
+    i := (2 - 5);
+    while (i < 8) begin
+        print x[i];
+        i := i + 1;
+    end;
+end

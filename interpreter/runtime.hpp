@@ -23,19 +23,25 @@ struct Object {
         int intValue;
         char charValue;
     } data;
+    struct _attr {
+        int size;
+    } attr;
     Object(char c) {
         data.charValue = c;
         data.intValue = -1;
+        attr.size = 1;
         type = CHARACTER;
     }
     Object(int val) {
         data.charValue = -1;
         data.intValue = val;
+        attr.size = 1;
         type = INTEGER;
     }
     Object() {
         data.charValue = -1;
         data.intValue = -1;
+        attr.size = 1;
         type = EMPTY;
     }
 };

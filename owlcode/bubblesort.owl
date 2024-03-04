@@ -1,0 +1,64 @@
+program 'bubblesort';
+begin
+    let c: int := 1;
+    let d: int := 2;
+    let ds: int := 0;
+    let x[10]: int;
+
+    func swap(v: int, u: int) begin
+        let t: int := 0;
+           t := x[v];
+        x[v] := x[u];
+        x[u] := t;
+        ds := 1;
+    end;
+
+    func showArr(n: int) begin
+        let k: int := 1;
+        k := 1;
+        while (k < n) begin
+            print x[k];
+            k := k + 1;
+        end;
+    end;
+
+    func sortPass(m: int, n: int) begin
+        c := m;
+        d := c + 1;
+        while (d < n) begin
+            if (x[d] < x[c]) then
+                swap(c, d);
+            end;
+            c := c + 1;
+            d := c + 1;
+        end;
+    end
+
+    func sort(l: int) begin
+        let j: int := 1;
+        ds := 0; {* did swap flag, once sortPass completes without setting to 1, were done. *}
+        j := 1;
+        while (j < l) begin
+            sortPass(j, l);  {* do bubble pass *}
+            j := j + 1;
+        end;
+        if (ds = 0) then
+            return 0;
+        else
+            sort(l);
+        end;
+    end
+
+    x[1] := 13;
+    x[2] := 6;
+    x[3] := 47;
+    x[4] := 51;
+    x[5] := 24;
+    x[6] := 19
+    x[7] := 3;
+    x[8] := 11;
+    x[9] := 42;
+
+    sort(10);
+    showArr(10);
+end

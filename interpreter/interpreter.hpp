@@ -101,11 +101,21 @@ int Interpreter::handleIDEXPR(ASTNode* x) {
     if (x->kind == EXPRNODE && x->type.expr == SUBSCRIPT_EXPR) {
         say("Calculating Offset.");
         offset = interpretExpression(x->child[0]);
+        if (offset < 0) {
+            cout<<"Error: Invalid Index: "<<offset<<endl;
+            return -1;
+        }
         say("Array Reference, offset: " + to_string(offset));
     }
     if (rtStack.size()) {
         if (rtStack.top()->symbolTable.find(x->attribute.name) != rtStack.top()->symbolTable.end()) {
             int addr = rtStack.top()->symbolTable[x->attribute.name];
+            if (offset > 0) {
+                if (offset > memStore.get(addr).attr.size) {
+                    cout<<"Error: Index "<<offset<<" out of range for array "<<x->attribute.name<<endl;
+                    return -1;
+                }
+            }
             retVal = memStore.get(addr + offset).data.intValue;
             say("ID: " + x->attribute.name + ", Address: " + to_string(addr) + ", offset: " +to_string(offset) + ", value: " + to_string(retVal));
             onExit(" ");
@@ -114,6 +124,12 @@ int Interpreter::handleIDEXPR(ASTNode* x) {
     }
     if (variables.find(x->attribute.name) != variables.end()) {
         int addr = variables[x->attribute.name];
+        if (offset > 0) {
+            if (offset > memStore.get(addr).attr.size) {
+                cout<<"Error: Index "<<offset<<" out of range for array "<<x->attribute.name<<endl;
+                return -1;
+            }
+        }
         retVal = memStore.get(addr + offset).data.intValue;
         say("ID: " + x->attribute.name + ", Address: " + to_string(addr) + ", offset: " +to_string(offset) + ", value: " + to_string(retVal));
         onExit(" ");
@@ -133,11 +149,20 @@ void Interpreter::interpretAssignment(ASTNode* x) {
     if (x->child[0]->kind == EXPRNODE && x->child[0]->type.expr == SUBSCRIPT_EXPR) {
         say("Retrieving subscript " + x->child[0]->attribute.name);
         offset = interpretExpression(x->child[0]->child[0]);
+        if (offset < 0) {
+            cout<<"Error: Invalid Index: "<<offset<<endl;
+        }
         say("Array Reference, offset: " + offset);
     }
     if (rtStack.size()) { //check procedure symbol table first if were in a subroutine.
         if (rtStack.top()->symbolTable.find(varname) != rtStack.top()->symbolTable.end()) {
             int addr = rtStack.top()->symbolTable[varname];
+            if (offset > 0) {
+                if (offset > memStore.get(addr).attr.size) {
+                    cout<<"Error: Index "<<offset<<" out of range for array "<<varname<<endl;
+                    return;
+                }
+            }
             memStore.store(addr + offset, Object(ret));
             say("stored local variable " + varname  + " " + to_string(ret) + " at " + to_string(addr) + " offset: " + to_string(offset));
             onExit(" ");
@@ -147,6 +172,12 @@ void Interpreter::interpretAssignment(ASTNode* x) {
     //not a local var, better check globals.
     if (variables.find(varname) != variables.end()) {
         int addr = variables[varname];
+        if (offset > 0) {
+            if (offset > memStore.get(addr).attr.size) {
+                cout<<"Error: Index "<<offset<<" out of range for array "<<varname<<endl;
+                return;
+            }
+        }
         memStore.store(addr + offset, Object(ret));
         say( "stored global variable " + varname + " value: " + to_string(ret) + " at " + to_string(addr) + " offset: " + to_string(offset));
     }
@@ -197,6 +228,7 @@ void Interpreter::interpretVarDeclaration(ASTNode* x) {
         name = t->attribute.name;
         int size = t->child[0]->attribute.intValue;
         addr = memStore.allocate(size);
+        memStore.get(addr).attr.size = size;
         say("Declaring Array: " + name + " of size " + to_string(size) + " at address " + to_string(addr));
     } else {
         name = x->child[0]->attribute.name;

@@ -103,44 +103,20 @@ Token OwlLexer::handleSpecials() {
     } else if (sb.Char() == ']') {
         return Token(RSQBRACKET, "]", -1, sb.lineNumber());
     } else if (sb.Char() == '+') {
-        nextToken.tokenval = PLUS;
-        nextToken.stringval = "+";
-        nextToken.numval = -1;    
-        nextToken.lineno = sb.lineNumber();
-        return nextToken;
+        return Token(PLUS, "+", -1, sb.lineNumber());
     } else if (sb.Char() == '-') {
-        nextToken.tokenval = MINUS;
-        nextToken.stringval = "-";
-        nextToken.numval = -1;    
-        nextToken.lineno = sb.lineNumber();
-        return nextToken;
+        return Token(MINUS, "-", -1, sb.lineNumber());
     } else if (sb.Char() == '*') {
         sb.GetChar();
         if (sb.Char() == '}') {
-            nextToken.tokenval = CLOSECOMMENT;
-            nextToken.stringval = "*}";
-            nextToken.numval = -1;   
-            nextToken.lineno = sb.lineNumber();
-            return nextToken; 
+            return Token(CLOSECOMMENT, "*}", -1, sb.lineNumber());
         } 
         sb.UnGetChar();
-        nextToken.tokenval = MULT;
-        nextToken.stringval = "*";
-        nextToken.numval = -1;    
-        nextToken.lineno = sb.lineNumber();
-        return nextToken;
+        return Token(MULT, "*", -1, sb.lineNumber());
     } else if (sb.Char() == '/') {
-        nextToken.tokenval = DIVD;
-        nextToken.stringval = "/";
-        nextToken.numval = -1;    
-        nextToken.lineno = sb.lineNumber();
-        return nextToken;
+        return Token(DIVD, "/", -1, sb.lineNumber());
     } else if (sb.Char() == '=') {
-        nextToken.tokenval = EQUAL;
-        nextToken.stringval = "=";
-        nextToken.numval = -1;    
-        nextToken.lineno = sb.lineNumber();
-        return nextToken;        
+        return Token(EQUAL, "=", -1, sb.lineNumber());      
     } else if (sb.Char() == '\"') {
         nextToken.tokenval = QUOTE;
         nextToken.stringval = "\"";
@@ -148,17 +124,9 @@ Token OwlLexer::handleSpecials() {
         nextToken.lineno = sb.lineNumber();
         return nextToken;
     } else if (sb.Char() == ';') {
-        nextToken.tokenval = SEMI;
-        nextToken.stringval = ";";
-        nextToken.numval = -1;    
-        nextToken.lineno = sb.lineNumber();
-        return nextToken;
+        return Token(SEMI, ";", -1, sb.lineNumber());
     } else if (sb.Char() == ',') {
-        nextToken.tokenval = COMA;
-        nextToken.stringval = ",";
-        nextToken.numval = -1;  
-        nextToken.lineno = sb.lineNumber();  
-        return nextToken;
+        return Token(COMA, ",", -1, sb.lineNumber());
     } else if (sb.Char() == '\'') {
         nextToken.tokenval = SQUOTE;
         nextToken.stringval = "\'";
