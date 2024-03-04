@@ -99,5 +99,65 @@ Some features of Owl are highlighted below. All code samples are real, working e
     5
     max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
       
+## A pretty good showing of everything at once
+    program 'bubblesort';
+    begin
+       let c: int := 1;
+       let d: int := 2;
+       let ds: int := 0;
+       let i: int := 1;
+       let x[10]: int;
 
+       func swap(v: int, u: int) begin
+          let t: int := 0;
+             t := x[v];
+          x[v] := x[u];
+          x[u] := t;
+          ds := 1;
+       end
+
+       func showArr(n: int) begin
+           let k: int := 1;
+           k := 1;
+          while (k < n) begin
+            print x[k];
+            k := k + 1;
+          end;
+       end
+
+       func sortPass(m: int, n: int) begin
+          c := m;
+          d := c + 1;
+          while (d < n) begin
+             if (x[d] < x[c]) then
+                swap(c, d);
+             end;
+             c := c + 1;
+             d := c + 1;
+          end;
+       end
+
+       func sort(l: int) begin
+          ds := 0; {* did swap flag, once sortPass completes without setting to 1, were done *}
+          sortPass(1, l);  {* do bubble pass *}
+          end;
+          if (ds = 0) then
+            return 0;
+          else
+            sort(l);
+          end;
+       end
+
+      {* main program starts here *}
+      
+       i := 1;
+       while (i < 10) begin      
+          x[i] := rand(100);
+          i := i + 1;
+       end;
+    
+      showArr(10);
+      sort(10);
+      showArr(10);
+    end
  
