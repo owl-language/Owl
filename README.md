@@ -99,7 +99,8 @@ Some features of Owl are highlighted below. All code samples are real, working e
     5
     max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
       
-## A pretty good showing of everything at once
+## Bubblesort
+(A bad sorting algorithm, a good display of Owl)
     program 'bubblesort';
     begin
        let c: int := 1;
