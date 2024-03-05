@@ -1,18 +1,80 @@
 [Owl Interpreter 0.1a started.]
+(0) Match: program
+(0) Match: '
+(0) Match: strings
+(0) Match: '
+(0) Match: ;
+  (1) block
+  (1) Match: begin
+    (2) statementList
+      (3) statement
+        (4) declareVarStatement
+        (4) Match: let
+          (5) term
+            (6) factor
+              (7) var
+              (7) Match: y
+        (4) Match: :
+        (4) Match: int
+        (4) Match: :=
+          (5) term
+            (6) factor
+            (6) Match: 13
+        (4) Match: ;
+        (4) statement
+          (5) declareVarStatement
+          (5) Match: let
+            (6) term
+              (7) factor
+                (8) var
+                (8) Match: x
+          (5) Match: :
+          (5) Match: string
+          (5) Match: :=
+            (6) String value
+            (6) Match: "
+            (6) Returning const string: this is a string, under an int
+            (6) Match: this is a string, under an int
+            (6) Match: "
+          (5) Match: ;
+        (4) statement
+        (4) Match: print
+          (5) term
+            (6) factor
+              (7) var
+              (7) Match: x
+        (4) Match: ;
+        (4) statement
+        (4) Match: print
+          (5) String value
+          (5) Match: "
+          (5) Returning const string: rasta gwon seh
+          (5) Match: rasta gwon seh
+          (5) Match: "
+        (4) Match: ;
+    (2) Match: end
+    (2) Token Stream Consumed.
 [Parsing Complete.]
 
 Abstract Syntax Tree:
 ---------------------
   [VARDECL] let
+    [ID_EXPR] y - 
+    [CONST_EXPR] 13 - 
+  [VARDECL] let
     [ID_EXPR] x - 
-    [CONST_EXPR] 1 - 
-  [EXPRSTM] x
-    [ASSIGNSTM] :=
-      [ID_EXPR] x - 
-      [RAND_EXPR] rand - 
-        [CONST_EXPR] 10 - 
+    [CONST_STR] this is a string, under an int - 
   [PRINTSTMT] print
     [ID_EXPR] x - 
+  [PRINTSTMT] print
+    [CONST_STR] rasta gwon seh - 
 [Running Program]
+(0) Declaring Variable: y with value 13
+(0) Declaring Variable: x with value 23
+  (1) [PRINT]
+    (2) Expression ID_EXPR
+      (3) handleIDExpr
+      (3) ID: x, Address: 2, offset: 0, value: this is a string, under an int
+    (2) [PRINT]
 
 Trace Complete.

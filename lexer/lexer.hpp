@@ -18,6 +18,7 @@ class OwlLexer {
         bool inComment;
         bool inString;
         void initReserved();
+        void processString(vector<Token>& tokenList);
         unordered_map<string, TokenType> reserved;
     public:
         OwlLexer() {
@@ -166,39 +167,63 @@ string OwlLexer::extractFullWord() {
     return word;
 }
 
+void OwlLexer::processString(vector<Token>& tokenList) {
+    string str;
+    Token nextToken;
+    while (sb.Char() != sb.EOFMarker() && sb.Char() != '\"') {
+        str.push_back(sb.Char());
+        sb.GetChar();
+    }
+    nextToken.tokenval = STRING_LITERAL;
+    nextToken.stringval = str;
+    nextToken.lineno = sb.lineNumber();
+    tokenList.push_back(nextToken);
+    nextToken = handleSpecials();
+    if (nextToken.tokenval != QUOTE) {
+        cout<<"Error processing string."<<endl;
+        exit(0);
+    }
+    tokenList.push_back(nextToken);
+    
+}
+
 vector<Token> OwlLexer::tokenize() {
     vector<Token> tokenList;
         Token nextToken;
         while (sb.Char() != sb.EOFMarker()) {
-        if (isalpha(sb.Char()) && inString == false) {
-            string word = extractFullWord();
-            nextToken.tokenval = handleKeywordOrId(word);
-            nextToken.stringval = word;
-            nextToken.lineno = sb.lineNumber();
-            if (!inComment)
-                tokenList.push_back(nextToken);
-            continue;
-        } else if (isdigit(sb.Char()) && inString == false) {
-                int num = extractFullNumber();
-                nextToken.tokenval = NUM;
-                nextToken.numval = num;
-                nextToken.stringval = to_string(num);
-                nextToken.lineno = sb.lineNumber();
-                if (!inComment)
-                    tokenList.push_back(nextToken);
-                continue;
-        } else 
-            if (sb.Char() != ' ') {
-                nextToken = handleSpecials();
-                if (inComment == false && nextToken.tokenval != OPENCOMMENT)
-                    tokenList.push_back(nextToken);
-                if (nextToken.tokenval == OPENCOMMENT) {
-                    inComment = true;
-                    sb.GetChar();
-                }
-                if (nextToken.tokenval == CLOSECOMMENT)
-                    inComment = false;
-            
+            if (isalpha(sb.Char())) {
+                    string word = extractFullWord();
+                    nextToken.tokenval = handleKeywordOrId(word);
+                    nextToken.stringval = word;
+                    nextToken.lineno = sb.lineNumber();
+                    if (!inComment)
+                        tokenList.push_back(nextToken);
+                    continue;
+                } else if (isdigit(sb.Char())) {
+                    int num = extractFullNumber();
+                    nextToken.tokenval = NUM;
+                    nextToken.numval = num;
+                    nextToken.stringval = to_string(num);
+                    nextToken.lineno = sb.lineNumber();
+                    if (!inComment)
+                        tokenList.push_back(nextToken);
+                    continue;
+                } else { 
+                    if (sb.Char() != ' ') {
+                        nextToken = handleSpecials();
+                        if (inComment == false && nextToken.tokenval != OPENCOMMENT)
+                            tokenList.push_back(nextToken);
+                        if (nextToken.tokenval == QUOTE) {
+                            sb.GetChar();
+                            processString(tokenList);
+                        }
+                        if (nextToken.tokenval == OPENCOMMENT) {
+                            inComment = true;
+                            sb.GetChar();
+                        }
+                        if (nextToken.tokenval == CLOSECOMMENT)
+                            inComment = false;
+                    }
         }
         sb.GetChar();
     }

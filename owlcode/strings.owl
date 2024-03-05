@@ -1,4 +1,7 @@
 program 'strings';
 begin
-    let x: string := "this is a string";
+    let y: int := 13;
+    let x: string := "this is a string, under an int";
+    print x;
+    print "rasta gwon seh";
 end

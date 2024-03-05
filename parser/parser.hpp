@@ -64,6 +64,7 @@ class Parser {
         ASTNode* term();
         ASTNode* factor();
         ASTNode* var();
+        ASTNode* strValue();
 };
 
 ASTNode* Parser::start(vector<Token>& tokens) {
@@ -163,15 +164,21 @@ ASTNode* Parser::declareVarStatement() {
     match(LET);
     node->child[0] = term();
     match(COLON);
-    match(INT);
-    if (lookahead().tokenval == SEMI) {
+    if (lookahead().tokenval == INT) {
+        match(INT);
+        if (lookahead().tokenval == SEMI) {
+            match(SEMI);
+            return node;
+        }
+         match(ASSIGN);
+         node->child[1] = term();
+    } else if (lookahead().tokenval == STR) {
+        match(STR);
+        match(ASSIGN);
+        node->child[1] = strValue();
         match(SEMI);
-        return node;
+        onExit("declareVarStatement");
     }
-    match(ASSIGN);
-    node->child[1] = term();
-    match(SEMI);
-    onExit("declareVarStatement");
     return node;
 }
 
@@ -309,7 +316,9 @@ ASTNode* Parser::ifStatement() {
 ASTNode* Parser::printStatement() {
     ASTNode* node = makeStatementNode(PRINTSTM, { lookahead().stringval, lookahead().tokenval, lookahead().tokenval});
     match(PRINT);
-    node->child[0] = term();
+    if (lookahead().tokenval == QUOTE) 
+        node->child[0] = strValue();
+    else node->child[0] = term();
     match(SEMI);
     return node;
 }
@@ -430,6 +439,17 @@ ASTNode* Parser::var() {
         node = replace;
     }
     onExit("var");
+    return node;
+}
+
+ASTNode* Parser::strValue() {
+    onEnter("String value");
+    match(QUOTE);
+    ASTNode* node = makeExpressionNode(CONST_STR, {lookahead().stringval, lookahead().tokenval, lookahead().tokenval});
+    say("Returning const string: " + lookahead().stringval);
+    match(STRING_LITERAL);
+    match(QUOTE);
+    onExit("String value");
     return node;
 }
 

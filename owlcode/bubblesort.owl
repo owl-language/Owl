@@ -3,6 +3,7 @@ begin
     let c: int := 1;
     let d: int := 2;
     let ds: int := 0;
+    let i: int := 1;
     let x[10]: int;
 
     func swap(v: int, u: int) begin
@@ -35,13 +36,8 @@ begin
     end
 
     func sort(l: int) begin
-        let j: int := 1;
         ds := 0; {* did swap flag, once sortPass completes without setting to 1, were done *}
-        j := 1;
-        while (j < l) begin
-            sortPass(j, l);  {* do bubble pass *}
-            j := j + 1;
-        end;
+        sortPass(1, l);  {* do bubble pass *}
         if (ds = 0) then
             return 0;
         else
@@ -49,16 +45,17 @@ begin
         end;
     end
 
-    x[1] := 13;
-    x[2] := 6;
-    x[3] := 47;
-    x[4] := 51;
-    x[5] := 24;
-    x[6] := 19;
-    x[7] := 3;
-    x[8] := 11;
-    x[9] := 42;
-
+    {* main program starts here *}
+    
+    i := 1;
+    while (i < 10) begin      
+        x[i] := rand(100);
+        i := i + 1;
+    end;
+    
+    print "Random numbers: ";
+    showArr(10);
     sort(10);
+    print "Sorted:";
     showArr(10);
 end

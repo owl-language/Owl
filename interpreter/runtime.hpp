@@ -22,6 +22,7 @@ struct Object {
     struct _data {
         int intValue;
         char charValue;
+        string stringValue;
     } data;
     struct _attr {
         int size;
@@ -38,11 +39,21 @@ struct Object {
         attr.size = 1;
         type = INTEGER;
     }
+    Object(string val) {
+        data.stringValue = val;
+        attr.size = val.size();
+        type = STRING;
+    }
     Object() {
         data.charValue = -1;
         data.intValue = -1;
         attr.size = 1;
         type = EMPTY;
+    }
+    string toString() {
+        if (type == STRING)
+            return data.stringValue;
+        return to_string(data.intValue);
     }
 };
 
@@ -120,7 +131,7 @@ struct StackFrame {
     ASTNode* body;
     ASTNode* params;
     StackFrame* staticLink;
-    int returnVal;
+    Object returnVal;
 };
 
 class RuntimeStack {
