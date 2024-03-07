@@ -98,6 +98,7 @@ class MemStore {
         int freedList[MAX_MEM_STORE/2];
         Object objmem[MAX_MEM_STORE];
         int nextFreeAddress;
+        int liveCellCount;
     public:
         MemStore();
         Object& get(int addr);
@@ -105,6 +106,9 @@ class MemStore {
         int storeAtNextFree(Object o);
         int allocate(int cells);
         void free(int cell);
+        void display();
+        int usage();
+        bool isFull();
 };
 
 MemStore::MemStore() {
@@ -112,8 +116,27 @@ MemStore::MemStore() {
     nextFreeAddress = 0;
 }
 
+int MemStore::usage() {
+    float pct = (float)liveCellCount/(float)MAX_MEM_STORE;
+    return pct * 100;
+}
+
+bool MemStore::isFull() {
+    return nextFreeAddress == MAX_MEM_STORE && free_list_count == 0;
+}
+
+void MemStore::display() {
+   /* for (int i = 0; i <= nextFreeAddress; i++) {
+        cout<<"["<<i<<": "<<objmem[i].toString()<<"] ";
+    }
+    cout<<endl;*/
+}
+
 Object& MemStore::get(int addr) {
-    return objmem[addr];
+    if (addr >= 0 && addr < MAX_MEM_STORE)
+        return objmem[addr];
+    cout<<"[INVALID ADDRESS: "<<addr<<"]"<<endl;
+    return objmem[MAX_MEM_STORE - 1];
 }
 
 void MemStore::store(int addr, Object o) {

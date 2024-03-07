@@ -3,7 +3,7 @@ begin
     let p: int := 1;
     let n: int := 2;
     let c: int := 0;
-    let x: int := 0;
+    let x: int := 1;
     func calcAndPrint() begin
         n := (p + c);
         print (n);

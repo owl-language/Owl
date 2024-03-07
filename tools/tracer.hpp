@@ -66,7 +66,11 @@ void onEnter(string s) {
 }
 
 void onExit(string s) {
-    //say(s);
+    say(s);
+    --depth;
+}
+
+void onExit() {
     --depth;
 }
 

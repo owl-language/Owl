@@ -16,8 +16,12 @@ class Interpreter {
         MemStore memStore;
         int rtsp;
         Object eval(ASTNode* x);
+        Object stringOp(TokenType op, Object left, Object right);
+        Object mathOp(TokenType op, Object left, Object right);
+        Object relOp(TokenType op, Object left, Object right);
         Object interpretExpression(ASTNode* x);
-        Object handleIDEXPR(ASTNode* x);
+        Object retrieveFromMemoryByName(ASTNode* x);
+        void storeToMemoryByName(ASTNode* x);
         void interpretReturnStatement(ASTNode* x);
         void interpretVarDeclaration(ASTNode* x);
         void interpretFuncDeclaration(ASTNode* x);
@@ -27,7 +31,6 @@ class Interpreter {
         void interpretStatement(ASTNode* x);
         void interpretWhileStatement(ASTNode* x);
         void interpretExprStatement(ASTNode* x);
-        void interpretAssignment(ASTNode* x);
         StackFrame* prepStackFrame(StackFrame* x);
         Object Dispatch(ASTNode* x);
     public:
@@ -46,23 +49,41 @@ int divide(int a, int b) {
     return (int)t;
 }
 
-Object Interpreter::eval(ASTNode* x) {
-    onEnter("eval: " + tokenString[x->attribute.op]);
-    Object leftChild, rightChild, retObj;
+Object Interpreter::stringOp(TokenType op, Object left, Object right) {
+    onEnter("String Operation");
+    Object retObj(" ");
+    Object convObj;
+    if (left.type == STRING) {
+        retObj.data.stringValue = left.data.stringValue;
+        convObj = right;
+    } else {
+        retObj.data.stringValue = right.data.stringValue;
+        convObj = left;
+    }
+    if (convObj.type == INTEGER)
+        retObj.data.stringValue += to_string(convObj.data.intValue);
+    else if (convObj.type == REAL)
+        retObj.data.stringValue += to_string(convObj.data.realValue);
+    onExit();
+    return retObj;
+}
+
+Object Interpreter::mathOp(TokenType op, Object leftChild, Object rightChild) {
+    onEnter("mathOp");
     float leftOperand, rightOperand, result = 0;
-    leftChild = interpretExpression(x->child[0]);
-    rightChild = interpretExpression(x->child[1]);
+    Object retObj;
     if (leftChild.type == INTEGER) {
         leftOperand = (float) leftChild.data.intValue;
-    } else if (rightChild.type == INTEGER) {
-        rightOperand = (float) rightChild.data.intValue;
-    } else if (leftChild.type == REAL || rightChild.type == REAL) {
+    }  else if (leftChild.type == REAL) {
         leftOperand = leftChild.data.realValue;
-        rightOperand = rightChild.data.realValue;
-    } else {
-        cout<<"Error: mismatched types: "<<endl;
     }
-    switch (x->attribute.op) {
+    if (rightChild.type == INTEGER) {
+        rightOperand = (float) rightChild.data.intValue;
+    } else if (rightChild.type == REAL) {
+        rightOperand = rightChild.data.realValue;
+    }
+    say(to_string(leftOperand) + "op" + to_string(rightOperand));
+    switch (op) {
         case PLUS:
             result = leftOperand + rightOperand;
             break;
@@ -75,6 +96,36 @@ Object Interpreter::eval(ASTNode* x) {
         case DIVD:
             result = divide(leftOperand, rightOperand);
             break;
+        default:
+            break;
+    }
+    if (leftChild.type == INTEGER && rightChild.type == INTEGER) {
+        retObj.type = INTEGER;
+        retObj.data.intValue = (int)result;
+    } else {
+        retObj.type = REAL;
+        retObj.data.realValue = result;
+    }
+    onExit();
+    return retObj;
+}
+
+Object Interpreter::relOp(TokenType op, Object leftChild, Object rightChild) {
+    onEnter("relop");
+    bool result;
+    float leftOperand, rightOperand;
+    if (leftChild.type == INTEGER) {
+        leftOperand = (float) leftChild.data.intValue;
+    }  else if (leftChild.type == REAL) {
+        leftOperand = leftChild.data.realValue;
+    }
+    if (rightChild.type == INTEGER) {
+        rightOperand = (float) rightChild.data.intValue;
+    } else if (rightChild.type == REAL) {
+        rightOperand = rightChild.data.realValue;
+    }
+    say(to_string(leftOperand) + "op" + to_string(rightOperand));
+    switch (op) {
         case LESS:
             result = (leftOperand < rightOperand);
             break;
@@ -94,26 +145,37 @@ Object Interpreter::eval(ASTNode* x) {
             result = (leftOperand >= rightOperand);
             break;
     }
-    if (leftChild.type == INTEGER && rightChild.type == INTEGER) {
-        retObj.type = INTEGER;
-        retObj.data.intValue = (int)result;
-    } else {
-        retObj.type = REAL;
-        retObj.data.realValue = result;
-    }
+    Object retVal = Object(result);
+    retVal.type = INTEGER;
+    return retVal;
+}
+
+Object Interpreter::eval(ASTNode* x) {
+    onEnter("eval: " + tokenString[x->attribute.op]);
+    Object leftChild, rightChild, retObj;
+    float leftOperand, rightOperand, result = 0;
+    leftChild = interpretExpression(x->child[0]);
+    rightChild = interpretExpression(x->child[1]);
+    if (leftChild.type == STRING || rightChild.type == STRING)
+        return stringOp(x->attribute.op, leftChild, rightChild);
+    if (x->attribute.op == PLUS || x->attribute.op == MINUS || x->attribute.op == MULT || x->attribute.op == DIVD)
+        return mathOp(x->attribute.op, leftChild, rightChild);    
+    if (x->attribute.op == EQUAL || x->attribute.op == NOTEQUAL || x->attribute.op == LESS || x->attribute.op == GREATER || x->attribute.op == LESSEQ || x->attribute.op == GREATEREQ)
+        return relOp(x->attribute.op, leftChild, rightChild);
     onExit("eval result: " + retObj.toString());
     return retObj;
 }
 
-Object Interpreter::handleIDEXPR(ASTNode* x) {
-    onEnter("handleIDExpr");
+Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
+    onEnter("retrieveFromMemoryByName");
     Object retVal;
+    memStore.display();
     int offset = 0, addr = 0;
     if (procedures.find(x->attribute.name) != procedures.end()) {
         say("Procedure Found, Dispatching.");
         retVal = Dispatch(x);
         say("return from " + x->attribute.name + " value: " + retVal.toString());
-        onExit(" ");
+        onExit();
         return retVal;
     }
     if (x->kind == EXPRNODE && x->type.expr == SUBSCRIPT_EXPR) {
@@ -131,7 +193,7 @@ Object Interpreter::handleIDEXPR(ASTNode* x) {
         addr = variables[x->attribute.name];
     } else {
         cout<<"Uh oh, couldnt find: "<<x->attribute.name<<endl;
-        onExit(" ");
+        onExit();
         return retVal;
     }
     
@@ -141,12 +203,13 @@ Object Interpreter::handleIDEXPR(ASTNode* x) {
     }
     retVal = memStore.get(addr + offset);
     say("ID: " + x->attribute.name + ", Address: " + to_string(addr) + ", offset: " +to_string(offset) + ", value: " + retVal.toString() + ", type: " + rtTypeAsStr[retVal.type]);
-    onExit(" ");
+    onExit();
     return retVal;
 }
 
-void Interpreter::interpretAssignment(ASTNode* x) {
-    onEnter("AssignStatement ");
+void Interpreter::storeToMemoryByName(ASTNode* x) {
+    memStore.display();
+    onEnter("storeToMemoryByName ");
     string varname = x->child[0]->attribute.name; //variable name
     say("Assign to " + varname + ": ");
     Object valToAssign = interpretExpression(x->child[1]);   //value to assign
@@ -167,14 +230,16 @@ void Interpreter::interpretAssignment(ASTNode* x) {
         say("stored global variable " + varname + " value: " + valToAssign.toString() + " at " + to_string(addr) + " offset: " + to_string(offset) + " as: " + rtTypeAsStr[valToAssign.type]);
     } else {
         cout<<"Error: unknown identifier: "<<varname<<endl;
+        onExit();
         return;
     }
     if (offset > 0 && offset > memStore.get(addr).attr.size) {
         cout<<"Error: Index "<<offset<<" out of range for array "<<varname<<endl;
+        onExit();
         return;
     }
     memStore.store(addr + offset, valToAssign);
-    onExit("AssignStatement ");
+    onExit("storeToMemoryByName ");
 }
 
 Object Interpreter::interpretExpression(ASTNode* x) {
@@ -195,12 +260,12 @@ Object Interpreter::interpretExpression(ASTNode* x) {
             return Object(rand() % (rbound - 1) + 1);
         case SUBSCRIPT_EXPR:
         case ID_EXPR:
-            return handleIDEXPR(x);
+            return retrieveFromMemoryByName(x);
             break; 
         case PROCDCALL:
             if (procedures.find(x->attribute.name) != procedures.end()) {
                 retVal = Dispatch(x);
-                onExit(" ");
+                onExit();
                 return retVal;
             }
             break;
@@ -223,9 +288,9 @@ void Interpreter::interpretVarDeclaration(ASTNode* x) {
     string name;
     int addr;
     if (x->child[0]->type.expr == SUBSCRIPT_EXPR) {
-        ASTNode* t = x->child[0];
-        name = t->attribute.name;
-        int size = t->child[0]->attribute.intValue;
+        ASTNode* child = x->child[0];
+        name = child->attribute.name;
+        int size = child->child[0]->attribute.intValue;
         addr = memStore.allocate(size);
         memStore.get(addr).attr.size = size;
         say("Declaring Array: " + name + " of size " + to_string(size) + " at address " + to_string(addr));
@@ -250,92 +315,92 @@ void Interpreter::interpretVarDeclaration(ASTNode* x) {
 }
 
 
-void Interpreter::interpretFuncDeclaration(ASTNode* x) {
-    onEnter("Procedure Declaration: " + x->attribute.name);
-    if (procedures.find(x->attribute.name) == procedures.end()) {
+void Interpreter::interpretFuncDeclaration(ASTNode* node) {
+    onEnter("Procedure Declaration: " + node->attribute.name);
+    if (procedures.find(node->attribute.name) == procedures.end()) {
         StackFrame *procRec = new StackFrame;
-        procRec->body = x->child[0];
-        procRec->params = x->child[1]; 
-        for (auto t = x->child[1]; t != nullptr; t = t->sibling) {
-            say("Parameter: " + t->attribute.name + " added to procedures symbol table.");
+        procRec->body = node->child[0];
+        procRec->params = node->child[1]; 
+        for (ASTNode* param = node->child[1]; param != nullptr; param = param->sibling) {
+            say("Parameter: " + param->attribute.name + " added to procedures symbol table.");
             Object obj(0);
-            procRec->symbolTable[t->attribute.name] = memStore.storeAtNextFree(obj);
+            procRec->symbolTable[param->attribute.name] = memStore.storeAtNextFree(obj);
         } 
-        procedures[x->attribute.name] = procRec;
+        procedures[node->attribute.name] = procRec;
     }
-    onExit("Procedure Declaration: " + x->attribute.name);
+    onExit("Procedure Declaration: " + node->attribute.name);
 }
 
 
-void Interpreter::interpretPrintStatement(ASTNode* x) {
+void Interpreter::interpretPrintStatement(ASTNode* node) {
     onEnter("[PRINT]");
-    if (x->type.expr == CONST_STR) //I mean, thats WHY its a const string, right?
-        cout<<x->attribute.name<<endl;
+    if (node->type.expr == CONST_STR) //I mean, thats WHY its a const string, right?
+        cout<<node->attribute.name<<endl;
     else
-        cout<<interpretExpression(x).toString()<<endl;
+        cout<<interpretExpression(node).toString()<<endl;
     onExit("[PRINT]");
 }
 
-void Interpreter::interpretReadStatement(ASTNode* x) {
+void Interpreter::interpretReadStatement(ASTNode* node) {
     int input;
     cin>>input;
-    int addr = variables[x->attribute.name];
+    int addr = variables[node->attribute.name];
     memStore.store(addr, Object(input));
 }
 
-void Interpreter::interpretIfStatement(ASTNode* x) {
-    int res = interpretExpression(x->child[0]).data.intValue;
+void Interpreter::interpretIfStatement(ASTNode* node) {
+    int res = interpretExpression(node->child[0]).data.intValue;
     if (res) {
         say("passed test");
-        interpretStatement(x->child[1]);
+        interpretStatement(node->child[1]);
     } else {
-        if (x->child[2]) {
+        if (node->child[2]) {
             say("else clause");
-            interpretStatement(x->child[2]);
+            interpretStatement(node->child[2]);
         }
     }
 }
 
-void Interpreter::interpretWhileStatement(ASTNode* x) {
+void Interpreter::interpretWhileStatement(ASTNode* node) {
     onEnter("While Loop");
-    Object ret = interpretExpression(x->child[0]).data.intValue;
+    Object ret = interpretExpression(node->child[0]).data.intValue;
     while (ret.data.intValue) {
         say("Execute Body: ");
-        Execute(x->child[1]);
+        Execute(node->child[1]);
         say("check loop condition: ");
-        ret = eval(x->child[0]);
+        ret = eval(node->child[0]);
         say("Result: " + ret.toString());
     }
     onExit("Leaving While Statement");
 }
 
-void Interpreter::interpretReturnStatement(ASTNode* x) {
+void Interpreter::interpretReturnStatement(ASTNode* node) {
     onEnter("Return Statement.");
-    Object retVal =  interpretExpression(x->child[0]);
+    Object retVal =  interpretExpression(node->child[0]);
     rtStack.top()->returnVal = retVal;
     say(retVal.toString() + " saved as return value.");
-    onExit(" ");
+    onExit();
 }
 
 
-StackFrame* Interpreter::prepStackFrame(StackFrame* x) {
-    StackFrame* y = new StackFrame;
-    y->body = x->body;
-    y->params = x->params;
-    y->returnVal = x->returnVal;
-    for (auto m : x->symbolTable) {
-        y->symbolTable[m.first] = memStore.allocate(1);
+StackFrame* Interpreter::prepStackFrame(StackFrame* curentFrame) {
+    StackFrame* nextFrame = new StackFrame;
+    nextFrame->body = curentFrame->body;
+    nextFrame->params = curentFrame->params;
+    nextFrame->returnVal = curentFrame->returnVal;
+    for (auto m : curentFrame->symbolTable) {
+        nextFrame->symbolTable[m.first] = memStore.allocate(1);
     }
-    return y;
+    return nextFrame;
 }
 
-Object Interpreter::Dispatch(ASTNode* x) {
-    say("Dispatch: " + x->attribute.name);
-    int retVal = 0;
-    if (procedures.find(x->attribute.name) != procedures.end()) {
-        StackFrame* nsf = prepStackFrame(procedures[x->attribute.name]);
+Object Interpreter::Dispatch(ASTNode* node) {
+    say("Dispatch: " + node->attribute.name);
+    Object retVal;
+    if (procedures.find(node->attribute.name) != procedures.end()) {
+        StackFrame* nsf = prepStackFrame(procedures[node->attribute.name]);
         auto paramIt = nsf->params;
-        auto argIt = x->child[1];
+        auto argIt = node->child[1];
         //now we want to assign the parameters to their correct symbol tables.
         while (paramIt && argIt) {
             Object obj = interpretExpression(argIt);
@@ -345,7 +410,7 @@ Object Interpreter::Dispatch(ASTNode* x) {
         }
         rtStack.push(nsf);
         Execute(rtStack.top()->body);
-        Object retVal = rtStack.top()->returnVal;
+        retVal = rtStack.top()->returnVal;
         for (auto addr : rtStack.top()->symbolTable) {
             memStore.free(addr.second);
         }
@@ -353,73 +418,73 @@ Object Interpreter::Dispatch(ASTNode* x) {
         say("value returned: " + retVal.toString());
         return retVal;
     } else {
-        say("No such procedure: " + x->attribute.name);
+        say("No such procedure: " + node->attribute.name);
     }
     onExit("Dispatch");
     return retVal;
 }
 
-void Interpreter::interpretExprStatement(ASTNode* x) {
+void Interpreter::interpretExprStatement(ASTNode* node) {
     onEnter("ExprStatement ");
     
-    switch (x->child[0]->kind) {
+    switch (node->child[0]->kind) {
         case STMTNODE:
-            interpretAssignment(x->child[0]);
+            storeToMemoryByName(node->child[0]);
             break;
         case EXPRNODE:
-            interpretExpression(x->child[0]);
+            interpretExpression(node->child[0]);
             break;
     }
     onExit("ExprStatement ");
 }
 
-void Interpreter::interpretStatement(ASTNode* x) {
-    switch (x->type.stmt) {
+void Interpreter::interpretStatement(ASTNode* node) {
+    switch (node->type.stmt) {
         case VARDECL:
-            interpretVarDeclaration(x);
+            interpretVarDeclaration(node);
             break;
         case FUNCDECL:
-            interpretFuncDeclaration(x);
+            interpretFuncDeclaration(node);
             break;
         case PRINTSTM:
-            interpretPrintStatement(x->child[0]);
+            interpretPrintStatement(node->child[0]);
             break;
         case READSTM:
-            interpretReadStatement(x->child[0]);
+            interpretReadStatement(node->child[0]);
             break;
         case IFSTM:
-            interpretIfStatement(x); 
+            interpretIfStatement(node); 
             break;
         case WHILESTM:
-            interpretWhileStatement(x);
+            interpretWhileStatement(node);
             break;
         case EXPRSTM:
-            interpretExprStatement(x);
+            interpretExprStatement(node);
             break;
         case ASSIGNSTM:
-            interpretAssignment(x->child[0]);
+            storeToMemoryByName(node->child[0]);
             break;
         case RETURNSTM:
-            interpretReturnStatement(x);
+            interpretReturnStatement(node);
             break;
     }
 }
 
 
-void Interpreter::Execute(ASTNode* x) {
-    if (x == nullptr)
+void Interpreter::Execute(ASTNode* node) {
+    if (node == nullptr)
         return;
-    switch (x->kind) {
+    switch (node->kind) {
         case EXPRNODE:
-            interpretExpression(x);
+            interpretExpression(node);
             break;
         case STMTNODE:
-            interpretStatement(x);
+            interpretStatement(node);
             break;
     }
-    if (x->kind == STMTNODE && x->type.stmt == RETURNSTM)
+    if (node->kind == STMTNODE && node->type.stmt == RETURNSTM)
         return;
-    Execute(x->sibling);
+    Execute(node->sibling);
 }
 
 #endif
