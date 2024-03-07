@@ -6,6 +6,8 @@ begin
     print m;
     print x;
     print j;
-    x := 0.69;
+    x := x + 0.69;
+    print (x+m);
+    print m;
     print x;
 end

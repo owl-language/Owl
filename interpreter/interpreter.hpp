@@ -54,10 +54,13 @@ Object Interpreter::eval(ASTNode* x) {
     rightChild = interpretExpression(x->child[1]);
     if (leftChild.type == INTEGER) {
         leftOperand = (float) leftChild.data.intValue;
+    } else if (rightChild.type == INTEGER) {
         rightOperand = (float) rightChild.data.intValue;
-    } else {
+    } else if (leftChild.type == REAL || rightChild.type == REAL) {
         leftOperand = leftChild.data.realValue;
         rightOperand = rightChild.data.realValue;
+    } else {
+        cout<<"Error: mismatched types: "<<endl;
     }
     switch (x->attribute.op) {
         case PLUS:
@@ -91,7 +94,7 @@ Object Interpreter::eval(ASTNode* x) {
             result = (leftOperand >= rightOperand);
             break;
     }
-    if (leftChild.type == INTEGER || rightChild.type == INTEGER) {
+    if (leftChild.type == INTEGER && rightChild.type == INTEGER) {
         retObj.type = INTEGER;
         retObj.data.intValue = (int)result;
     } else {
@@ -137,7 +140,7 @@ Object Interpreter::handleIDEXPR(ASTNode* x) {
         return -1;
     }
     retVal = memStore.get(addr + offset);
-    say("ID: " + x->attribute.name + ", Address: " + to_string(addr) + ", offset: " +to_string(offset) + ", value: " + retVal.toString() + "type: " + rtTypeAsStr[retVal.type]);
+    say("ID: " + x->attribute.name + ", Address: " + to_string(addr) + ", offset: " +to_string(offset) + ", value: " + retVal.toString() + ", type: " + rtTypeAsStr[retVal.type]);
     onExit(" ");
     return retVal;
 }
@@ -166,7 +169,7 @@ void Interpreter::interpretAssignment(ASTNode* x) {
         cout<<"Error: unknown identifier: "<<varname<<endl;
         return;
     }
-    if (offset > memStore.get(addr).attr.size) {
+    if (offset > 0 && offset > memStore.get(addr).attr.size) {
         cout<<"Error: Index "<<offset<<" out of range for array "<<varname<<endl;
         return;
     }
