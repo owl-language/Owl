@@ -11,8 +11,10 @@ const int MAX_RT_STACK = 150;
 
 //Run time Type of data stored in Object
 enum RTType {
-    INTEGER, CHARACTER, STRING, POINTER, EMPTY
+    INTEGER, CHARACTER, STRING, POINTER, EMPTY, REAL
 };
+
+string rtTypeAsStr[] = { "INTEGER", "CHARACTER", "STRING", "POINTER", "EMPTY", "REAL"};
 
 //All data, no matter the type is held as an "Object" in memory
 //Objects are simple tagged structs, allowing for easy run time type checking
@@ -22,11 +24,20 @@ struct Object {
     struct _data {
         int intValue;
         char charValue;
+        double realValue;
         string stringValue;
     } data;
     struct _attr {
         int size;
     } attr;
+    Object(const Object& o) {
+        type = o.type;
+        data.intValue = o.data.intValue;
+        data.charValue = o.data.charValue;
+        data.realValue = o.data.realValue;
+        data.stringValue = o.data.stringValue;
+        attr.size = o.attr.size;
+    }
     Object(char c) {
         data.charValue = c;
         data.intValue = -1;
@@ -36,6 +47,7 @@ struct Object {
     Object(int val) {
         data.charValue = -1;
         data.intValue = val;
+        data.realValue = (float) val;
         attr.size = 1;
         type = INTEGER;
     }
@@ -44,15 +56,38 @@ struct Object {
         attr.size = val.size();
         type = STRING;
     }
+    Object(float val) {
+        data.realValue = val;
+        data.charValue = -1;
+        data.intValue = (int) val;
+        type = REAL;
+    }
+    Object(double val) {
+        data.realValue = val;
+        data.charValue = -1;
+        data.intValue = (int) val;
+        type = REAL;
+    }
     Object() {
         data.charValue = -1;
         data.intValue = -1;
         attr.size = 1;
         type = EMPTY;
     }
+    Object& operator=(const Object& o) {
+        type = o.type;
+        data.intValue = o.data.intValue;
+        data.charValue = o.data.charValue;
+        data.realValue = o.data.realValue;
+        data.stringValue = o.data.stringValue;
+        attr.size = o.attr.size;
+        return *this;
+    }
     string toString() {
         if (type == STRING)
             return data.stringValue;
+        if (type == REAL)
+            return to_string(data.realValue);
         return to_string(data.intValue);
     }
 };

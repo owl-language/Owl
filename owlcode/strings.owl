@@ -4,4 +4,6 @@ begin
     let x: string := "this is a string, under an int";
     print x;
     print "rasta gwon seh";
+    print y;
+    print (x + y + x);
 end

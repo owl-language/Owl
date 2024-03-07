@@ -8,6 +8,7 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
+    srand(time(0));
     if (argc < 2) {
         cout<<"Useage: owlcli <filename> "<<endl;
         return 0;

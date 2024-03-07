@@ -12,7 +12,7 @@ class OwlLexer {
         SourceBuffer sb;
         TokenType handleKeywordOrId(string word);
         Token handleSpecials();
-        int extractFullNumber();
+        Token extractFullNumber();
         string extractFullWord();
         vector<Token> tokenize();
         bool inComment;
@@ -51,6 +51,7 @@ void OwlLexer::initReserved() {
     reserved["array"] = ARRAY;
     reserved["string"] = STR;
     reserved["rand"] = RAND;
+    reserved["real"] = REALT;
 }
 
 TokenType OwlLexer::handleKeywordOrId(string word) {
@@ -63,7 +64,6 @@ TokenType OwlLexer::handleKeywordOrId(string word) {
 }
 
 Token OwlLexer::handleSpecials() {
-    Token nextToken;
     if (sb.Char() == ':') {
         sb.GetChar();
         if (sb.Char() == '=') {
@@ -97,7 +97,14 @@ Token OwlLexer::handleSpecials() {
         if (sb.Char() == '*') {
             return Token(OPENCOMMENT, "{*", -1, sb.lineNumber());
         }
-        sb.UnGetChar();        
+        sb.UnGetChar();
+    } else if (sb.Char() == '*') {
+        sb.GetChar();
+        if (sb.Char() == '}') {
+            return Token(CLOSECOMMENT, "*}", -1, sb.lineNumber());
+        } 
+        sb.UnGetChar();
+        return Token(MULT, "*", -1, sb.lineNumber());        
     } else if (sb.Char() == '(') {
         return Token(LPAREN, "(", -1, sb.lineNumber());
     } else if (sb.Char() == ')') {
@@ -110,52 +117,45 @@ Token OwlLexer::handleSpecials() {
         return Token(PLUS, "+", -1, sb.lineNumber());
     } else if (sb.Char() == '-') {
         return Token(MINUS, "-", -1, sb.lineNumber());
-    } else if (sb.Char() == '*') {
-        sb.GetChar();
-        if (sb.Char() == '}') {
-            return Token(CLOSECOMMENT, "*}", -1, sb.lineNumber());
-        } 
-        sb.UnGetChar();
-        return Token(MULT, "*", -1, sb.lineNumber());
     } else if (sb.Char() == '/') {
         return Token(DIVD, "/", -1, sb.lineNumber());
     } else if (sb.Char() == '=') {
         return Token(EQUAL, "=", -1, sb.lineNumber());      
     } else if (sb.Char() == '\"') {
-        nextToken.tokenval = QUOTE;
-        nextToken.stringval = "\"";
-        nextToken.numval = -1;    
-        nextToken.lineno = sb.lineNumber();
-        return nextToken;
+        return Token(QUOTE, "\"", -1, sb.lineNumber());
     } else if (sb.Char() == ';') {
         return Token(SEMI, ";", -1, sb.lineNumber());
     } else if (sb.Char() == ',') {
         return Token(COMA, ",", -1, sb.lineNumber());
+    } else if (sb.Char() == '.') {
+        return Token(PERIOD, ".", -1, sb.lineNumber());
     } else if (sb.Char() == '\'') {
-        nextToken.tokenval = SQUOTE;
-        nextToken.stringval = "\'";
-        nextToken.numval = -1;    
-        nextToken.lineno = sb.lineNumber();
-        return nextToken;
-    } else {
-        cout<<"ERROR uknown token: "<<sb.Char()<<"\n";
-        nextToken.tokenval = ERROR;
-        nextToken.stringval = "ERROR";
-        nextToken.numval = -1;   
-        nextToken.lineno = sb.lineNumber(); 
-        sb.GetChar();
-        return nextToken;
-    }
-    return nextToken;
+        return Token(SQUOTE, "\'", -1, sb.lineNumber());
+    } 
+    cout<<"ERROR uknown token: "<<sb.Char()<<"\n";
+    sb.GetChar();
+    return Token(ERROR, "Error", -1, sb.lineNumber());
 }
 
-int OwlLexer::extractFullNumber() {
+Token OwlLexer::extractFullNumber() {
     string asStr;
-    while (sb.Char() != sb.EOFMarker() && isdigit(sb.Char())) {
+    Token nextToken;
+    bool isFloat = false;
+    while (sb.Char() != sb.EOFMarker() && (isdigit(sb.Char()) || sb.Char() == '.')) {
+        if (sb.Char() == '.') isFloat = true;
         asStr.push_back(sb.Char());
         sb.GetChar();
     }
-    return atoi(asStr.c_str());
+    nextToken.lineno = sb.lineNumber();
+    nextToken.stringval = asStr;
+    if (isFloat) {
+        nextToken.tokenval = REALNUM;
+        nextToken.realval = atof(asStr.c_str());
+    } else {
+        nextToken.tokenval = NUM;
+        nextToken.numval = atoi(asStr.c_str());
+    }
+    return nextToken;
 }
 
 string OwlLexer::extractFullWord() {
@@ -200,13 +200,9 @@ vector<Token> OwlLexer::tokenize() {
                         tokenList.push_back(nextToken);
                     continue;
                 } else if (isdigit(sb.Char())) {
-                    int num = extractFullNumber();
-                    nextToken.tokenval = NUM;
-                    nextToken.numval = num;
-                    nextToken.stringval = to_string(num);
-                    nextToken.lineno = sb.lineNumber();
+                    Token num = extractFullNumber();
                     if (!inComment)
-                        tokenList.push_back(nextToken);
+                        tokenList.push_back(num);
                     continue;
                 } else { 
                     if (sb.Char() != ' ') {

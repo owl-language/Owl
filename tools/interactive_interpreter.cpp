@@ -50,10 +50,12 @@ void OwlShell::parseCommand(vector<string>& tokens) {
             if (ast != nullptr) printTree(ast);
         }
     } else if (tokens[0] == "run") {
-        interpreter.Run(ast);
+        interpreter.Execute(ast);
     } else if (tokens[0] == "reset") {
         ts.clear();
         freeTree(ast);
+    } else {
+        ast = parser.replParse(tokens);
     }
 }
 

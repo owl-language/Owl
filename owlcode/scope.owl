@@ -5,7 +5,6 @@ begin
         let t: int := 42;
         print t;
         print (x + t);
-        
     end;
     scoped(t);
     print (t);

@@ -41,6 +41,7 @@ class Parser {
 
         }
         ASTNode* start(vector<Token>& ts);
+        ASTNode* replParse(vector<Token>& ts);
     private:
         ASTNode* block();
         ASTNode* statementList();
@@ -66,6 +67,13 @@ class Parser {
         ASTNode* var();
         ASTNode* strValue();
 };
+
+ASTNode* Parser::replParse(vector<Token>& tokens) {
+    depth = 0;
+    initStream(tokens);
+    ASTNode* singleLine = statement();
+    return singleLine;
+}
 
 ASTNode* Parser::start(vector<Token>& tokens) {
     depth = 0;
@@ -136,7 +144,7 @@ ASTNode* Parser::statement() {
         case RETURN: 
             node = returnStatement();
         default:
-            cout<<"Error: "<<lookahead().stringval<<endl;
+            cout<<"Error, invalid statement on line "<<lookahead().lineno<<": "<<lookahead().stringval<<endl;
             return node;
     }
     if (lookahead().tokenval == SEMI)
@@ -147,7 +155,7 @@ ASTNode* Parser::statement() {
 
 ASTNode* Parser::assignStatement() {
     onEnter("assignmentStatement");
-    ASTNode* node = makeStatementNode(ASSIGNSTM, { lookahead().stringval, lookahead().tokenval });
+    ASTNode* node = makeStatementNode(ASSIGNSTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     if (node != nullptr && lookahead().tokenval == ID) {
         match(ID);
         match(ASSIGN);
@@ -160,7 +168,7 @@ ASTNode* Parser::assignStatement() {
 
 ASTNode* Parser::declareVarStatement() {
     onEnter("declareVarStatement");
-    ASTNode* node = makeStatementNode(VARDECL, { lookahead().stringval,lookahead().tokenval });
+    ASTNode* node = makeStatementNode(VARDECL, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(LET);
     node->child[0] = term();
     match(COLON);
@@ -170,8 +178,16 @@ ASTNode* Parser::declareVarStatement() {
             match(SEMI);
             return node;
         }
-         match(ASSIGN);
-         node->child[1] = term();
+        match(ASSIGN);
+        node->child[1] = term();
+    } else if (lookahead().tokenval == REALT) {
+        match(REALT);
+        if (lookahead().tokenval == SEMI) {
+            match(SEMI);
+            return node;
+        }
+        match(ASSIGN);
+        node->child[1] = term();
     } else if (lookahead().tokenval == STR) {
         match(STR);
         match(ASSIGN);
@@ -184,7 +200,7 @@ ASTNode* Parser::declareVarStatement() {
 
 ASTNode* Parser::declareProcedureStatement() {
     onEnter("declareProcedure");
-    ASTNode* node = makeStatementNode(FUNCDECL, {lookahead().stringval,lookahead().tokenval});
+    ASTNode* node = makeStatementNode(FUNCDECL, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(FUNC);
     node->attribute.name = lookahead().stringval;
     match(ID);
@@ -223,7 +239,7 @@ ASTNode* Parser::parameterList() {
 
 ASTNode* Parser::procedureCall() {
     onEnter("procedureCall");
-    ASTNode* node = makeExpressionNode(PROCDCALL, {lookahead().stringval, lookahead().tokenval});
+    ASTNode* node = makeExpressionNode(PROCDCALL, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(LPAREN);
     if (lookahead().tokenval != RPAREN)
         node->child[1] = argumentList();
@@ -253,18 +269,18 @@ ASTNode* Parser::argumentList() {
 
 ASTNode* Parser::exprStatement() {
     onEnter("exprStatement");
-    ASTNode* t = makeStatementNode(EXPRSTM, {lookahead().stringval, lookahead().tokenval});
+    ASTNode* t = makeStatementNode(EXPRSTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     if (lookahead().tokenval == ID) {
         t->child[0] = var();
         if (lookahead().tokenval == ASSIGN) {
-            ASTNode* p = makeStatementNode(ASSIGNSTM, {lookahead().stringval, lookahead().tokenval});
+            ASTNode* p = makeStatementNode(ASSIGNSTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
             p->attribute.op = ASSIGN;
             match(ASSIGN);
             p->child[0] = t->child[0];
             p->child[1] = expression();
             t->child[0] = p;
         } else if (lookahead().tokenval == LPAREN) {
-            ASTNode* p = makeExpressionNode(PROCDCALL, {lookahead().stringval, lookahead().tokenval});
+            ASTNode* p = makeExpressionNode(PROCDCALL, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
             p->attribute.name = t->child[0]->attribute.name;
             match(LPAREN);
             if (lookahead().tokenval != RPAREN) {
@@ -286,7 +302,7 @@ ASTNode* Parser::exprStatement() {
 }
 
 ASTNode* Parser::whileStatement() {
-    ASTNode* t = makeStatementNode(WHILESTM, {lookahead().stringval, lookahead().tokenval});
+    ASTNode* t = makeStatementNode(WHILESTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     onEnter("whileStatement");
     match(WHILE);
     t->child[0] = expression();
@@ -298,15 +314,15 @@ ASTNode* Parser::whileStatement() {
 }
 
 ASTNode* Parser::ifStatement() {
-    ASTNode* t = makeStatementNode(IFSTM, {lookahead().stringval, lookahead().tokenval});
+    ASTNode* t = makeStatementNode(IFSTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     onEnter("ifStatement");
     match(IF);
     t->child[0] = expression();
     match(THEN);
-    t->child[1] = statement();
+    t->child[1] = statementList();
     if (lookahead().tokenval == ELSE) {
         match(ELSE);
-        t->child[2] = statement();
+        t->child[2] = statementList();
     }
     match(END);
     onExit("ifStatement");
@@ -314,7 +330,7 @@ ASTNode* Parser::ifStatement() {
 }
 
 ASTNode* Parser::printStatement() {
-    ASTNode* node = makeStatementNode(PRINTSTM, { lookahead().stringval, lookahead().tokenval, lookahead().tokenval});
+    ASTNode* node = makeStatementNode(PRINTSTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(PRINT);
     if (lookahead().tokenval == QUOTE) 
         node->child[0] = strValue();
@@ -324,7 +340,7 @@ ASTNode* Parser::printStatement() {
 }
 
 ASTNode* Parser::readStatement() {
-    ASTNode* node = makeStatementNode(READSTM, { lookahead().stringval, lookahead().tokenval, lookahead().tokenval} );
+    ASTNode* node = makeStatementNode(READSTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(READ);
     node->child[0] = var();
     match(SEMI);
@@ -332,7 +348,7 @@ ASTNode* Parser::readStatement() {
 }
 
 ASTNode* Parser::randExpression() {
-    ASTNode* node = makeExpressionNode(RAND_EXPR, {lookahead().stringval, lookahead().tokenval, lookahead().tokenval});
+    ASTNode* node = makeExpressionNode(RAND_EXPR, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(RAND);
     match(LPAREN);
     node->child[0] = expression();
@@ -341,7 +357,7 @@ ASTNode* Parser::randExpression() {
 }
 
 ASTNode* Parser::returnStatement() {
-    ASTNode* t = makeStatementNode(RETURNSTM, { lookahead().stringval, lookahead().tokenval, lookahead().tokenval});
+    ASTNode* t = makeStatementNode(RETURNSTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     onEnter("return statement");
     match(RETURN);
     t->child[0] = expression();
@@ -357,7 +373,7 @@ ASTNode* Parser::expression() {
     if (lookahead().tokenval == LESS || lookahead().tokenval == GREATER || 
         lookahead().tokenval == LESSEQ || lookahead().tokenval == GREATEREQ ||
         lookahead().tokenval == EQUAL || lookahead().tokenval == NOTEQUAL) {
-        ASTNode* exp = makeExpressionNode(OP_EXPR, {lookahead().stringval, lookahead().tokenval, lookahead().tokenval});
+        ASTNode* exp = makeExpressionNode(OP_EXPR, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
         if (node != nullptr) {
             exp->child[0] = node;
             node = exp;
@@ -374,7 +390,7 @@ ASTNode* Parser::simpleExpression() {
     onEnter("simpleExpression");
     ASTNode* node = term();
     while (lookahead().tokenval == PLUS || lookahead().tokenval == MINUS) {
-        ASTNode* tmp = makeExpressionNode(OP_EXPR, {lookahead().stringval, lookahead().tokenval, lookahead().tokenval});
+        ASTNode* tmp = makeExpressionNode(OP_EXPR, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
         if (node != nullptr) {
             tmp->child[0] = node;
             node = tmp;
@@ -390,7 +406,7 @@ ASTNode* Parser::term() {
     onEnter("term");
     ASTNode* node = factor();
     while (lookahead().tokenval == MULT || lookahead().tokenval == DIVD) {
-        ASTNode* expNode = makeExpressionNode(OP_EXPR, {lookahead().stringval, lookahead().tokenval,lookahead().tokenval});
+        ASTNode* expNode = makeExpressionNode(OP_EXPR, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
         expNode->child[0] = node;
         node = expNode;
         match(lookahead().tokenval);
@@ -406,9 +422,14 @@ ASTNode* Parser::factor() {
     if (lookahead().tokenval == ID) {
         node = var();
     } else if (lookahead().tokenval == NUM) {
-        node = makeExpressionNode(CONST_EXPR, {lookahead().stringval, lookahead().tokenval});
+        node = makeExpressionNode(CONST_EXPR, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
         node->attribute.intValue = lookahead().numval;
         match(NUM);
+    } else if (lookahead().tokenval == REALNUM) {
+        node = makeExpressionNode(CONST_EXPR, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
+        node->attribute.type = as_real;
+        node->attribute.intValue = lookahead().numval;
+        match(REALNUM);
     } else if (lookahead().tokenval == RAND) {
         node = randExpression();
     } else if (lookahead().tokenval == LPAREN) {
@@ -425,7 +446,7 @@ ASTNode* Parser::factor() {
 
 ASTNode* Parser::var() {
     onEnter("var");
-    ASTNode* node = makeExpressionNode(ID_EXPR, {lookahead().stringval, lookahead().tokenval});
+    ASTNode* node = makeExpressionNode(ID_EXPR, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(ID);
     if (lookahead().tokenval == LSQBRACKET) {
         match(LSQBRACKET);
@@ -445,7 +466,8 @@ ASTNode* Parser::var() {
 ASTNode* Parser::strValue() {
     onEnter("String value");
     match(QUOTE);
-    ASTNode* node = makeExpressionNode(CONST_STR, {lookahead().stringval, lookahead().tokenval, lookahead().tokenval});
+    ASTNode* node = makeExpressionNode(CONST_STR, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
+    node->attribute.type = as_string;
     say("Returning const string: " + lookahead().stringval);
     match(STRING_LITERAL);
     match(QUOTE);

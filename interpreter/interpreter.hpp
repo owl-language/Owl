@@ -15,7 +15,7 @@ class Interpreter {
         RuntimeStack rtStack;
         MemStore memStore;
         int rtsp;
-        int eval(ASTNode* x);
+        Object eval(ASTNode* x);
         Object interpretExpression(ASTNode* x);
         Object handleIDEXPR(ASTNode* x);
         void interpretReturnStatement(ASTNode* x);
@@ -46,11 +46,19 @@ int divide(int a, int b) {
     return (int)t;
 }
 
-int Interpreter::eval(ASTNode* x) {
-    onEnter("eval: " + tokenString[x->attribute.intValue]);
-    int leftOperand, rightOperand, result = 0;
-    leftOperand = interpretExpression(x->child[0]).data.intValue;
-    rightOperand = interpretExpression(x->child[1]).data.intValue;
+Object Interpreter::eval(ASTNode* x) {
+    onEnter("eval: " + tokenString[x->attribute.op]);
+    Object leftChild, rightChild, retObj;
+    float leftOperand, rightOperand, result = 0;
+    leftChild = interpretExpression(x->child[0]);
+    rightChild = interpretExpression(x->child[1]);
+    if (leftChild.type == INTEGER) {
+        leftOperand = (float) leftChild.data.intValue;
+        rightOperand = (float) rightChild.data.intValue;
+    } else {
+        leftOperand = leftChild.data.realValue;
+        rightOperand = rightChild.data.realValue;
+    }
     switch (x->attribute.op) {
         case PLUS:
             result = leftOperand + rightOperand;
@@ -83,14 +91,21 @@ int Interpreter::eval(ASTNode* x) {
             result = (leftOperand >= rightOperand);
             break;
     }
-    onExit("eval" + x->attribute.name);
-    return result;
+    if (leftChild.type == INTEGER || rightChild.type == INTEGER) {
+        retObj.type = INTEGER;
+        retObj.data.intValue = (int)result;
+    } else {
+        retObj.type = REAL;
+        retObj.data.realValue = result;
+    }
+    onExit("eval result: " + retObj.toString());
+    return retObj;
 }
 
 Object Interpreter::handleIDEXPR(ASTNode* x) {
     onEnter("handleIDExpr");
     Object retVal;
-    int offset = 0;
+    int offset = 0, addr = 0;
     if (procedures.find(x->attribute.name) != procedures.end()) {
         say("Procedure Found, Dispatching.");
         retVal = Dispatch(x);
@@ -107,35 +122,22 @@ Object Interpreter::handleIDEXPR(ASTNode* x) {
         }
         say("Array Reference, offset: " + to_string(offset));
     }
-    if (rtStack.size()) {
-        if (rtStack.top()->symbolTable.find(x->attribute.name) != rtStack.top()->symbolTable.end()) {
-            int addr = rtStack.top()->symbolTable[x->attribute.name];
-            if (offset > 0) {
-                if (offset > memStore.get(addr).attr.size) {
-                    cout<<"Error: Index "<<offset<<" out of range for array "<<x->attribute.name<<endl;
-                    return -1;
-                }
-            }
-            retVal = memStore.get(addr + offset);
-            say("ID: " + x->attribute.name + ", Address: " + to_string(addr) + ", offset: " +to_string(offset) + ", value: " + retVal.toString());
-            onExit(" ");
-            return retVal;
-        }
-    }
-    if (variables.find(x->attribute.name) != variables.end()) {
-        int addr = variables[x->attribute.name];
-        if (offset > 0) {
-            if (offset > memStore.get(addr).attr.size) {
-                cout<<"Error: Index "<<offset<<" out of range for array "<<x->attribute.name<<endl;
-                return -1;
-            }
-        }
-        retVal = memStore.get(addr + offset);
-        say("ID: " + x->attribute.name + ", Address: " + to_string(addr) + ", offset: " +to_string(offset) + ", value: " + retVal.toString());
+    if (rtStack.size() && (rtStack.top()->symbolTable.find(x->attribute.name) != rtStack.top()->symbolTable.end())) {
+        addr = rtStack.top()->symbolTable[x->attribute.name];
+    } else  if (variables.find(x->attribute.name) != variables.end()) {
+        addr = variables[x->attribute.name];
+    } else {
+        cout<<"Uh oh, couldnt find: "<<x->attribute.name<<endl;
         onExit(" ");
         return retVal;
     }
-    cout<<"Uh oh, couldnt find: "<<x->attribute.name<<endl;
+    
+    if (offset > memStore.get(addr).attr.size) {
+        cout<<"Error: Index "<<offset<<" out of range for array "<<x->attribute.name<<endl;
+        return -1;
+    }
+    retVal = memStore.get(addr + offset);
+    say("ID: " + x->attribute.name + ", Address: " + to_string(addr) + ", offset: " +to_string(offset) + ", value: " + retVal.toString() + "type: " + rtTypeAsStr[retVal.type]);
     onExit(" ");
     return retVal;
 }
@@ -145,7 +147,7 @@ void Interpreter::interpretAssignment(ASTNode* x) {
     string varname = x->child[0]->attribute.name; //variable name
     say("Assign to " + varname + ": ");
     Object valToAssign = interpretExpression(x->child[1]);   //value to assign
-    int offset = 0;
+    int offset = 0, addr = 0;
     if (x->child[0]->kind == EXPRNODE && x->child[0]->type.expr == SUBSCRIPT_EXPR) {
         say("Retrieving subscript " + x->child[0]->attribute.name);
         offset = interpretExpression(x->child[0]->child[0]).data.intValue;
@@ -154,33 +156,21 @@ void Interpreter::interpretAssignment(ASTNode* x) {
         }
         say("Array Reference, offset: " + offset);
     }
-    if (rtStack.size()) { //check procedure symbol table first if were in a subroutine.
-        if (rtStack.top()->symbolTable.find(varname) != rtStack.top()->symbolTable.end()) {
-            int addr = rtStack.top()->symbolTable[varname];
-            if (offset > 0) {
-                if (offset > memStore.get(addr).attr.size) {
-                    cout<<"Error: Index "<<offset<<" out of range for array "<<varname<<endl;
-                    return;
-                }
-            }
-            memStore.store(addr + offset, valToAssign);
-            say("stored local variable " + varname  + " " + valToAssign.toString() + " at " + to_string(addr) + " offset: " + to_string(offset));
-            onExit(" ");
-            return;
-        }
+    if (rtStack.size() && rtStack.top()->symbolTable.find(varname) != rtStack.top()->symbolTable.end()) {
+        addr = rtStack.top()->symbolTable[varname];
+        say("stored local variable " + varname  + " with value: " + valToAssign.toString() + " at " + to_string(addr) + " offset: " + to_string(offset) + " as: " + rtTypeAsStr[valToAssign.type]);
+    } else if (variables.find(varname) != variables.end()) {
+        addr = variables[varname];
+        say("stored global variable " + varname + " value: " + valToAssign.toString() + " at " + to_string(addr) + " offset: " + to_string(offset) + " as: " + rtTypeAsStr[valToAssign.type]);
+    } else {
+        cout<<"Error: unknown identifier: "<<varname<<endl;
+        return;
     }
-    //not a local var, better check globals.
-    if (variables.find(varname) != variables.end()) {
-        int addr = variables[varname];
-        if (offset > 0) {
-            if (offset > memStore.get(addr).attr.size) {
-                cout<<"Error: Index "<<offset<<" out of range for array "<<varname<<endl;
-                return;
-            }
-        }
-        memStore.store(addr + offset, valToAssign);
-        say( "stored global variable " + varname + " value: " + valToAssign.toString() + " at " + to_string(addr) + " offset: " + to_string(offset));
+    if (offset > memStore.get(addr).attr.size) {
+        cout<<"Error: Index "<<offset<<" out of range for array "<<varname<<endl;
+        return;
     }
+    memStore.store(addr + offset, valToAssign);
     onExit("AssignStatement ");
 }
 
@@ -190,13 +180,16 @@ Object Interpreter::interpretExpression(ASTNode* x) {
     onEnter("Expression " + ExprKindStr[x->type.expr]);
     switch (x->type.expr) {
         case CONST_EXPR:
-            retVal = x->attribute.intValue;
+            if (x->attribute.type == as_int)
+                retVal = Object(x->attribute.intValue);
+            else if (x->attribute.type == as_real)
+                retVal = Object(stof(x->attribute.name));
             say(ExprKindStr[x->type.expr] + " value: " + retVal.toString());
             onExit("");
             return retVal;
         case RAND_EXPR:
             rbound = x->child[0]->attribute.intValue;
-            return rand() % (rbound - 1) + 1;
+            return Object(rand() % (rbound - 1) + 1);
         case SUBSCRIPT_EXPR:
         case ID_EXPR:
             return handleIDEXPR(x);
@@ -236,15 +229,18 @@ void Interpreter::interpretVarDeclaration(ASTNode* x) {
     } else {
         name = x->child[0]->attribute.name;
         Object obj;
-        if (x->child[1]->type.expr == CONST_STR) {
+        if (x->child[1]->attribute.type == as_string) {
             obj.type = STRING;
             obj.data.stringValue = x->child[1]->attribute.name;
+        } else if (x->child[1]->attribute.type == as_real) {
+            obj.type = REAL;
+            obj.data.realValue = stof(x->child[1]->attribute.name);
         } else {
             obj.type = INTEGER;
             obj.data.intValue = x->child[1]->attribute.intValue;
         }
         addr = memStore.storeAtNextFree(obj);
-        say("Declaring Variable: " + name + " with value " + to_string(x->child[1]->attribute.intValue));
+        say("Declaring Variable: " + name + " with value " + obj.toString() + " type: " + rtTypeAsStr[obj.type]);
     }
     if (rtStack.empty())  variables[name] = addr;
     else rtStack.top()->symbolTable[name] = addr;
@@ -270,7 +266,7 @@ void Interpreter::interpretFuncDeclaration(ASTNode* x) {
 
 void Interpreter::interpretPrintStatement(ASTNode* x) {
     onEnter("[PRINT]");
-    if (x->type.expr == CONST_STR)
+    if (x->type.expr == CONST_STR) //I mean, thats WHY its a const string, right?
         cout<<x->attribute.name<<endl;
     else
         cout<<interpretExpression(x).toString()<<endl;
@@ -299,13 +295,13 @@ void Interpreter::interpretIfStatement(ASTNode* x) {
 
 void Interpreter::interpretWhileStatement(ASTNode* x) {
     onEnter("While Loop");
-    int ret = interpretExpression(x->child[0]).data.intValue;
-    while (ret) {
+    Object ret = interpretExpression(x->child[0]).data.intValue;
+    while (ret.data.intValue) {
         say("Execute Body: ");
         Execute(x->child[1]);
         say("check loop condition: ");
         ret = eval(x->child[0]);
-        say("Result: " + to_string(ret));
+        say("Result: " + ret.toString());
     }
     onExit("Leaving While Statement");
 }

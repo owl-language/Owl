@@ -5,28 +5,29 @@ using namespace std;
 
 enum TokenType {
     NONE,ERROR,ENDFILE,OPENCOMMENT,CLOSECOMMENT,
-    ARRAY,INT,CHAR, STR,
+    ARRAY,INT,REALT, CHAR, STR,
     RETURN,IF,THEN,ELSE,ENDIF,WHILE,PROG,FUNC,READ,PRINT,BEGIN,END,LET,RAND,
-    STRING_LITERAL, ID,NUM,ASSIGN,
+    STRING_LITERAL,ID,REALNUM,NUM,ASSIGN,
     NOTEQUAL,EQUAL,LESS,GREATER,LESSEQ,GREATEREQ,
     NOT,PLUS,MINUS,MULT,DIVD,
-    LPAREN,RPAREN,QUOTE,SEMI,COMA,LSQBRACKET,RSQBRACKET, SQUOTE, COLON
+    LPAREN,RPAREN,QUOTE,SEMI,COMA,PERIOD,LSQBRACKET,RSQBRACKET, SQUOTE, COLON
 };
 
 string tokenString[] = {
     "NONE","ERROR","ENDFILE","OPENCOMMENT","CLOSECOMMENT",
-    "ARRAY","INT","CHAR", "STRING",
+    "ARRAY","INT","REALT","CHAR", "STRING",
     "RETURN", "IF","THEN","ELSE","ENDIF","WHILE", "PROG", "FUNC", "READ", "PRINT","BEGIN","END","LET", "RAND",
-    "STRING_LITERAL","ID", "NUM","ASSIGN", 
+    "STRING_LITERAL","ID", "REALNUM", "NUM","ASSIGN", 
     "NOTEQUAL", "EQUAL", "LESS", "GREATER", "LESSEQ", "GREATEREQ",
     "NOT", "PLUS", "MINUS", "MULT", "DIVD", 
-    "LPAREN", "RPAREN", "QUOTE", "SEMI", "COMA", "LSQBRACKET","RSQBRACKET", "SQUOTE", "COLON"
+    "LPAREN", "RPAREN", "QUOTE", "SEMI", "COMA", "PERIOD", "LSQBRACKET","RSQBRACKET", "SQUOTE", "COLON"
 };
 
 struct Token {
     TokenType tokenval;
     string stringval;
     int numval;
+    int realval;
     int lineno;
     Token(TokenType tt = NONE, string sv = "", int nv = -1, int ln = 0) {
         tokenval = tt; stringval = sv; numval = nv; lineno = ln;

@@ -1,0 +1,11 @@
+program 'realnums';
+begin
+    let m: int := 13;
+    let x: real := 0.42;
+    let j: string := "oh yeah";
+    print m;
+    print x;
+    print j;
+    x := 0.69;
+    print x;
+end

@@ -5,11 +5,25 @@
 #include "../tokens/tokens.hpp"
 using namespace std;
 
+enum storedType {
+    as_int, as_real, as_string
+};
+
+string storedTypeStr[] = { "as_int", "as_real", "as_string"};
 
 struct Attributes {
     string name;
     int intValue;
+    double realValue;
     TokenType op;
+    storedType type;
+    Attributes(string n = "", int i = 0, double r = 0.0, TokenType tt = NONE) {
+        name = n;
+        intValue = i;
+        realValue = r;
+        op = tt;
+        type = as_int;
+    }
 };
 
 enum NodeKind {
