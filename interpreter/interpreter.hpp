@@ -5,7 +5,7 @@
 #include "../ast/ast.hpp"
 #include "../tokens/tokens.hpp"
 #include "../tools/tracer.hpp"
-#include "runtime.hpp"
+#include "callstack.hpp"
 #include "memstore.hpp"
 using namespace std;
 
@@ -13,7 +13,7 @@ class Interpreter {
     private:
         map<string, int> variables;
         map<string, StackFrame*> procedures;
-        RuntimeStack rtStack;
+        CallStack callStack;
         MemStore memStore;
         int rtsp;
         Object eval(ASTNode* x);
@@ -198,8 +198,8 @@ Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
         }
         say("Array Reference, offset: " + to_string(offset));
     }
-    if (rtStack.size() && (rtStack.top()->symbolTable.find(x->attribute.name) != rtStack.top()->symbolTable.end())) {
-        addr = rtStack.top()->symbolTable[x->attribute.name];
+    if (callStack.size() && (callStack.top()->symbolTable.find(x->attribute.name) != callStack.top()->symbolTable.end())) {
+        addr = callStack.top()->symbolTable[x->attribute.name];
     } else  if (variables.find(x->attribute.name) != variables.end()) {
         addr = variables[x->attribute.name];
     } else {
@@ -232,8 +232,8 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
         }
         say("Array Reference, offset: " + offset);
     }
-    if (rtStack.size() && rtStack.top()->symbolTable.find(varname) != rtStack.top()->symbolTable.end()) {
-        addr = rtStack.top()->symbolTable[varname];
+    if (callStack.size() && callStack.top()->symbolTable.find(varname) != callStack.top()->symbolTable.end()) {
+        addr = callStack.top()->symbolTable[varname];
         say("stored local variable " + varname  + " with value: " + valToAssign.toString() + " at " + to_string(addr) + " offset: " + to_string(offset) + " as: " + rtTypeAsStr[valToAssign.type]);
     } else if (variables.find(varname) != variables.end()) {
         addr = variables[varname];
@@ -322,8 +322,8 @@ void Interpreter::declareVariable(ASTNode* x) {
         addr = memStore.storeAtNextFree(obj);
         say("Declaring Variable: " + name + " with value " + obj.toString() + " type: " + rtTypeAsStr[obj.type]);
     }
-    if (rtStack.empty())  variables[name] = addr;
-    else rtStack.top()->symbolTable[name] = addr;
+    if (callStack.empty())  variables[name] = addr;
+    else callStack.top()->symbolTable[name] = addr;
 }
 
 
@@ -389,7 +389,7 @@ void Interpreter::handleWhileStatement(ASTNode* node) {
 void Interpreter::doReturnStatement(ASTNode* node) {
     onEnter("Return Statement.");
     Object retVal =  interpretExpression(node->child[0]);
-    rtStack.top()->returnVal = retVal;
+    callStack.top()->returnVal = retVal;
     say(retVal.toString() + " saved as return value.");
     onExit();
 }
@@ -420,13 +420,13 @@ Object Interpreter::Dispatch(ASTNode* node) {
             paramIt = paramIt->sibling;
             argIt = argIt->sibling;
         }
-        rtStack.push(nsf);
-        Execute(rtStack.top()->body);
-        retVal = rtStack.top()->returnVal;
-        for (auto addr : rtStack.top()->symbolTable) {
+        callStack.push(nsf);
+        Execute(callStack.top()->body);
+        retVal = callStack.top()->returnVal;
+        for (auto addr : callStack.top()->symbolTable) {
             memStore.free(addr.second);
         }
-        rtStack.pop();
+        callStack.pop();
         say("value returned: " + retVal.toString());
         return retVal;
     } else {

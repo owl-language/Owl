@@ -1,5 +1,5 @@
-#ifndef runtimestack_hpp
-#define runtimestack_hpp
+#ifndef callstack_hpp
+#define callstack_hpp
 #include <iostream>
 #include <map>
 #include "../ast/ast.hpp"
@@ -18,12 +18,12 @@ struct StackFrame {
     Object returnVal;
 };
 
-class RuntimeStack {
+class CallStack {
     private:
         StackFrame* rtStack[MAX_RT_STACK];
         int rtsp;
     public:
-        RuntimeStack();
+        CallStack();
         int size();
         bool empty();
         void push(StackFrame* sf);
@@ -31,18 +31,18 @@ class RuntimeStack {
         StackFrame* top();
 };
 
-RuntimeStack::RuntimeStack() {
+CallStack::CallStack() {
     rtsp = 0;
 }
-int RuntimeStack::size() {
+int CallStack::size() {
     return rtsp;
 }
 
-bool RuntimeStack::empty() {
+bool CallStack::empty() {
     return rtsp == 0;
 }
 
-void RuntimeStack::push(StackFrame* sf) {
+void CallStack::push(StackFrame* sf) {
     if (rtsp+1 == MAX_RT_STACK) {
         cout<<"[ERROR: STACK OVERFLOW!]"<<endl;
         return;
@@ -52,7 +52,7 @@ void RuntimeStack::push(StackFrame* sf) {
     rtStack[++rtsp] = sf;
 }
 
-void RuntimeStack::pop() {
+void CallStack::pop() {
     if (rtsp - 1 < 0) {
         cout<<"[ERROR: STACK UNDERFLOW!]"<<endl;
         return;
@@ -61,7 +61,7 @@ void RuntimeStack::pop() {
     --rtsp;
     delete t;
 }
-StackFrame* RuntimeStack::top() {
+StackFrame* CallStack::top() {
     return rtStack[rtsp];
 }
 

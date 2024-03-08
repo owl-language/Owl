@@ -1,0 +1,32 @@
+program 'jensen';
+begin
+    let a[10]: int;
+    let i: int := 1;
+
+    func showArr() begin
+        let i: int := 1;
+        while (i <= 10) begin
+            print a[i];
+            i := i + 1;
+        end;
+    end
+
+    func jensen(i: int, n: int) begin
+        while (n >= 1) begin
+            print a[n];
+            i := i + a[n-1];
+            n := n-1;
+        end;
+        print i;
+    end
+
+    i := 1;
+    while (i <= 10) begin
+        a[i] := i;
+        i := i + 1;
+    end;
+
+    showArr();
+    jensen(1, i-1);
+    print i;
+end
