@@ -2,8 +2,8 @@
  An AST walking interpreter for Owl.
  
  Owl is a statically typedv, procedural language with algol/wirthian syntax.
- It has support for recursion, looping, variables, arrays. right now the type system
- only works for integers but the current number 1 task is expanding the typeing.
+ It has support for recursion, looping, variables, arrays. Owl is dynamically typed,
+ with the following types currently supported: Integers, strings, and reals, as well as arrays of these types.
 
 There are two ways of running owl scripts, via the command line interpreter, and via the interactiver debuger
 they can be found in the tools subdir
