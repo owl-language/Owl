@@ -16,15 +16,25 @@ class Parser {
         Token& lookahead() {
             return *ts;
         }
+        void nexttoken() {
+            ts++;
+            if (ts != tokenvector.end()) {
+                currentToken = *ts;
+            } else {
+                say("Token Stream Consumed.");
+            }
+        }
+        void reSync() {
+            while (lookahead().tokenval != END) {
+                if (lookahead().tokenval == SEMI || lookahead().tokenval == ELSE)
+                    break;
+                nexttoken();
+            }
+        }
         bool match(TokenType token) {
             if (lookahead().tokenval == token) {
                 say("Match: " + currentToken.stringval);
-                ts++;
-                if (ts != tokenvector.end()) {
-                    currentToken = *ts;
-                } else {
-                    say("Token Stream Consumed.");
-                }
+                nexttoken();
                 return true;
             }
             cout<<"Mismatched Token on line "<<lookahead().lineno<<": "<<lookahead().stringval<<endl;
@@ -62,6 +72,7 @@ class Parser {
         ASTNode* expression();
         ASTNode* simpleExpression();
         ASTNode* randExpression();
+        ASTNode* typeName();
         ASTNode* term();
         ASTNode* factor();
         ASTNode* var();
@@ -145,6 +156,7 @@ ASTNode* Parser::statement() {
             node = returnStatement();
         default:
             cout<<"Error, invalid statement on line "<<lookahead().lineno<<": "<<lookahead().stringval<<endl;
+            reSync();
             return node;
     }
     if (lookahead().tokenval == SEMI)
@@ -450,6 +462,7 @@ ASTNode* Parser::factor() {
         match(RPAREN);
     } else {
         cout<<"I have no idea."<<endl;
+        reSync();
     }
     onExit("factor");
     return node;

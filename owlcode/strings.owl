@@ -1,9 +1,10 @@
 program 'strings';
 begin
-    let y: int := 13;
-    let x: string := "this is a string, under an int";
-    print x;
-    print "rasta gwon seh";
-    print y;
-    print (x + y + x);
+    let aNum: int := 13;
+    let pre: string := "this is a string, before an int";
+    let post: string := "this is another string, after an int";
+    print pre;
+    print aNum;
+    print post;
+    print (pre + " " + aNum + " " + post);
 end

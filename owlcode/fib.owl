@@ -10,7 +10,7 @@ begin
         p := c;
         c := n;
     end;
-    while (x < 10) begin
+    while (x <= 10) begin
         calcAndPrint();
         x := (x + 1);
     end;

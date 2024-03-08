@@ -3,11 +3,19 @@ begin
     let m: int := 13;
     let x: real := 0.42;
     let j: string := "oh yeah";
+    let rar[10]: real;
     print m;
     print x;
     print j;
-    print (x+m);
-    print (j+m);
-    j := j + j;
-    print (j+j);
+    rar[1] := 0.42;
+    m := 2;
+    while (m < 10) begin
+        rar[m] := rar[m-1] + 0.337;
+        m := m + 1;
+    end;
+    m := 1;
+    while (m < 10) begin
+        print rar[m];
+        m := m + 1;
+    end;
 end
