@@ -6,6 +6,7 @@
 #include "../tokens/tokens.hpp"
 #include "../tools/tracer.hpp"
 #include "runtime.hpp"
+#include "memstore.hpp"
 using namespace std;
 
 class Interpreter {
@@ -18,23 +19,26 @@ class Interpreter {
         Object eval(ASTNode* x);
         Object stringOp(TokenType op, Object left, Object right);
         Object mathOp(TokenType op, Object left, Object right);
-        Object relOp(TokenType op, Object left, Object right);
-        Object interpretExpression(ASTNode* x);
+        Object relOp(TokenType op, float left, float right);
         Object retrieveFromMemoryByName(ASTNode* x);
         void storeToMemoryByName(ASTNode* x);
-        void interpretReturnStatement(ASTNode* x);
-        void interpretVarDeclaration(ASTNode* x);
-        void interpretFuncDeclaration(ASTNode* x);
-        void interpretPrintStatement(ASTNode* x);
-        void interpretReadStatement(ASTNode* x);
-        void interpretIfStatement(ASTNode* x);
+        Object interpretExpression(ASTNode* x);
         void interpretStatement(ASTNode* x);
-        void interpretWhileStatement(ASTNode* x);
         void interpretExprStatement(ASTNode* x);
+        void doReturnStatement(ASTNode* x);
+        void declareVariable(ASTNode* x);
+        void declareFunction(ASTNode* x);
+        void doPrintStatement(ASTNode* x);
+        void doReadStatement(ASTNode* x);
+        void handleIfStatement(ASTNode* x);
+        void handleWhileStatement(ASTNode* x);
         StackFrame* prepStackFrame(StackFrame* x);
         Object Dispatch(ASTNode* x);
     public:
         void Execute(ASTNode* x);
+        MemStore& env() {
+            return memStore;
+        }
 
 };
 
@@ -64,14 +68,17 @@ Object Interpreter::stringOp(TokenType op, Object left, Object right) {
         retObj.data.stringValue += to_string(convObj.data.intValue);
     else if (convObj.type == REAL)
         retObj.data.stringValue += to_string(convObj.data.realValue);
+    else {
+        retObj.data.stringValue += convObj.data.stringValue;
+    }
     onExit();
     return retObj;
 }
 
 Object Interpreter::mathOp(TokenType op, Object leftChild, Object rightChild) {
-    onEnter("mathOp");
-    float leftOperand, rightOperand, result = 0;
+    onEnter("math Op");
     Object retObj;
+    float leftOperand, rightOperand, result = 0;
     if (leftChild.type == INTEGER) {
         leftOperand = (float) leftChild.data.intValue;
     }  else if (leftChild.type == REAL) {
@@ -82,7 +89,6 @@ Object Interpreter::mathOp(TokenType op, Object leftChild, Object rightChild) {
     } else if (rightChild.type == REAL) {
         rightOperand = rightChild.data.realValue;
     }
-    say(to_string(leftOperand) + "op" + to_string(rightOperand));
     switch (op) {
         case PLUS:
             result = leftOperand + rightOperand;
@@ -99,7 +105,7 @@ Object Interpreter::mathOp(TokenType op, Object leftChild, Object rightChild) {
         default:
             break;
     }
-    if (leftChild.type == INTEGER && rightChild.type == INTEGER) {
+     if (leftChild.type == INTEGER && rightChild.type == INTEGER) {
         retObj.type = INTEGER;
         retObj.data.intValue = (int)result;
     } else {
@@ -110,21 +116,10 @@ Object Interpreter::mathOp(TokenType op, Object leftChild, Object rightChild) {
     return retObj;
 }
 
-Object Interpreter::relOp(TokenType op, Object leftChild, Object rightChild) {
-    onEnter("relop");
+Object Interpreter::relOp(TokenType op, float leftOperand, float rightOperand) {
+    onEnter("rel Op");
+    Object retVal;
     bool result;
-    float leftOperand, rightOperand;
-    if (leftChild.type == INTEGER) {
-        leftOperand = (float) leftChild.data.intValue;
-    }  else if (leftChild.type == REAL) {
-        leftOperand = leftChild.data.realValue;
-    }
-    if (rightChild.type == INTEGER) {
-        rightOperand = (float) rightChild.data.intValue;
-    } else if (rightChild.type == REAL) {
-        rightOperand = rightChild.data.realValue;
-    }
-    say(to_string(leftOperand) + "op" + to_string(rightOperand));
     switch (op) {
         case LESS:
             result = (leftOperand < rightOperand);
@@ -145,7 +140,7 @@ Object Interpreter::relOp(TokenType op, Object leftChild, Object rightChild) {
             result = (leftOperand >= rightOperand);
             break;
     }
-    Object retVal = Object(result);
+    retVal = Object(result);
     retVal.type = INTEGER;
     return retVal;
 }
@@ -155,13 +150,30 @@ Object Interpreter::eval(ASTNode* x) {
     Object leftChild, rightChild, retObj;
     float leftOperand, rightOperand, result = 0;
     leftChild = interpretExpression(x->child[0]);
+    onExit();
     rightChild = interpretExpression(x->child[1]);
+    if (leftChild.type == INTEGER) {
+        leftOperand = (float) leftChild.data.intValue;
+    }  else if (leftChild.type == REAL) {
+        leftOperand = leftChild.data.realValue;
+    }
+    if (rightChild.type == INTEGER) {
+        rightOperand = (float) rightChild.data.intValue;
+    } else if (rightChild.type == REAL) {
+        rightOperand = rightChild.data.realValue;
+    }
+    say(to_string(leftOperand) + "op" + to_string(rightOperand));
     if (leftChild.type == STRING || rightChild.type == STRING)
         return stringOp(x->attribute.op, leftChild, rightChild);
-    if (x->attribute.op == PLUS || x->attribute.op == MINUS || x->attribute.op == MULT || x->attribute.op == DIVD)
-        return mathOp(x->attribute.op, leftChild, rightChild);    
-    if (x->attribute.op == EQUAL || x->attribute.op == NOTEQUAL || x->attribute.op == LESS || x->attribute.op == GREATER || x->attribute.op == LESSEQ || x->attribute.op == GREATEREQ)
-        return relOp(x->attribute.op, leftChild, rightChild);
+    
+    if (x->attribute.op == PLUS || x->attribute.op == MINUS || 
+        x->attribute.op == MULT || x->attribute.op == DIVD) {
+        retObj = mathOp(x->attribute.op, leftChild, rightChild);    
+    }
+    if (x->attribute.op == EQUAL || x->attribute.op == NOTEQUAL || x->attribute.op == LESS || 
+        x->attribute.op == GREATER || x->attribute.op == LESSEQ || x->attribute.op == GREATEREQ) {
+        retObj = relOp(x->attribute.op, leftOperand, rightOperand);
+    }
     onExit("eval result: " + retObj.toString());
     return retObj;
 }
@@ -169,7 +181,6 @@ Object Interpreter::eval(ASTNode* x) {
 Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
     onEnter("retrieveFromMemoryByName");
     Object retVal;
-    memStore.display();
     int offset = 0, addr = 0;
     if (procedures.find(x->attribute.name) != procedures.end()) {
         say("Procedure Found, Dispatching.");
@@ -208,7 +219,6 @@ Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
 }
 
 void Interpreter::storeToMemoryByName(ASTNode* x) {
-    memStore.display();
     onEnter("storeToMemoryByName ");
     string varname = x->child[0]->attribute.name; //variable name
     say("Assign to " + varname + ": ");
@@ -217,7 +227,7 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
     if (x->child[0]->kind == EXPRNODE && x->child[0]->type.expr == SUBSCRIPT_EXPR) {
         say("Retrieving subscript " + x->child[0]->attribute.name);
         offset = interpretExpression(x->child[0]->child[0]).data.intValue;
-        if (offset < 0) {
+        if (offset <= 0) {
             cout<<"Error: Invalid Index: "<<offset<<endl;
         }
         say("Array Reference, offset: " + offset);
@@ -253,7 +263,10 @@ Object Interpreter::interpretExpression(ASTNode* x) {
             else if (x->attribute.type == as_real)
                 retVal = Object(stof(x->attribute.name));
             say(ExprKindStr[x->type.expr] + " value: " + retVal.toString());
-            onExit("");
+            return retVal;
+        case CONST_STR:
+            retVal = Object(x->attribute.name);
+            retVal.type = STRING;
             return retVal;
         case RAND_EXPR:
             rbound = x->child[0]->attribute.intValue;
@@ -265,7 +278,6 @@ Object Interpreter::interpretExpression(ASTNode* x) {
         case PROCDCALL:
             if (procedures.find(x->attribute.name) != procedures.end()) {
                 retVal = Dispatch(x);
-                onExit();
                 return retVal;
             }
             break;
@@ -277,14 +289,14 @@ Object Interpreter::interpretExpression(ASTNode* x) {
                 say(msg);
             } else
                 say("value: " + retVal.toString());
-            onExit("");
+            onExit();
             return retVal;
     }
-    onExit("Expression");
+    onExit();
     return retVal;
 }
 
-void Interpreter::interpretVarDeclaration(ASTNode* x) {
+void Interpreter::declareVariable(ASTNode* x) {
     string name;
     int addr;
     if (x->child[0]->type.expr == SUBSCRIPT_EXPR) {
@@ -315,7 +327,7 @@ void Interpreter::interpretVarDeclaration(ASTNode* x) {
 }
 
 
-void Interpreter::interpretFuncDeclaration(ASTNode* node) {
+void Interpreter::declareFunction(ASTNode* node) {
     onEnter("Procedure Declaration: " + node->attribute.name);
     if (procedures.find(node->attribute.name) == procedures.end()) {
         StackFrame *procRec = new StackFrame;
@@ -328,27 +340,27 @@ void Interpreter::interpretFuncDeclaration(ASTNode* node) {
         } 
         procedures[node->attribute.name] = procRec;
     }
-    onExit("Procedure Declaration: " + node->attribute.name);
+    onExit();
 }
 
 
-void Interpreter::interpretPrintStatement(ASTNode* node) {
+void Interpreter::doPrintStatement(ASTNode* node) {
     onEnter("[PRINT]");
     if (node->type.expr == CONST_STR) //I mean, thats WHY its a const string, right?
         cout<<node->attribute.name<<endl;
     else
         cout<<interpretExpression(node).toString()<<endl;
-    onExit("[PRINT]");
+    onExit();
 }
 
-void Interpreter::interpretReadStatement(ASTNode* node) {
+void Interpreter::doReadStatement(ASTNode* node) {
     int input;
     cin>>input;
     int addr = variables[node->attribute.name];
     memStore.store(addr, Object(input));
 }
 
-void Interpreter::interpretIfStatement(ASTNode* node) {
+void Interpreter::handleIfStatement(ASTNode* node) {
     int res = interpretExpression(node->child[0]).data.intValue;
     if (res) {
         say("passed test");
@@ -361,7 +373,7 @@ void Interpreter::interpretIfStatement(ASTNode* node) {
     }
 }
 
-void Interpreter::interpretWhileStatement(ASTNode* node) {
+void Interpreter::handleWhileStatement(ASTNode* node) {
     onEnter("While Loop");
     Object ret = interpretExpression(node->child[0]).data.intValue;
     while (ret.data.intValue) {
@@ -374,7 +386,7 @@ void Interpreter::interpretWhileStatement(ASTNode* node) {
     onExit("Leaving While Statement");
 }
 
-void Interpreter::interpretReturnStatement(ASTNode* node) {
+void Interpreter::doReturnStatement(ASTNode* node) {
     onEnter("Return Statement.");
     Object retVal =  interpretExpression(node->child[0]);
     rtStack.top()->returnVal = retVal;
@@ -441,22 +453,22 @@ void Interpreter::interpretExprStatement(ASTNode* node) {
 void Interpreter::interpretStatement(ASTNode* node) {
     switch (node->type.stmt) {
         case VARDECL:
-            interpretVarDeclaration(node);
+            declareVariable(node);
             break;
         case FUNCDECL:
-            interpretFuncDeclaration(node);
+            declareFunction(node);
             break;
         case PRINTSTM:
-            interpretPrintStatement(node->child[0]);
+            doPrintStatement(node->child[0]);
             break;
         case READSTM:
-            interpretReadStatement(node->child[0]);
+            doReadStatement(node->child[0]);
             break;
         case IFSTM:
-            interpretIfStatement(node); 
+            handleIfStatement(node); 
             break;
         case WHILESTM:
-            interpretWhileStatement(node);
+            handleWhileStatement(node);
             break;
         case EXPRSTM:
             interpretExprStatement(node);
@@ -465,7 +477,7 @@ void Interpreter::interpretStatement(ASTNode* node) {
             storeToMemoryByName(node->child[0]);
             break;
         case RETURNSTM:
-            interpretReturnStatement(node);
+            doReturnStatement(node);
             break;
     }
 }

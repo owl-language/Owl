@@ -1,0 +1,11 @@
+program 'types';
+begin
+    let x: int := 1;
+    let y: real := 0.3;
+    x := 2;
+    y := x + y;
+    x := "hmmm";
+    
+    print x;
+    print y;
+end

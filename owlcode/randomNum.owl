@@ -1,6 +1,10 @@
 program 'randomNumbers';
 begin
-    let x: int := 1;
-    x := rand(130);
-    print x;
+    let rn: int := 1;
+    let cnt: int := 1;
+    while (cnt <= 10) begin
+        rn := rand(130);
+        print rn;
+        cnt := cnt + 1;
+    end;
 end

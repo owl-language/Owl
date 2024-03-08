@@ -2,10 +2,12 @@ program 'scope';
 begin
     let t: int := 13;
     func scoped(x: int) begin
-        let t: int := 42;
-        print t;
-        print (x + t);
+        if (x < 4) then
+            scoped(x+1);
+        end;
+        print x;
     end;
-    scoped(t);
+    scoped(1);
     print (t);
+    scoped(1);
 end

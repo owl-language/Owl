@@ -430,6 +430,17 @@ ASTNode* Parser::factor() {
         node->attribute.type = as_real;
         node->attribute.intValue = lookahead().numval;
         match(REALNUM);
+    } else if (lookahead().tokenval == QUOTE) {
+        match(QUOTE);
+        if (lookahead().tokenval == STRING_LITERAL) {
+            node = makeExpressionNode(CONST_STR, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
+            node->attribute.type = as_string;
+            node->attribute.name = lookahead().stringval;
+            match(STRING_LITERAL);
+            match(QUOTE);
+        } else {
+            cout<<"ERROR: unexpected string"<<endl;
+        }
     } else if (lookahead().tokenval == RAND) {
         node = randExpression();
     } else if (lookahead().tokenval == LPAREN) {
