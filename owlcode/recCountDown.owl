@@ -1,0 +1,12 @@
+program 'recCountDown';
+begin
+    func countDown(n: int) begin
+        if (n >= 1) then
+            print (n + " ");
+            countDown(n - 1);
+        else
+            print "\n";
+        end;
+    end
+    countDown(13);
+end

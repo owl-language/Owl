@@ -26,11 +26,7 @@ class Parser {
             }
         }
         void reSync() {
-            /*while (lookahead().tokenval != END) {
-                if (lookahead().tokenval == SEMI || lookahead().tokenval == ELSE)
-                    break;
-                nexttoken();
-            }*/
+            //removed, bad Idea.
         }
         bool match(TokenType token) {
             if (lookahead().tokenval == token) {
