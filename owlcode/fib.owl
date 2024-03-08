@@ -6,7 +6,7 @@ begin
     let x: int := 1;
     func calcAndPrint() begin
         n := (p + c);
-        print (n);
+        print (n + " ");
         p := c;
         c := n;
     end;
@@ -14,4 +14,5 @@ begin
         calcAndPrint();
         x := (x + 1);
     end;
+    print "\n";
 end

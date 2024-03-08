@@ -15,6 +15,7 @@ class OwlShell {
         ASTNode* ast;
         Interpreter interpreter; //take a wild guess
         vector<string> tokenizeInput(string input);
+        void showHelp();
     public:
         OwlShell() {
 
@@ -37,6 +38,21 @@ void OwlShell::start() {
     }
 }
 
+void OwlShell::showHelp() {
+    cout<<"OwlShell Interactive Interpreter"<<endl;
+    cout<<"-----------------------------"<<endl;
+    cout<<"  Command       Description"<<endl;
+    cout<<"  load <path>    load a .owl script into Owlsh."<<endl;
+    cout<<"  run            execute the current Owl script."<<endl;
+    cout<<"  list tokens    display all tokens from current Owl script."<<endl;
+    cout<<"  list ast       display the AST of current Owl script."<<endl;
+    cout<<"  reset          Places OwlShell into its initial state, "<<endl;
+    cout<<"                 Unloads any scripts and clears OwlVM memory."<<endl;
+    cout<<"  spy memory     display memory usage in OwlVM."<<endl;
+    cout<<"  help, ?        display this menu."<<endl;
+    cout<<"  quit, exit     Close OwlShell."<<endl;
+}
+
 void OwlShell::parseCommand(vector<string>& tokens) {
     if (tokens[0] == "quit" || tokens[0] == "exit") {
         exit(0);
@@ -56,8 +72,10 @@ void OwlShell::parseCommand(vector<string>& tokens) {
         freeTree(ast);
     } else if (tokens[0] == "spy") {
         if (tokens[1] == "memory") {
-            interpreter.env().display();
+            interpreter.memoryUsage();
         }
+    } else if (tokens[0] == "?" || tokens[0] == "help") {
+        showHelp();
     } else {
         cout<<"? "<<tokens[0]<<endl;
     }

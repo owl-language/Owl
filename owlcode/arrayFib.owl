@@ -1,7 +1,8 @@
 program 'ArrayFib';
 begin
     let m: int := 3;
-    let fib[30]: int;
+    let n: int := 5;
+    let fib[52]: int;
     fib[1] := 0;
     fib[2] := 1;
     func nthFib(n: int) begin
@@ -12,8 +13,11 @@ begin
         end;
         return fib[i - 1];
     end
-    while (m < 27) begin
-        print nthFib(m);
+    input n;
+    m := 3;
+    while (m <= n+2) begin
+        print (nthFib(m) + " ");
         m := m + 1;
     end;
+    print "\n";
 end

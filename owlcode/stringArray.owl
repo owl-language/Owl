@@ -1,0 +1,20 @@
+program 'typedArray';
+begin
+    let cnt: int := 0;
+    let strs[10]: string;
+    strs[1] := "oh";
+    strs[2] := "what";
+    strs[3] := "a";
+    strs[4] := "night";
+    strs[5] := "late";
+    strs[6] := "december";
+    strs[7] := "back";
+    strs[8] := "in";
+    strs[9] := "63";
+    cnt := 1;
+    while (cnt <= 9) begin
+        print (strs[cnt] + " ");
+        cnt := cnt + 1;
+    end;
+    print "\n";
+end;

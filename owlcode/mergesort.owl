@@ -1,0 +1,23 @@
+program 'mergesort';
+begin
+    let arr[10]: int;
+    let aux[10]: int;
+    let i: int := 13;
+    func merge(l: int, m: int, r: int) begin
+   
+    end
+
+    func msort(l: int, r: int) begin
+        let m: int := 1;
+        if (r - l > 1) then
+            m := (l+r)/2;
+            print (m + " ");
+            msort(l, m);
+            msort(m, r);
+            print(m + " ");
+        end;
+    end
+
+    msort(1, 10);
+    print "\n";
+end

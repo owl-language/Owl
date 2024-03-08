@@ -17,19 +17,20 @@ class Parser {
             return *ts;
         }
         void nexttoken() {
-            ts++;
+            std::advance(ts,1);
             if (ts != tokenvector.end()) {
                 currentToken = *ts;
             } else {
                 say("Token Stream Consumed.");
+                std::advance(ts, -1);
             }
         }
         void reSync() {
-            while (lookahead().tokenval != END) {
+            /*while (lookahead().tokenval != END) {
                 if (lookahead().tokenval == SEMI || lookahead().tokenval == ELSE)
                     break;
                 nexttoken();
-            }
+            }*/
         }
         bool match(TokenType token) {
             if (lookahead().tokenval == token) {
@@ -87,6 +88,10 @@ ASTNode* Parser::replParse(vector<Token>& tokens) {
 }
 
 ASTNode* Parser::start(vector<Token>& tokens) {
+    if (tokens.empty()) {
+        cout<<"Error: token stream is empty."<<endl;
+        return nullptr;
+    }
     depth = 0;
     initStream(tokens);
     match(PROG);
@@ -154,8 +159,9 @@ ASTNode* Parser::statement() {
             break;
         case RETURN: 
             node = returnStatement();
+            break;
         default:
-            cout<<"Error, invalid statement on line "<<lookahead().lineno<<": "<<lookahead().stringval<<endl;
+            cout<<"Error, invalid statement on line "<<lookahead().lineno<<": "<<tokenString[lookahead().tokenval]<<endl;
             reSync();
             return node;
     }
@@ -202,6 +208,10 @@ ASTNode* Parser::declareVarStatement() {
         node->child[1] = term();
     } else if (lookahead().tokenval == STR) {
         match(STR);
+        if (lookahead().tokenval == SEMI) {
+            match(SEMI);
+            return node;
+        }
         match(ASSIGN);
         node->child[1] = strValue();
         match(SEMI);

@@ -15,19 +15,18 @@ class Interpreter {
         map<string, StackFrame*> procedures;
         CallStack callStack;
         MemStore memStore;
-        int rtsp;
         Object eval(ASTNode* x);
         Object stringOp(TokenType op, Object left, Object right);
         Object mathOp(TokenType op, Object left, Object right);
         Object relOp(TokenType op, float left, float right);
+        void declareVariable(ASTNode* x);
+        void declareFunction(ASTNode* x);
         Object retrieveFromMemoryByName(ASTNode* x);
         void storeToMemoryByName(ASTNode* x);
         Object interpretExpression(ASTNode* x);
         void interpretStatement(ASTNode* x);
         void interpretExprStatement(ASTNode* x);
         void doReturnStatement(ASTNode* x);
-        void declareVariable(ASTNode* x);
-        void declareFunction(ASTNode* x);
         void doPrintStatement(ASTNode* x);
         void doReadStatement(ASTNode* x);
         void handleIfStatement(ASTNode* x);
@@ -36,8 +35,9 @@ class Interpreter {
         Object Dispatch(ASTNode* x);
     public:
         void Execute(ASTNode* x);
-        MemStore& env() {
-            return memStore;
+        void memoryUsage() {
+            cout<<"[ Memory Usage: "<<memStore.usage()<<"% ]"<<endl;
+            memStore.display();
         }
 
 };
@@ -312,7 +312,7 @@ void Interpreter::declareVariable(ASTNode* x) {
         if (x->child[1]->attribute.type == as_string) {
             obj.type = STRING;
             obj.data.stringValue = x->child[1]->attribute.name;
-        } else if (x->child[1]->attribute.type == as_real) {
+        } else if (x->child[1]->attribute.type == as_real) { 
             obj.type = REAL;
             obj.data.realValue = stof(x->child[1]->attribute.name);
         } else {
@@ -347,9 +347,9 @@ void Interpreter::declareFunction(ASTNode* node) {
 void Interpreter::doPrintStatement(ASTNode* node) {
     onEnter("[PRINT]");
     if (node->type.expr == CONST_STR) //I mean, thats WHY its a const string, right?
-        cout<<node->attribute.name<<endl;
+        cout<<node->attribute.name;
     else
-        cout<<interpretExpression(node).toString()<<endl;
+        cout<<interpretExpression(node).toString();
     onExit();
 }
 
@@ -364,11 +364,16 @@ void Interpreter::handleIfStatement(ASTNode* node) {
     int res = interpretExpression(node->child[0]).data.intValue;
     if (res) {
         say("passed test");
-        interpretStatement(node->child[1]);
+        auto t = node->child[1];
+        while (t) {
+            interpretStatement(t);
+            t = t->sibling;
+        }
     } else {
         if (node->child[2]) {
             say("else clause");
-            interpretStatement(node->child[2]);
+            auto t = node->child[2];
+            interpretStatement(t);
         }
     }
 }

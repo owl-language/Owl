@@ -20,7 +20,7 @@ class FileReader {
         FileReader() {
             linenum = 0;
         }
-        void readFile(string fname);
+        bool readFile(string fname);
         vector<string>& getLines() {
             return lines;
         }
@@ -31,11 +31,11 @@ class FileReader {
         }
 };
 
-void FileReader::readFile(string filename) {
+bool FileReader::readFile(string filename) {
     infile.open(filename, ios::in);
-    if (!infile.good()) {
+    if (!infile.is_open()) {
         cout<<"Couldnt open file: "<<filename<<" for reading."<<endl;
-        return;
+        return false;
     }
     string line = "";
     while (nextchar()) {
@@ -52,6 +52,7 @@ void FileReader::readFile(string filename) {
     }
     lines.push_back(line);
     infile.close();
+    return true;
 }
 
 
@@ -72,15 +73,18 @@ class SourceBuffer {
         }
     public:
         SourceBuffer() {
-            
+        
         }
         int lineNumber() {
             return lineNum;
         }
         void loadFile(string filename) {
             scanner.reset();
-            scanner.readFile(filename);
-            initSourceBuffer(scanner.getLines());
+            if (scanner.readFile(filename)) {
+                initSourceBuffer(scanner.getLines());
+            } else {
+                readChar = eofChar;
+            }
         }
         bool isEOF() {
             return readChar == eofChar;

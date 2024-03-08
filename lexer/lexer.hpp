@@ -131,7 +131,12 @@ Token OwlLexer::handleSpecials() {
         return Token(PERIOD, ".", -1, sb.lineNumber());
     } else if (sb.Char() == '\'') {
         return Token(SQUOTE, "\'", -1, sb.lineNumber());
-    } 
+    } else if (sb.Char() == '\\') {
+        sb.GetChar();
+        if (sb.Char() == 'n') {
+            return Token(STRING_LITERAL, "\r\n", -1, sb.lineNumber());
+        }
+    }
     cout<<"ERROR uknown token: "<<sb.Char()<<"\n";
     sb.GetChar();
     return Token(ERROR, "Error", -1, sb.lineNumber());
@@ -171,8 +176,16 @@ void OwlLexer::processString(vector<Token>& tokenList) {
     string str;
     Token nextToken;
     while (sb.Char() != sb.EOFMarker() && sb.Char() != '\"') {
-        str.push_back(sb.Char());
-        sb.GetChar();
+        if (sb.Char() == '\\') {
+            sb.GetChar();
+            if (sb.Char() == 'n') {
+                str.push_back('\n');
+                sb.GetChar();
+            }
+        } else {
+            str.push_back(sb.Char());
+            sb.GetChar();
+        }
     }
     nextToken.tokenval = STRING_LITERAL;
     nextToken.stringval = str;

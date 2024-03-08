@@ -18,9 +18,10 @@ begin
         let k: int := 1;
         k := 1;
         while (k < n) begin
-            print x[k];
+            print (x[k] + " ");
             k := k + 1;
         end;
+        print "\n";
     end
 
     func sortPass(m: int, n: int) begin
