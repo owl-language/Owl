@@ -4,7 +4,7 @@ begin
     let y: int := 30;
     let m: int := 0;
     m := (100/2) + 6;
-    print m;
+    print (m + "\n");
     y := 2+3*4;
-    print y;
+    print (y + "\n");
 end

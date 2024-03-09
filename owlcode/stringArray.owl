@@ -1,4 +1,4 @@
-program 'typedArray';
+program 'stringArray';
 begin
     let cnt: int := 0;
     let strs[10]: string;

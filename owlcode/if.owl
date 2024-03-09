@@ -5,5 +5,5 @@ begin
     if (x < y) then
         x := (x+y);
     end; 
-    print x;
+    print (x + "\n");
 end

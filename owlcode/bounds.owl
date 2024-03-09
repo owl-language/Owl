@@ -5,7 +5,7 @@ begin
 
     i := 1;
     
-    while (i <= 5) begin
+    while (i <= 8) begin
         x[i] := (i);
         print x[i];
         i := i + 1;

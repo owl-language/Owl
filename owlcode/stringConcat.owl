@@ -6,5 +6,7 @@ begin
     print pre;
     print aNum;
     print post;
+    print "\n";
     print (pre + " " + aNum + " " + post);
+    print "\n";
 end

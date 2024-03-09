@@ -51,7 +51,7 @@ class Interpreter {
 
 int divide(int a, int b) {
     if (b == 0) {
-        cout<<"Don't do that."<<endl;
+        logError("Error: Divide By Zero. (Don't do that.)");
         return 0;
     }
     float fa = (float) a;
@@ -67,16 +67,15 @@ Object Interpreter::stringOp(TokenType op, Object left, Object right) {
     if (left.type == STRING) {
         retObj.data.stringValue = left.data.stringValue;
         convObj = right;
+        if (convObj.type == INTEGER) convObj.data.stringValue = to_string(convObj.data.intValue);
+        else if (convObj.type == REAL) convObj.data.stringValue = to_string(convObj.data.realValue);
+        retObj.data.stringValue += convObj.data.stringValue;
     } else {
         retObj.data.stringValue = right.data.stringValue;
         convObj = left;
-    }
-    if (convObj.type == INTEGER)
-        retObj.data.stringValue += to_string(convObj.data.intValue);
-    else if (convObj.type == REAL)
-        retObj.data.stringValue += to_string(convObj.data.realValue);
-    else {
-        retObj.data.stringValue += convObj.data.stringValue;
+        if (convObj.type == INTEGER) convObj.data.stringValue = to_string(convObj.data.intValue);
+        else if (convObj.type == REAL) convObj.data.stringValue = to_string(convObj.data.realValue);
+        retObj.data.stringValue = convObj.data.stringValue + retObj.data.stringValue;
     }
     onExit();
     return retObj;
@@ -246,12 +245,12 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
         addr = variables[varname];
         say("stored global variable " + varname + " value: " + valToAssign.toString() + " at " + to_string(addr) + " offset: " + to_string(offset) + " as: " + rtTypeAsStr[valToAssign.type]);
     } else {
-        cout<<"Error: unknown identifier: "<<varname<<endl;
+        logError("Error: unknown identifier: " + varname);
         onExit();
         return;
     }
     if (offset > 0 && offset > memStore.get(addr).attr.size) {
-        cout<<"Error: Index "<<offset<<" out of range for array "<<varname<<endl;
+        logError("Error: Index " + to_string(offset) + " out of range for array " + varname);
         onExit();
         return;
     }
@@ -390,6 +389,7 @@ void Interpreter::handleIfStatement(ASTNode* node) {
 
 void Interpreter::handleWhileStatement(ASTNode* node) {
     onEnter("While Loop");
+    say("Check loop condition");
     Object ret = interpretExpression(node->child[0]).data.intValue;
     while (ret.data.intValue) {
         say("Execute Body: ");

@@ -2,10 +2,12 @@ program 'types';
 begin
     let x: int := 1;
     let y: real := 0.3;
+    print (x + " ");
+    print (y + " ");
+    print "\n";
     x := 2;
+    y := 0.3667;
     y := x + y;
     x := "hmmm";
-    
-    print x;
-    print y;
+    print (x + " " + y + "\n");
 end

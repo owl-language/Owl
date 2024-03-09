@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include "../tokens/tokens.hpp"
 #include "../tools/filebuffer.hpp"
+#include "../tools/tracer.hpp"
 using namespace std;
 
 class OwlLexer {
@@ -136,7 +137,7 @@ Token OwlLexer::handleSpecials() {
             return Token(STRING_LITERAL, "\r\n", -1, sb.lineNumber());
         }
     }
-    cout<<"ERROR uknown token: "<<sb.Char()<<"\n";
+    logError("ERROR uknown symbol: " + to_string(sb.Char()) + "\n");
     sb.GetChar();
     return Token(ERROR, "Error", -1, sb.lineNumber());
 }
@@ -192,7 +193,7 @@ void OwlLexer::processString(vector<Token>& tokenList) {
     tokenList.push_back(nextToken);
     nextToken = handleSpecials();
     if (nextToken.tokenval != QUOTE) {
-        cout<<"Error processing string."<<endl;
+        logError("Error processing string.");
         exit(0);
     }
     tokenList.push_back(nextToken);

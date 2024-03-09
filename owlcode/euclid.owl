@@ -2,12 +2,19 @@ program 'euclids';
 begin
     let a: int := 72;
     let b: int := 42;
-    while (a != b) begin
-        if (b < a) then
-            a := a - b;
-        else
-            b := b - a;
+    func gcd(a: int, b: int) begin
+        while (a != b) begin
+            if (b < a) then
+                a := a - b;
+            else
+                b := b - a;
+            end;
         end;
+        return a;
     end;
-    print a;
+    print "Enter first number: ";
+    input a;
+    print "Enter second number: ";
+    input b;
+    print (gcd(a, b) + "\n");
 end

@@ -11,6 +11,7 @@ enum TracerStates {
 };
 
 unordered_set<TracerStates> shouldTrace;
+
 void initTracer(char *lstr) {
     logfile.open(".runlog.tree", ios::out);
     if (!logfile.is_open()) {
@@ -27,6 +28,19 @@ void initTracer(char *lstr) {
             shouldTrace.insert(INTERP);
             shouldTrace.insert(PARSE);
         }
+    }
+}
+
+void printToLog(string s) {
+    if (logfile.is_open()) {
+        logfile<<s<<endl;
+    }
+}
+
+void logError(string s) {
+    cout<<s<<endl;
+    if (logfile.is_open()) {
+        logfile<<s<<endl;
     }
 }
 
@@ -55,7 +69,7 @@ void say(string s) {
             logfile<<"  ";
         }
         string msg = "(" + to_string(depth) + ") " + s;
-        logfile<<msg<<endl;
+        printToLog(msg);
         cout<<msg<<endl;
     }
 }
@@ -76,9 +90,9 @@ void onExit() {
 
 void traceNode(ASTNode* node) {
     if (node->kind == EXPRNODE) {
-        logfile<<"["<<ExprKindStr[node->type.expr]<<"] "<<node->attribute.name<<" - ";
+        logfile<<"["<<ExprKindStr[node->type.expr]<<"] "<<node->attribute.name<<" ";
         if (node->type.expr == OP_EXPR) 
-            logfile<<tokenString[node->attribute.op];
+            logfile<<" - "<<tokenString[node->attribute.op];
         logfile<<endl;
     } else {
         logfile<<"["<<StmtKindStr[node->type.stmt]<<"] "<<node->attribute.name<<endl;
@@ -102,17 +116,12 @@ void traceTree(ASTNode* node) {
 }
 
 void traceAST(ASTNode* node) {
-    logfile<<endl;
-    logfile<<"Abstract Syntax Tree:"<<endl;
-    logfile<<"---------------------"<<endl;
+    
+    printToLog("Abstract Syntax Tree:");
+    printToLog("---------------------");
     depth = 0;
     traceTree(node);
 }
 
-void printToLog(string s) {
-    if (logfile.is_open()) {
-        logfile<<s<<endl;
-    }
-}
 
 #endif

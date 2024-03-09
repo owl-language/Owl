@@ -61,7 +61,7 @@ void MemStore::display() {
 Object& MemStore::get(int addr) {
     if (addr >= 0 && addr < MAX_MEM_STORE)
         return objmem[addr];
-    cout<<"[INVALID ADDRESS: "<<addr<<"]"<<endl;
+    logError("[INVALID ADDRESS: " + to_string(addr) + "]");
     return objmem[0];
 }
 
@@ -71,7 +71,7 @@ void MemStore::store(int addr, Object o) {
 
 int MemStore::storeAtNextFree(Object o) {
     if (nextFreeAddress+1 >= MAX_MEM_STORE) {
-        cout<<"ERROR: OUT OF MEMORY"<<endl;
+        logError("ERROR: OUT OF MEMORY");
         return -1;
     }
     int addr = allocate(1);
@@ -88,11 +88,11 @@ void MemStore::free(int cell) {
 
 int MemStore::allocate(int cells) {
     if (nextFreeAddress+cells >= MAX_MEM_STORE) {
-        cout<<"ERROR: OUT OF MEMORY"<<endl;
+        logError("ERROR: OUT OF MEMORY");
         return -1;
     }
-    int m, baseAddr;
-    //if we only need a single element, chances are
+    int baseAddr;
+    //if we only need a single cell, chances are
     //we have at some point freed a block of that size
     //so check freed list first.
     if (cells == 1) {

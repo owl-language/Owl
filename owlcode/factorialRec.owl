@@ -10,7 +10,9 @@ begin
         end;
         return t;
     end;
+    print "Enter a number: ";
     input n;
     x := factR(n);
     print x;
+    print "\n";
 end

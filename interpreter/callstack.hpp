@@ -51,7 +51,7 @@ bool CallStack::empty() {
 
 void CallStack::push(StackFrame* sf) {
     if (rtsp+1 == MAX_RT_STACK) {
-        cout<<"[ERROR: STACK OVERFLOW!]"<<endl;
+        logError("[ERROR: STACK OVERFLOW!]");
         return;
     }
     if (rtsp == 0) sf->staticLink = nullptr;
@@ -61,7 +61,7 @@ void CallStack::push(StackFrame* sf) {
 
 void CallStack::pop() {
     if (rtsp - 1 < 0) {
-        cout<<"[ERROR: STACK UNDERFLOW!]"<<endl;
+        logError("[ERROR: STACK UNDERFLOW!]");
         return;
     }
     StackFrame* t = rtStack[rtsp];

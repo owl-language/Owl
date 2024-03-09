@@ -13,6 +13,7 @@ class Parser {
         vector<Token> tokenvector;
         TokenStream ts;
         Token currentToken;
+        int stumbleCount;
         Token& lookahead() {
             return *ts;
         }
@@ -26,7 +27,10 @@ class Parser {
             }
         }
         void reSync() {
-            //removed, bad Idea.
+            if (stumbleCount > 2) {
+                logError("Too many errors during parsing, bailing out.");
+                exit(0);
+            }
         }
         bool match(TokenType token) {
             if (lookahead().tokenval == token) {
@@ -35,7 +39,8 @@ class Parser {
                 return true;
             }
             cout<<"Mismatched Token on line "<<lookahead().lineno<<": "<<lookahead().stringval<<endl;
-            cout<<"Expected: "<<tokenString[lookahead().tokenval]<<" but found "<<tokenString[token]<<endl;
+            cout<<"Expected: "<<tokenString[token]<<" but found "<<tokenString[lookahead().tokenval]<<endl;
+            stumbleCount++;
             return false;
         }
         void initStream(vector<Token>& tokens) {
@@ -85,7 +90,7 @@ ASTNode* Parser::replParse(vector<Token>& tokens) {
 
 ASTNode* Parser::start(vector<Token>& tokens) {
     if (tokens.empty()) {
-        cout<<"Error: token stream is empty."<<endl;
+        logError("Error: token stream is empty.");
         return nullptr;
     }
     depth = 0;

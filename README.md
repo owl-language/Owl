@@ -7,78 +7,81 @@ declared with an _initial_ type, but a variables type can be changed
 implicitly through assignment
 
 
-# EBNWTF Syntax
+# Grammar
+
+This is still very much in development, and should be viewed as an approximation of Owl's grammar
 
 ## reserved words: 
 
-   begin, end, input, print, if, then , else, while, 
-   func, let, int, string, real, rand, program, return
+      begin, end, input, print, if, then , else, while, 
+      func, let, int, string, real, rand, program, return
 
 ## reserved symbols:
-   , . := : ; + - * / [ ] ( ) {* *} < > <= >= == !=
+      , . := : ; + - * / [ ] ( ) {* *} < > <= >= == !=
 
 
-   program := block
+      program := block
     
-   block := begin 
-            statement_list
-	         end
+      block := begin 
+                  statement_list
+	            end
 
-   statement_list := statement | statement*
+      statement_list := statement | statement*
 
-   statement :=   (   
-	   	          declareVar |
-	          declareProcedure |
-	            printStatement |
-	            inputStatement |
-                whileStatment |
-                   ifStatment |
-          expressionStatement |
-             return statement 
-              ) <;>
+      statement :=   (   
+	      	          declareVar |
+	             declareProcedure |
+	               printStatement |
+	               inputStatement |
+                   whileStatment |
+                      ifStatment |
+             expressionStatement |
+                return statement 
+                    ) <;>
 
-   declareVar := let term <:> type {<;> |  <:=> term <;>}
+      declareVar := let term <:> type {<;> |  <:=> term <;>}
 
-   declareProcedure := func id ( {paraneter_list} ) block
+      declareProcedure := func id ( {paraneter_list} ) block
 
-   parameter_list := id <:> type {<,> parameter_list}*
+      parameter_list := id <:> type {<,> parameter_list}*
 
-   expressionStatement := simpleExpression | assignmentStatement | procedureCall
+      expressionStatement := simpleExpression | assignmentStatement | procedureCall
 
-   procedureCall := id ( argument_list )  
+      procedureCall := id ( argument_list )  
 
-   argument_list := expression { <,> expression }*
+      argument_list := expression { <,> expression }*
 
-   assignStatement := id <:=> expression
+      assignStatement := id <:=> expression
 
-   whileStatement := while (expression) block
+      whileStatement := while (expression) block
 
-   ifStatement := if (expression) then
-                     statement_list
-                  {else 
-                     statement_list}
-                  end
-   returnStatement := return expression
+      ifStatement := if (expression) then
+                        statement_list
+                     {else 
+                        statement_list}
+                     end
+      
+      returnStatement := return expression
 
-   expression := simpleExpression ( < | > | <= | >= | == | != ) simpleExpression        
+      expression := simpleExpression ( < | > | <= | >= | == | != ) simpleExpression        
 
-   simpleExpression := term { (+|-) term }*
+      simpleExpression := term { (+|-) term }*
 
-   term := factor { (*|/) factor }*
+      term := factor { (*|/) factor }*
 
-   factor := var | num | rand_num | real_num | string_literal | ( expression )
+      factor := var | num | rand_num | real_num | string_literal | ( expression )
 
-   var := id[expression] | procedureCall
+      var := id[expression] | procedureCall
 
-   num := ([0..9])*
+      num := ([0..9])*
 
-   real_num := ([0..9])*<.>([0..9])*
+      real_num := ([0..9])*<.>([0..9])*
 
-   rand_num := [implementation dependent, returns random number]
+      rand_num := [implementation dependent, returns random number]
 
-   string_literal := <"> string <">
+      string_literal := <"> string <">
 
-   Types := Integer | Real | String
+      Types := Integer | Real | String
 
 ## Some Quirks
 
