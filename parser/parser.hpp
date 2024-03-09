@@ -245,13 +245,25 @@ ASTNode* Parser::parameterList() {
         t = factor();
         t->type.expr = PARAM_EXPR;
         match(COLON);
-        match(INT);
+        if (lookahead().tokenval == REF) {
+            match(REF);
+            t->attribute.type = as_ref;
+        }
+        if (lookahead().tokenval == INT || lookahead().tokenval == REALT || lookahead().tokenval == STR) {
+            match(lookahead().tokenval);
+        }
         ASTNode* m = t;
         while (lookahead().tokenval == COMA) {
             match(COMA);
             ASTNode* p = factor();
             match(COLON);
-            match(INT);
+            if (lookahead().tokenval == REF) {
+                match(REF);
+                p->attribute.type = as_ref;
+            }
+            if (lookahead().tokenval == INT || lookahead().tokenval == REALT || lookahead().tokenval == STR) {
+                match(lookahead().tokenval);
+            }
             p->type.expr = PARAM_EXPR;
             m->sibling = p;
             m = p;

@@ -6,10 +6,10 @@
 using namespace std;
 
 enum storedType {
-    as_int, as_real, as_string
+    as_int, as_real, as_string, as_ref
 };
 
-string storedTypeStr[] = { "as_int", "as_real", "as_string"};
+string storedTypeStr[] = { "as_int", "as_real", "as_string", "as_ref"};
 
 struct Attributes {
     string name;

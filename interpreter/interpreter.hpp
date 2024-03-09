@@ -430,7 +430,29 @@ Object Interpreter::Dispatch(ASTNode* node) {
         auto argIt = node->child[1];
         //now we want to assign the parameters to their correct symbol tables.
         while (paramIt && argIt) {
+            if (paramIt->attribute.type == as_ref) {
+                cout<<"Pass by Ref."<<endl;
+                if (!callStack.empty()) {
+                    if (callStack.top()->symbolTable.find(paramIt->attribute.name) != callStack.top()->symbolTable.end()) {
+                        cout<<"Address taken from TOS ST"<<endl;
+                        nsf->symbolTable[paramIt->attribute.name] = callStack.top()->symbolTable[paramIt->attribute.name];
+                    } else if (variables.find(paramIt->attribute.name) != variables.end()) {
+                        cout<<"Address Taken From global ST"<<endl;
+                        nsf->symbolTable[paramIt->attribute.name] = variables[paramIt->attribute.name]; 
+                    } else {
+                        logError("No such variable " + paramIt->attribute.name);
+                    }
+                } else {
+                     if (variables.find(paramIt->attribute.name) != variables.end()) {
+                        nsf->symbolTable[paramIt->attribute.name] = variables[paramIt->attribute.name]; 
+                        cout<<"Address Taken From global ST: "<<nsf->symbolTable[paramIt->attribute.name]<<endl;
+                    } else {
+                        logError("No such variable " + paramIt->attribute.name);
+                    }
+                }
+            }
             Object obj = interpretExpression(argIt);
+            if (paramIt->attribute.type == as_ref)
             memStore.store(nsf->symbolTable[paramIt->attribute.name], obj);
             paramIt = paramIt->sibling;
             argIt = argIt->sibling;
@@ -439,7 +461,7 @@ Object Interpreter::Dispatch(ASTNode* node) {
         Execute(callStack.top()->body);
         retVal = callStack.top()->returnVal;
         for (auto addr : callStack.top()->symbolTable) {
-            memStore.free(addr.second);
+            //memStore.free(addr.second);
         }
         callStack.pop();
         say("value returned: " + retVal.toString());

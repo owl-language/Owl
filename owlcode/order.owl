@@ -1,0 +1,18 @@
+program 'oop';
+begin
+    let x: int := 1;
+    func f(x: int) begin
+        print (x + " ");
+        return x;
+    end
+    
+    func inc(x: ref int) begin
+        x := x + 2;
+        print (x + "\n");
+    end
+
+    print (f(3-2) + f(1+1));
+    print ("\n" + x + "\n");
+    inc(x);
+    print (x + "\n");
+end

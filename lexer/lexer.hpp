@@ -50,6 +50,7 @@ void OwlLexer::initReserved() {
     reserved["string"] = STR;
     reserved["rand"] = RAND;
     reserved["real"] = REALT;
+    reserved["ref"] = REF;
 }
 
 TokenType OwlLexer::handleKeywordOrId(string word) {

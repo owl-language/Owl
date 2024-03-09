@@ -1,4 +1,4 @@
-program 'fibonacciRecursive';
+program 'fibonacci';
 begin
     let m: int := 1;
     func fibR(n: int) begin
