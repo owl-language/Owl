@@ -1,213 +1,106 @@
 [Owl Interpreter 0.1a started.]
-(0) Match: program
-(0) Match: '
-(0) Match: sumExample
-(0) Match: '
-(0) Match: ;
-  (1) block
-  (1) Match: begin
-    (2) statementList
-      (3) statement
-        (4) declareVarStatement
-        (4) Match: let
-          (5) term
-            (6) factor
-              (7) var
-              (7) Match: m
-              (7) var
-            (6) factor
-          (5) term
-        (4) Match: :
-        (4) Match: int
-        (4) Match: :=
-          (5) term
-            (6) factor
-            (6) Match: 1
-            (6) factor
-          (5) term
-        (4) Match: ;
-        (4) statement
-        (4) statement
-          (5) declareProcedure
-          (5) Match: func
-          (5) Match: sum
-          (5) Match: (
-            (6) paramList
-              (7) factor
-                (8) var
-                (8) Match: n
-                (8) var
-              (7) factor
-            (6) Match: :
-            (6) Match: int
-            (6) paramList
-          (5) Match: )
-            (6) block
-            (6) Match: begin
-              (7) statementList
-                (8) statement
-                  (9) ifStatement
-                  (9) Match: if
-                    (10) expression
-                      (11) simpleExpression
-                        (12) term
-                          (13) factor
-                          (13) Match: (
-                            (14) expression
-                              (15) simpleExpression
-                                (16) term
-                                  (17) factor
-                                    (18) var
-                                    (18) Match: n
-                                    (18) var
-                                  (17) factor
-                                (16) term
-                              (15) simpleExpression
-                            (14) Match: =
-                              (15) simpleExpression
-                                (16) term
-                                  (17) factor
-                                  (17) Match: 0
-                                  (17) factor
-                                (16) term
-                              (15) simpleExpression
-                            (14) expression
-                          (13) Match: )
-                          (13) factor
-                        (12) term
-                      (11) simpleExpression
-                    (10) expression
-                  (9) Match: then
-                    (10) statementList
-                      (11) statement
-                        (12) return statement
-                        (12) Match: return
-                          (13) expression
-                            (14) simpleExpression
-                              (15) term
-                                (16) factor
-                                (16) Match: 0
-                                (16) factor
-                              (15) term
-                            (14) simpleExpression
-                          (13) expression
-                        (12) Match: ;
-                        (12) return statement
-                      (11) statement
-                    (10) statementList
-                  (9) Match: else
-                    (10) statementList
-                      (11) statement
-                        (12) return statement
-                        (12) Match: return
-                          (13) expression
-                            (14) simpleExpression
-                              (15) term
-                                (16) factor
-                                  (17) var
-                                  (17) Match: n
-                                  (17) var
-                                (16) factor
-                              (15) term
-                            (14) Match: +
-                              (15) term
-                                (16) factor
-                                  (17) var
-                                  (17) Match: sum
-                                    (18) procedureCall
-                                    (18) Match: (
-                                      (19) argumentList
-                                        (20) expression
-                                          (21) simpleExpression
-                                            (22) term
-                                              (23) factor
-                                                (24) var
-                                                (24) Match: n
-                                                (24) var
-                                              (23) factor
-                                            (22) term
-                                          (21) Match: -
-                                            (22) term
-                                              (23) factor
-                                              (23) Match: 1
-                                              (23) factor
-                                            (22) term
-                                          (21) simpleExpression
-                                        (20) expression
-                                      (19) argumentList
-                                    (18) Match: )
-                                    (18) procedureCall
-                                  (17) var
-                                (16) factor
-                              (15) term
-                            (14) simpleExpression
-                          (13) expression
-                        (12) Match: ;
-                        (12) return statement
-                      (11) statement
-                    (10) statementList
-                  (9) Match: end
-                  (9) ifStatement
-                (8) Match: ;
-                (8) statement
-              (7) statementList
-            (6) Match: end
-            (6) block
-          (5) declareProcedure
-        (4) statement
-        (4) statement
-        (4) Match: print
-          (5) String value
-          (5) Match: "
-          (5) Returning const string: Enter a number: 
-          (5) Match: Enter a number: 
-          (5) Match: "
-          (5) String value
-        (4) Match: ;
-        (4) statement
-        (4) statement
-        (4) Match: input
-          (5) var
-          (5) Match: m
-          (5) var
-        (4) Match: ;
-        (4) statement
-        (4) statement
-        (4) Match: print
-          (5) term
-            (6) factor
-            (6) Match: (
-              (7) expression
-                (8) simpleExpression
-                  (9) term
-                    (10) factor
-                      (11) var
-                      (11) Match: sum
-                        (12) procedureCall
-                        (12) Match: (
-                          (13) argumentList
-                            (14) expression
-                              (15) simpleExpression
-                                (16) term
-                                  (17) factor
-                                    (18) var
-                                    (18) Match: m
-                                    (18) var
-                                  (17) factor
-                                (16) term
-                              (15) simpleExpression
-                            (14) expression
-                          (13) argumentList
-                        (12) Match: )
-                        (12) procedureCall
-                      (11) var
-                    (10) factor
-                  (9) term
-                (8) simpleExpression
-              (7) expression
-            (6) factor
-          (5) term
-        (4) statement
-        (4) statement
-          (5) statement
-Too many errors during parsing, bailing out.
+[Parsing Complete.]
+Abstract Syntax Tree:
+---------------------
+  [VARDECL] let
+    [ID_EXPR] m 
+    [CONST_EXPR] 1 
+  [FUNCDECL] sum
+    [IFSTM] if
+      [OP_EXPR] =  - EQUAL
+        [ID_EXPR] n 
+        [CONST_EXPR] 0 
+      [RETURNSTM] return
+        [CONST_EXPR] 0 
+      [RETURNSTM] return
+        [OP_EXPR] +  - PLUS
+          [ID_EXPR] n 
+          [PROCDCALL] sum 
+            [OP_EXPR] -  - MINUS
+              [ID_EXPR] n 
+              [CONST_EXPR] 1 
+    [PARAM_EXPR] n 
+  [PRINTSTMT] print
+    [CONST_STR] Enter a number:  
+  [READSTM] input
+    [ID_EXPR] m 
+  [PRINTSTMT] print
+    [OP_EXPR] +  - PLUS
+      [PROCDCALL] sum 
+        [ID_EXPR] m 
+      [CONST_STR] 
+ 
+[Running Program]
+(0) Declaring Variable: m with value 1 type: INTEGER
+  (1) Procedure Declaration: sum
+  (1) Parameter: n added to procedures symbol table.
+  (1) [PRINT]
+  (1) [PRINT]
+    (2) Expression OP_EXPR
+      (3) eval: PLUS
+        (4) Expression PROCDCALL
+        (4) Dispatch: sum
+          (5) Expression ID_EXPR
+            (6) retrieveFromMemoryByName
+            (6) ID: m, Address: 1, offset: 0, value: 1, type: INTEGER
+            (6) Expression OP_EXPR
+              (7) eval: EQUAL
+                (8) Expression ID_EXPR
+                  (9) retrieveFromMemoryByName
+                  (9) ID: n, Address: 3, offset: 0, value: 1, type: INTEGER
+                (8) Expression CONST_EXPR
+                (8) CONST_EXPR value: 0
+                (8) 1.000000 EQUAL 0.000000
+                  (9) rel Op
+                  (9) eval result: 0
+                (8) value: false
+              (7) else clause
+                (8) Return Statement.
+                  (9) Expression OP_EXPR
+                    (10) eval: PLUS
+                      (11) Expression ID_EXPR
+                        (12) retrieveFromMemoryByName
+                        (12) ID: n, Address: 3, offset: 0, value: 1, type: INTEGER
+                      (11) Expression PROCDCALL
+                      (11) Dispatch: sum
+                        (12) Expression OP_EXPR
+                          (13) eval: MINUS
+                            (14) Expression ID_EXPR
+                              (15) retrieveFromMemoryByName
+                              (15) ID: n, Address: 3, offset: 0, value: 1, type: INTEGER
+                            (14) Expression CONST_EXPR
+                            (14) CONST_EXPR value: 1
+                            (14) 1.000000 MINUS 1.000000
+                              (15) math Op
+                            (14) eval result: 0
+                          (13) value: 0
+                          (13) Expression OP_EXPR
+                            (14) eval: EQUAL
+                              (15) Expression ID_EXPR
+                                (16) retrieveFromMemoryByName
+                                (16) ID: n, Address: 4, offset: 0, value: 0, type: INTEGER
+                              (15) Expression CONST_EXPR
+                              (15) CONST_EXPR value: 0
+                              (15) 0.000000 EQUAL 0.000000
+                                (16) rel Op
+                                (16) eval result: 1
+                              (15) value: true
+                            (14) passed test
+                              (15) Return Statement.
+                                (16) Expression CONST_EXPR
+                                (16) CONST_EXPR value: 0
+                                (16) 0 saved as return value.
+                              (15) value returned: 0
+                              (15) 1.000000 PLUS 0.000000
+                                (16) math Op
+                              (15) eval result: 1
+                            (14) value: 1
+                          (13) 1 saved as return value.
+                        (12) value returned: 1
+                        (12) Expression CONST_STR
+                        (12) 1.000000 PLUS -0.004443
+                          (13) String Operation
+                        (12) value: 1
+
+
+Trace Complete.

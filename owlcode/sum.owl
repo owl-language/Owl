@@ -10,5 +10,5 @@ begin
     end
     print "Enter a number: ";
     input m;
-    print (sum(m)  "\n");
+    print (sum(m) + "\n");
 end

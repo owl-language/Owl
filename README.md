@@ -1,4 +1,4 @@
-# Owl lang. v0.1
+# Owl lang. v0.1a  (\^(OvO)^/)
 
 Owl is a dynamically typed, algol-like, procedural language.
 It features pascal-like syntax, with C-style scope rules.
@@ -6,6 +6,8 @@ Variables and procedures are declare before used. Variables must be
 declared with an _initial_ type, but a variables type can be changed 
 implicitly through assignment
 
+Owl's Mascot, (\^(OvO)^/), is named Flaco, in dedication to the memory of, Flaco the Owl, who came
+to fame for escaping his enclosure in the central park zoo after years of captivity.
 
 # Grammar
 

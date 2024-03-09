@@ -5,6 +5,7 @@
 #include <unordered_set>
 using namespace std;
 const string OWL_VERSION = "0.1a";
+const string FLACO = "(\\^(OvO)^/)";
 fstream logfile;
 enum TracerStates {
     INTERP, PARSE, PARSE_AND_INTERP, OFF
@@ -63,7 +64,7 @@ TracerStates getTracerState() {
 }
 
 void say(string s) {
-    if (shouldTrace.find(TRACE_STATE) != shouldTrace.end()) {
+    if (shouldTrace.find(getTracerState()) != shouldTrace.end()) {
         for (int i = 0; i < depth; i++) {
             cout<<" ";
             logfile<<"  ";
