@@ -7,7 +7,7 @@ declared with an _initial_ type, but a variables type can be changed
 implicitly through assignment
 
 
-# EBNWTF Syntax
+# Owls Grammar
 
 ## reserved words: 
 
@@ -17,7 +17,7 @@ implicitly through assignment
 ## reserved symbols:
    , . := : ; + - * / [ ] ( ) {* *} < > <= >= == !=
 
-
+## EBNWTF
    program := block
     
    block := begin 
