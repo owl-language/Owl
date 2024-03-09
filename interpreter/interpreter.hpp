@@ -51,7 +51,7 @@ class Interpreter {
 
 int divide(int a, int b) {
     if (b == 0) {
-        logError("Error: Divide By Zero. (Don't do that.)");
+        logError("Hoot! Hoot!: Divide By Zero. (Don't do that.)");
         return 0;
     }
     float fa = (float) a;
@@ -199,7 +199,7 @@ Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
         say("Calculating Offset.");
         offset = interpretExpression(x->child[0]).data.intValue;
         if (offset < 0) {
-            cout<<"Error: Invalid Index: "<<offset<<endl;
+            logError("Hoot: Invalid Index: " + to_string(offset));
             return Object(-1);
         }
         say("Array Reference, offset: " + to_string(offset));
@@ -209,13 +209,13 @@ Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
     } else  if (variables.find(x->attribute.name) != variables.end()) {
         addr = variables[x->attribute.name];
     } else {
-        cout<<"Uh oh, couldnt find: "<<x->attribute.name<<endl;
+        logError("Hoot! couldnt find: " + x->attribute.name);
         onExit();
         return retVal;
     }
     
     if (offset > memStore.get(addr).attr.size) {
-        cout<<"Error: Index "<<offset<<" out of range for array "<<x->attribute.name<<endl;
+        logError("Hoot! Index " + to_string(offset) + " out of range for array " + x->attribute.name);
         return -1;
     }
     retVal = memStore.get(addr + offset);
@@ -234,7 +234,7 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
         say("Retrieving subscript " + x->child[0]->attribute.name);
         offset = interpretExpression(x->child[0]->child[0]).data.intValue;
         if (offset <= 0) {
-            cout<<"Error: Invalid Index: "<<offset<<endl;
+            cout<<"Hoot! Invalid Index: "<<offset<<endl;
         }
         say("Array Reference, offset: " + offset);
     }
@@ -250,7 +250,7 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
         return;
     }
     if (offset > 0 && offset > memStore.get(addr).attr.size) {
-        logError("Error: Index " + to_string(offset) + " out of range for array " + varname);
+        logError("Hoot! Index " + to_string(offset) + " out of range for array " + varname);
         onExit();
         return;
     }
@@ -445,7 +445,7 @@ Object Interpreter::Dispatch(ASTNode* node) {
         say("value returned: " + retVal.toString());
         return retVal;
     } else {
-        say("No such procedure: " + node->attribute.name);
+        say("Hoot! No such procedure: " + node->attribute.name);
     }
     onExit("Dispatch");
     return retVal;

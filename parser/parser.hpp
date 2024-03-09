@@ -163,7 +163,7 @@ ASTNode* Parser::statement() {
             node = returnStatement();
             break;
         default:
-            cout<<"Error, invalid statement on line "<<lookahead().lineno<<": "<<tokenString[lookahead().tokenval]<<endl;
+            cout<<"Hoot!, invalid statement on line "<<lookahead().lineno<<": "<<tokenString[lookahead().tokenval]<<endl;
             reSync();
             return node;
     }

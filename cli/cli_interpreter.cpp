@@ -8,7 +8,7 @@
 using namespace std;
 
 void showUsage() {
-    cout<<"[ Owl v"<<OWL_VERSION<<" "<<FLACO<<"]"<<endl;
+    cout<<"[ Owl v"<<OWL_VERSION<<" "<<FLACO<<" ]"<<endl;
     cout<<"Useage: "<<endl;
     cout<<"      owlcli <options> <filename> "<<endl;
     cout<<"Optional Flags: "<<endl;
