@@ -11,7 +11,7 @@ const int MAX_RT_STACK = 150;
 
 
 struct StackFrame {
-    map<string, int> symbolTable;
+    map<string, pair<int,bool>> symbolTable;
     ASTNode* body;
     ASTNode* params;
     StackFrame* staticLink;
