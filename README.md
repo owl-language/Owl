@@ -9,9 +9,10 @@ implicitly through assignment
 Owl's Mascot, (\^(OvO)^/), is named Flaco, in dedication to the memory of, Flaco the Owl, who came
 to fame for escaping his enclosure in the central park zoo after years of captivity.
 
-# Grammar
+# Syntax
 
-This is still very much in development, and should be viewed as an approximation of Owl's grammar
+This is still very much in development, and as such is subject to change.
+this should be viewed as no more than an approximation of Owl's grammar
 
 ## reserved words: 
 
@@ -21,6 +22,7 @@ This is still very much in development, and should be viewed as an approximation
 ## reserved symbols:
       , . := : ; + - * / [ ] ( ) {* *} < > <= >= == !=
 
+## Grammar
 
       program := block
     
