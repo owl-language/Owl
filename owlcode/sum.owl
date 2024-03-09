@@ -1,0 +1,14 @@
+program 'sumExample';
+begin
+    let m: int := 1;
+    func sum(n: int) begin
+        if (n == 0) then
+            return 0;
+        else
+            return n + sum(n - 1);
+        end;
+    end
+    print "Enter a number: ";
+    input m;
+    print (sum(m)  "\n");
+end

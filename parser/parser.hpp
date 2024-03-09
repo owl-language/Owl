@@ -31,6 +31,7 @@ class Parser {
                 logError("Too many errors during parsing, bailing out.");
                 exit(0);
             }
+            stumbleCount++;
         }
         bool match(TokenType token) {
             if (lookahead().tokenval == token) {
