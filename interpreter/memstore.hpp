@@ -65,8 +65,8 @@ Object& MemStore::get(int addr) {
     return objmem[0];
 }
 
-void MemStore::store(int addr, Object o) {
-    objmem[addr] = o;
+void MemStore::store(int addr, Object toStore) {
+    objmem[addr] = toStore;
 }
 
 int MemStore::storeAtNextFree(Object o) {
@@ -81,7 +81,7 @@ int MemStore::storeAtNextFree(Object o) {
 
 void MemStore::free(int cell) {
     objmem[cell].type = EMPTY;
-    objmem[cell].data.intValue = -1;
+    objmem[cell].data._value = "0";
     freedList[free_list_count++] = cell;
     liveCellCount--;
 }

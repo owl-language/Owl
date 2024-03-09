@@ -17,6 +17,7 @@ void showUsage() {
     cout<<"       -vi  show trace of interpreter"<<endl;
     cout<<"       -vip show all of the above"<<endl;
 }
+
 int main(int argc, char* argv[]) {
     srand(time(0));
     if (argc < 2) {

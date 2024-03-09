@@ -16,9 +16,16 @@ string rtTypeAsStr[] = { "INTEGER", "REAL", "STRING", "POINTER", "EMPTY"};
 struct Object {
     RTType type;
     struct _data {
-        int intValue;
-        double realValue;
-        string stringValue;
+        string _value;
+        int intValue() {
+            return atoi(_value.c_str());
+        }
+        float realValue() {
+            return stof(_value);
+        }
+        string stringValue() {
+            return _value;
+        }
     } data;
     struct _attr {
         int size;
@@ -35,9 +42,7 @@ struct Object {
 };
 
 Object::Object() {
-    data.stringValue = "0";
-    data.realValue = 0.0f;
-    data.intValue = 0;
+    data._value = "0";
     attr.size = 1;
     attr.isLive = false;
     type = EMPTY;
@@ -45,42 +50,34 @@ Object::Object() {
 
 Object::Object(const Object& o) {
     type = o.type;
-    data.intValue = o.data.intValue;
-    data.realValue = o.data.realValue;
-    data.stringValue = o.data.stringValue;
+    data._value = o.data._value;
     attr.size = o.attr.size;
     attr.isLive = o.attr.isLive;
 }
 
 Object::Object(int val) {
-    data.intValue = val;
-    data.realValue = (float) val;
-    data.stringValue = to_string(val);
+    data._value = to_string(val);
     attr.size = 1;
     attr.isLive = true;
     type = INTEGER;
 }
 
 Object::Object(string val) {
-    data.stringValue = val;
+    data._value = val;
     attr.size = val.size();
     attr.isLive = true;
     type = STRING;
 }
 
 Object::Object(float val) {
-    data.stringValue = to_string(val);
-    data.realValue = val;
-    data.intValue = (int) val;
+    data._value = to_string(val);
     attr.isLive = true;
     attr.size = 1;
     type = REAL;
 }
 
 Object::Object(double val) {
-    data.stringValue = to_string(val);
-    data.realValue = val;
-    data.intValue = (int) val;
+    data._value = to_string(val);
     attr.isLive = true;
     attr.size = 1;
     type = REAL;
@@ -88,20 +85,14 @@ Object::Object(double val) {
 
 Object& Object::operator=(const Object& o) {
     type = o.type;
-    data.intValue = o.data.intValue;
-    data.realValue = o.data.realValue;
-    data.stringValue = o.data.stringValue;
+    data._value = o.data._value;
     attr.size = o.attr.size;
     attr.isLive = o.attr.isLive;
     return *this;
 }
 
 string Object::toString() {
-    if (type == INTEGER)
-        return to_string(data.intValue);
-    if (type == REAL)
-        return to_string(data.realValue);
-    return data.stringValue;
+    return data.stringValue();
 }
 
 #endif

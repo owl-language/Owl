@@ -64,18 +64,27 @@ Object Interpreter::stringOp(TokenType op, Object left, Object right) {
     onEnter("String Operation");
     Object retObj(" ");
     Object convObj;
-    if (left.type == STRING) {
-        retObj.data.stringValue = left.data.stringValue;
-        convObj = right;
-        if (convObj.type == INTEGER) convObj.data.stringValue = to_string(convObj.data.intValue);
-        else if (convObj.type == REAL) convObj.data.stringValue = to_string(convObj.data.realValue);
-        retObj.data.stringValue += convObj.data.stringValue;
+    if (op == PLUS) {
+        if (left.type == STRING) {
+            retObj.data._value = left.data.stringValue();
+            convObj = right;
+            if (convObj.type == INTEGER) convObj.data._value = to_string(convObj.data.intValue());
+                else if (convObj.type == REAL) convObj.data._value = to_string(convObj.data.realValue());
+                retObj.data._value += convObj.data.stringValue();
+            } else {
+                retObj.data._value = right.data.stringValue();
+                convObj = left;
+                if (convObj.type == INTEGER) convObj.data._value = to_string(convObj.data.intValue());
+                else if (convObj.type == REAL) convObj.data._value = to_string(convObj.data.realValue());
+                retObj.data._value = convObj.data.stringValue() + retObj.data.stringValue();
+            }
+    } else if (op == EQUAL) {
+        retObj = Object(left.data.stringValue() == right.data.stringValue());
+    } else if (op == NOTEQUAL) {
+        retObj = Object(left.data.stringValue() == right.data.stringValue());
     } else {
-        retObj.data.stringValue = right.data.stringValue;
-        convObj = left;
-        if (convObj.type == INTEGER) convObj.data.stringValue = to_string(convObj.data.intValue);
-        else if (convObj.type == REAL) convObj.data.stringValue = to_string(convObj.data.realValue);
-        retObj.data.stringValue = convObj.data.stringValue + retObj.data.stringValue;
+        logError("Hoot! Operation: " + tokenString[op] + " no support on strings.");
+        retObj = Object(0);
     }
     onExit();
     return retObj;
@@ -85,16 +94,8 @@ Object Interpreter::mathOp(TokenType op, Object leftChild, Object rightChild) {
     onEnter("math Op");
     Object retObj;
     float leftOperand, rightOperand, result = 0;
-    if (leftChild.type == INTEGER) {
-        leftOperand = (float) leftChild.data.intValue;
-    }  else if (leftChild.type == REAL) {
-        leftOperand = leftChild.data.realValue;
-    }
-    if (rightChild.type == INTEGER) {
-        rightOperand = (float) rightChild.data.intValue;
-    } else if (rightChild.type == REAL) {
-        rightOperand = rightChild.data.realValue;
-    }
+    leftOperand = leftChild.data.realValue();
+    rightOperand = rightChild.data.realValue();
     switch (op) {
         case PLUS:
             result = leftOperand + rightOperand;
@@ -113,11 +114,10 @@ Object Interpreter::mathOp(TokenType op, Object leftChild, Object rightChild) {
     }
      if (leftChild.type == INTEGER && rightChild.type == INTEGER) {
         retObj.type = INTEGER;
-        retObj.data.intValue = (int)result;
     } else {
         retObj.type = REAL;
-        retObj.data.realValue = result;
     }
+    retObj.data._value = to_string(result);
     onExit();
     return retObj;
 }
@@ -159,14 +159,14 @@ Object Interpreter::eval(ASTNode* x) {
     onExit();
     rightChild = interpretExpression(x->child[1]);
     if (leftChild.type == INTEGER) {
-        leftOperand = (float) leftChild.data.intValue;
+        leftOperand = (float) leftChild.data.intValue();
     }  else if (leftChild.type == REAL) {
-        leftOperand = leftChild.data.realValue;
+        leftOperand = leftChild.data.realValue();
     }
     if (rightChild.type == INTEGER) {
-        rightOperand = (float) rightChild.data.intValue;
+        rightOperand = (float) rightChild.data.intValue();
     } else if (rightChild.type == REAL) {
-        rightOperand = rightChild.data.realValue;
+        rightOperand = rightChild.data.realValue();
     }
     say(to_string(leftOperand) + " " + tokenString[x->attribute.op] + " " + to_string(rightOperand));
     if (leftChild.type == STRING || rightChild.type == STRING)
@@ -197,7 +197,7 @@ Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
     }
     if (x->kind == EXPRNODE && x->type.expr == SUBSCRIPT_EXPR) {
         say("Calculating Offset.");
-        offset = interpretExpression(x->child[0]).data.intValue;
+        offset = interpretExpression(x->child[0]).data.intValue();
         if (offset < 0) {
             logError("Hoot: Invalid Index: " + to_string(offset));
             return Object(-1);
@@ -232,7 +232,7 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
     int offset = 0, addr = 0;
     if (x->child[0]->kind == EXPRNODE && x->child[0]->type.expr == SUBSCRIPT_EXPR) {
         say("Retrieving subscript " + x->child[0]->attribute.name);
-        offset = interpretExpression(x->child[0]->child[0]).data.intValue;
+        offset = interpretExpression(x->child[0]->child[0]).data.intValue();
         if (offset <= 0) {
             cout<<"Hoot! Invalid Index: "<<offset<<endl;
         }
@@ -290,7 +290,7 @@ Object Interpreter::interpretExpression(ASTNode* x) {
         case OP_EXPR:
             retVal = eval(x);
             if (x->attribute.op == LESS || x->attribute.op == EQUAL || x->attribute.op == NOTEQUAL) {
-                result = (retVal.data.intValue == 0) ? "false":"true";
+                result = (retVal.data.intValue() == 0) ? "false":"true";
                 msg = "value: " + result;
                 say(msg);
             } else
@@ -317,13 +317,13 @@ void Interpreter::declareVariable(ASTNode* x) {
         Object obj;
         if (x->child[1]->attribute.type == as_string) {
             obj.type = STRING;
-            obj.data.stringValue = x->child[1]->attribute.name;
+            obj.data._value = x->child[1]->attribute.name;
         } else if (x->child[1]->attribute.type == as_real) { 
             obj.type = REAL;
-            obj.data.realValue = stof(x->child[1]->attribute.name);
+            obj.data._value = x->child[1]->attribute.name;
         } else {
             obj.type = INTEGER;
-            obj.data.intValue = x->child[1]->attribute.intValue;
+            obj.data._value = to_string(x->child[1]->attribute.intValue);
         }
         addr = memStore.storeAtNextFree(obj);
         say("Declaring Variable: " + name + " with value " + obj.toString() + " type: " + rtTypeAsStr[obj.type]);
@@ -367,7 +367,7 @@ void Interpreter::doReadStatement(ASTNode* node) {
 }
 
 void Interpreter::handleIfStatement(ASTNode* node) {
-    int res = interpretExpression(node->child[0]).data.intValue;
+    int res = interpretExpression(node->child[0]).data.intValue();
     if (res) {
         say("passed test");
         auto t = node->child[1];
@@ -390,8 +390,8 @@ void Interpreter::handleIfStatement(ASTNode* node) {
 void Interpreter::handleWhileStatement(ASTNode* node) {
     onEnter("While Loop");
     say("Check loop condition");
-    Object ret = interpretExpression(node->child[0]).data.intValue;
-    while (ret.data.intValue) {
+    Object ret = Object(interpretExpression(node->child[0]).data.intValue());
+    while (ret.data.intValue()) {
         say("Execute Body: ");
         Execute(node->child[1]);
         say("check loop condition: ");
