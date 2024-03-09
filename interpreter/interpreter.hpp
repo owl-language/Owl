@@ -7,6 +7,7 @@
 #include "../tools/tracer.hpp"
 #include "callstack.hpp"
 #include "memstore.hpp"
+#include "memobject.hpp"
 using namespace std;
 
 class Interpreter {
@@ -42,8 +43,8 @@ class Interpreter {
         void reset() {
             procedures.clear();
             variables.clear();
+            callStack.clear();
             memStore.reset();
-            callStack.reset();
         }
 
 };
