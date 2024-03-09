@@ -1,12 +1,14 @@
-program 'recCountDown';
+program 'CountDownSumUp';
 begin
-    func countDown(n: int) begin
-        if (n >= 1) then
-            print (n + " ");
-            countDown(n - 1);
-        else
+    func countDownSumUp(n: int) begin
+        if (n == 0) then
             print "\n";
+            return 0;
+        else
+            print (n + " ");
+            return n + countDownSumUp(n - 1);
         end;
     end
-    countDown(13);
+    print countDownSumUp(5);
+    print "\n";
 end

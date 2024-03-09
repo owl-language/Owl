@@ -39,7 +39,7 @@ begin
     func sort(l: int) begin
         ds := 0; {* did swap flag, once sortPass completes without setting to 1, were done *}
         sortPass(1, l);  {* do bubble pass *}
-        if (ds = 0) then
+        if (ds == 0) then
             return 0;
         else
             sort(l);

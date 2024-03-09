@@ -33,22 +33,19 @@ class OwlLexer {
 };
 
 void OwlLexer::initReserved() {
-    reserved["begin"] = BEGIN;
-    reserved["end"]  = END;
-    reserved["read"] = READ;
     reserved["print"] = PRINT;
     reserved["input"] = READ;
     reserved["if"] = IF;
     reserved["then"] = THEN;
     reserved["else"] = ELSE;
-    reserved["func"] = FUNC;
     reserved["while"] = WHILE;
+    reserved["program"] = PROG;
+    reserved["func"] = FUNC;
+    reserved["begin"] = BEGIN;
+    reserved["end"]  = END;
+    reserved["return"] = RETURN;
     reserved["let"] = LET;
     reserved["int"] = INT;
-    reserved["char"] = CHAR;
-    reserved["program"] = PROG;
-    reserved["return"] = RETURN;
-    reserved["array"] = ARRAY;
     reserved["string"] = STR;
     reserved["rand"] = RAND;
     reserved["real"] = REALT;
@@ -120,7 +117,9 @@ Token OwlLexer::handleSpecials() {
     } else if (sb.Char() == '/') {
         return Token(DIVD, "/", -1, sb.lineNumber());
     } else if (sb.Char() == '=') {
-        return Token(EQUAL, "=", -1, sb.lineNumber());      
+        sb.GetChar();
+        if (sb.Char() == '=')
+            return Token(EQUAL, "=", -1, sb.lineNumber());      
     } else if (sb.Char() == '\"') {
         return Token(QUOTE, "\"", -1, sb.lineNumber());
     } else if (sb.Char() == ';') {

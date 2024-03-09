@@ -24,16 +24,23 @@ class CallStack {
         int rtsp;
     public:
         CallStack();
+        ~CallStack();
         int size();
         bool empty();
         void push(StackFrame* sf);
         void pop();
         StackFrame* top();
+        void clear();
 };
 
 CallStack::CallStack() {
     rtsp = 0;
 }
+
+CallStack::~CallStack() {
+    clear();
+}
+
 int CallStack::size() {
     return rtsp;
 }
@@ -63,6 +70,11 @@ void CallStack::pop() {
 }
 StackFrame* CallStack::top() {
     return rtStack[rtsp];
+}
+
+void CallStack::clear() {
+    while (!empty())
+        pop();
 }
 
 #endif

@@ -53,6 +53,7 @@ struct Object {
         data.realValue = val;
         data.intValue = (int) val;
         attr.isLive = true;
+        attr.size = 1;
         type = REAL;
     }
     Object(double val) {
@@ -60,12 +61,13 @@ struct Object {
         data.realValue = val;
         data.intValue = (int) val;
         attr.isLive = true;
+        attr.size = 1;
         type = REAL;
     }
     Object() {
-        data.stringValue = "-1";
-        data.realValue = -1.0f;
-        data.intValue = -1;
+        data.stringValue = "0";
+        data.realValue = 0.0f;
+        data.intValue = 0;
         attr.size = 1;
         attr.isLive = false;
         type = EMPTY;
@@ -105,11 +107,22 @@ class MemStore {
         void display();
         float usage();
         bool isFull();
+        void reset();
 };
 
 MemStore::MemStore() {
-    free_list_count = 0;
+    reset();
+}
+
+void MemStore::reset() {
+    liveCellCount = 0;
     nextFreeAddress = 0;
+    free_list_count = 0;
+    for (int i = 0; i < MAX_MEM_STORE/2; i++)
+        freedList[i] = 0;
+    for (int i = 0; i < MAX_MEM_STORE; i++) {
+        objmem[i] = Object();
+    }
 }
 
 float MemStore::usage() {

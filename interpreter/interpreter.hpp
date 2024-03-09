@@ -39,6 +39,12 @@ class Interpreter {
             cout<<"[ Memory Usage: "<<memStore.usage()<<"% ]"<<endl;
             memStore.display();
         }
+        void reset() {
+            procedures.clear();
+            variables.clear();
+            memStore.reset();
+            callStack.reset();
+        }
 
 };
 
@@ -162,7 +168,7 @@ Object Interpreter::eval(ASTNode* x) {
     } else if (rightChild.type == REAL) {
         rightOperand = rightChild.data.realValue;
     }
-    say(to_string(leftOperand) + "op" + to_string(rightOperand));
+    say(to_string(leftOperand) + " " + tokenString[x->attribute.op] + " " + to_string(rightOperand));
     if (leftChild.type == STRING || rightChild.type == STRING)
         return stringOp(x->attribute.op, leftChild, rightChild);
     
@@ -373,7 +379,10 @@ void Interpreter::handleIfStatement(ASTNode* node) {
         if (node->child[2]) {
             say("else clause");
             auto t = node->child[2];
-            interpretStatement(t);
+            while (t) {
+                interpretStatement(t);
+                t = t->sibling;
+            }
         }
     }
 }
@@ -400,12 +409,12 @@ void Interpreter::doReturnStatement(ASTNode* node) {
 }
 
 
-StackFrame* Interpreter::prepStackFrame(StackFrame* curentFrame) {
+StackFrame* Interpreter::prepStackFrame(StackFrame* masterFrame) {
     StackFrame* nextFrame = new StackFrame;
-    nextFrame->body = curentFrame->body;
-    nextFrame->params = curentFrame->params;
-    nextFrame->returnVal = curentFrame->returnVal;
-    for (auto m : curentFrame->symbolTable) {
+    nextFrame->body = masterFrame->body;
+    nextFrame->params = masterFrame->params;
+    nextFrame->returnVal = Object(0);
+    for (auto m : masterFrame->symbolTable) {
         nextFrame->symbolTable[m.first] = memStore.allocate(1);
     }
     return nextFrame;

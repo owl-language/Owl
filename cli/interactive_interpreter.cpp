@@ -16,6 +16,7 @@ class OwlShell {
         Interpreter interpreter; //take a wild guess
         vector<string> tokenizeInput(string input);
         void showHelp();
+        void resetEnv();
     public:
         OwlShell() {
 
@@ -36,6 +37,14 @@ void OwlShell::start() {
         input = promptInput();
         parseCommand(input);
     }
+}
+
+void OwlShell::resetEnv() {
+    if (!ts.empty())
+        ts.clear();
+    if (ast != nullptr)
+        freeTree(ast);
+    interpreter.reset();
 }
 
 void OwlShell::showHelp() {
@@ -68,8 +77,7 @@ void OwlShell::parseCommand(vector<string>& tokens) {
     } else if (tokens[0] == "run") {
         interpreter.Execute(ast);
     } else if (tokens[0] == "reset") {
-        ts.clear();
-        freeTree(ast);
+        resetEnv();
     } else if (tokens[0] == "spy") {
         if (tokens[1] == "memory") {
             interpreter.memoryUsage();

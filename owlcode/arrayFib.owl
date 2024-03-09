@@ -13,6 +13,7 @@ begin
         end;
         return fib[i - 1];
     end
+    print "Enter the number of fibonacci numbers to display: ";
     input n;
     m := 3;
     while (m <= n+2) begin

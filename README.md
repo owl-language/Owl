@@ -1,107 +1,98 @@
-# OwlInterpreter
- An AST walking interpreter for Owl.
- 
- Owl is a statically typedv, procedural language with algol/wirthian syntax.
- It has support for recursion, looping, variables, arrays. Owl is dynamically typed,
- with the following types currently supported: Integers, strings, and reals, as well as arrays of these types.
+# Owl lang. v0.1
 
-There are two ways of running owl scripts, via the command line interpreter, and via the interactiver debuger
-they can be found in the tools subdir
+Owl is a dynamically typed, algol-like, procedural language.
+It features pascal-like syntax, with C-style scope rules.
+Variables and procedures are declare before used. Variables must be
+declared with an _initial_ type, but a variables type can be changed 
+implicitly through assignment
 
-       tools/cli_interpreter.cpp - run scripts from comman line as in the examples below
-       tools/repl_interpreter.cpp - more of an interactive debugger, REPL functionality on the way ;)
 
-Some features of Owl are highlighted below. All code samples are real, working examples.
+# EBNWTF Syntax
 
-## Scoping
+## reserved words: 
 
-      program 'scope';
-      begin
-         let t: int := 13;
-         func scoped(x: int) begin
-            let t: int := 42;
-            print t;
-            print (x + t);
-        end;
-        scoped(t);
-        print (t);
-     end
-     
-     max@MaxGorenLaptop:~/GitHub/OwlInterpreter$ ./owlcli owlcode/scope.owl
-     42
-     55
-     13
-     max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
+   begin, end, input, print, if, then , else, while, 
+   func, let, int, string, real, rand, program, return
 
-## Iteration
+## reserved symbols:
+   , . := : ; + - * / [ ] ( ) {* *} < > <= >= == !=
 
-     program 'euclids';
-     begin
-        let a: int := 72;
-        let b: int := 42;
-        while (a != b) begin
-            if (b < a) then
-               a := a - b;
-            else
-               b := b - a;
-            end;
-        end;
-        print a;
-     end
-     max@MaxGorenLaptop:~/GitHub/OwlInterpreter$ ./owlcli owlcode/euclid.owl
-     6
-     max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
-     
-## Recursion, user input
 
-    program 'factorial';
-    begin
-        let x: int := 0;
-        func factR(x: int) begin
-           let t: int := 1;
-           if (x <= 1) then
-              return 1;
-           else
-              t := (x * factR(x-1));
-           end;
-           return t;
-        end;
-        input n;
-        x := factR(n);
-       print x;
-    end
-    max@MaxGorenLaptop:~/GitHub/OwlInterpreter$ ./owlcli owlcode/fact.owl
-    5
-    120
-    max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
+   program := block
     
-## Arrays
+   block := begin 
+            statement_list
+	         end
 
-    program 'arrayEx';
-    begin
-       let i: int := 0;
-       let x[5]: int;
-       while (i < 5) begin
-          x[i] := i+1;
-          i := i + 1;
-       end;
-       i := 0;
-       while (i < 5) begin
-          print x[i];
-          i := i + 1;
-       end;
-    end
-    max@MaxGorenLaptop:~/GitHub/OwlInterpreter$ ./owlcli owlcode/array.owl
-    1
-    2
-    3
-    4
-    5
-    max@MaxGorenLaptop:~/GitHub/OwlInterpreter$
-      
-## Bubblesort
-(A bad sorting algorithm, a good display of Owl)
+   statement_list := statement | statement*
 
+   statement :=   (   
+	   	          declareVar |
+	          declareProcedure |
+	            printStatement |
+	            inputStatement |
+                whileStatment |
+                   ifStatment |
+          expressionStatement |
+             return statement 
+              ) <;>
+
+   declareVar := let term <:> type {<;> |  <:=> term <;>}
+
+   declareProcedure := func id ( {paraneter_list} ) block
+
+   parameter_list := id <:> type {<,> parameter_list}*
+
+   expressionStatement := simpleExpression | assignmentStatement | procedureCall
+
+   procedureCall := id ( argument_list )  
+
+   argument_list := expression { <,> expression }*
+
+   assignStatement := id <:=> expression
+
+   whileStatement := while (expression) block
+
+   ifStatement := if (expression) then
+                     statement_list
+                  {else 
+                     statement_list}
+                  end
+   returnStatement := return expression
+
+   expression := simpleExpression ( < | > | <= | >= | == | != ) simpleExpression        
+
+   simpleExpression := term { (+|-) term }*
+
+   term := factor { (*|/) factor }*
+
+   factor := var | num | rand_num | real_num | string_literal | ( expression )
+
+   var := id[expression] | procedureCall
+
+   num := ([0..9])*
+
+   real_num := ([0..9])*<.>([0..9])*
+
+   rand_num := [implementation dependent, returns random number]
+
+   string_literal := <"> string <">
+
+   Types := Integer | Real | String
+
+## Some Quirks
+
+using the + operator on any type and a string will 
+result in the cocatenation of the string and the string representation of the other value.
+
+during all math op and rel ops, 
+all values are cast to float, and then 
+cast back to their appropriate type. *except strings.
+This is the ONLY implicit type conversion in owl.
+
+right now, input will only accept integers. sorry.
+
+## An Example Of Owl
 
     program 'bubblesort';
     begin
@@ -121,11 +112,11 @@ Some features of Owl are highlighted below. All code samples are real, working e
 
        func showArr(n: int) begin
            let k: int := 1;
-           k := 1;
           while (k < n) begin
-            print x[k];
+            print (x[k] + " ");
             k := k + 1;
           end;
+          print "\n";
        end
 
        func sortPass(m: int, n: int) begin
@@ -158,9 +149,12 @@ Some features of Owl are highlighted below. All code samples are real, working e
           x[i] := rand(100);
           i := i + 1;
        end;
-    
+      print "Random Numbers: ";
       showArr(10);
       sort(10);
+      print "Sorted Numbers: ":
       showArr(10);
     end
- 
+
+# Misc
+Owl is Releassed under the MIT License and is (c) 2024 Max Goren, http://maxgcoding.com

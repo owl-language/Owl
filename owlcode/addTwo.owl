@@ -8,4 +8,5 @@ begin
     {* display the result on the console *}
     x := addTwo(5);
     print x;
+    print "\n";
 end
