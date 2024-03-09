@@ -99,7 +99,25 @@ This is the ONLY implicit type conversion in owl.
 
 right now, input will only accept integers. sorry.
 
-## An Example Of Owl
+##  Owl by Example
+
+    program 'fibonacci';
+    begin
+    	let m: int := 1;
+    	func fibR(n: int) begin
+             if (n < 2) then
+            	return n;
+             else
+            	return fibR(n - 1) + fibR(n-2);
+             end;
+    	end
+    	while (m <= 13) begin
+             print (fibR(m) + " ");
+             m := m + 1;
+    	end;
+    	print "\n";
+    end
+
 
     program 'bubblesort';
     begin
