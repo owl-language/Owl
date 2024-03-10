@@ -1,12 +1,12 @@
 # Owl lang. v0.1a  (\\^(OvO)^/)
 
-Owl is a dynamically typed, algol-like, procedural language.
+Owl is an interpreted, dynamically typed, procedural language.
 It features pascal-like syntax, with C-style scope rules.
 Variables and procedures are declare before used. Variables must be
 declared with an _initial_ type, but a variables type can be changed 
 implicitly through assignment
 
-Owl's Mascot, (\^(OvO)^/), is named Flaco, in dedication to the memory of, Flaco the Owl, who came
+Owl's Mascot, (\\^(OvO)^/), is named Flaco, in dedication to the memory of Flaco the Owl who came
 to fame for escaping his enclosure in the central park zoo after years of captivity.
 
 # Syntax
@@ -17,7 +17,8 @@ this should be viewed as no more than an approximation of Owl's grammar
 ## reserved words: 
 
       begin, end, input, print, if, then , else, while, 
-      func, let, int, string, real, rand, program, return
+      func, let, int, string, real, rand, program, library,
+      return, ref, import
 
 ## reserved symbols:
       , . := : ; + - * / [ ] ( ) {* *} < > <= >= == !=
@@ -171,6 +172,26 @@ And you can always save yourself a few cycles by cacheing using Owl's Array type
     	end;
     	print "\n";
     end
+
+And if you find yourself using your fibonacci procedure in many different programs, you can
+package it as a library, and import it into your code, reducing code duplication and encouraging re-use
+
+    library 'fibLib';
+    begin
+        func fibR(n: int) begin 
+        	if (n < 2) then
+            		return n;
+        	else
+            		return fibR(n-1) + fibR(n-2);
+        	end;
+   	end;
+    end
+    
+    program 'libtest';
+    import fibLib;
+    begin
+         print (fibR(13) + "\n");
+    end;
     
 # Misc
 Owl is (c) 2024 Max Goren, http://maxgcoding.com, see LICENSE.md for more info.
