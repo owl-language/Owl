@@ -95,11 +95,13 @@ result in the cocatenation of the string and the string representation of the ot
 during all math op and rel ops, 
 all values are cast to float, and then 
 cast back to their appropriate type. *except strings.
-This is the ONLY implicit type conversion in owl.
 
 right now, input will only accept integers. sorry.
 
 ##  Owl by Example
+
+Recursive Procedures are fully supported making the canonical fibonacci algorithm straight forward to implement
+While typing is dynamic, its still required to declare an inital type for the variable.
 
     program 'fibonacci';
     begin
@@ -118,68 +120,57 @@ right now, input will only accept integers. sorry.
     	print "\n";
     end
 
+If recusrion isn't you're thing, you can owl use the while loop for iteration
 
-    program 'bubblesort';
+    program 'fibonacciEx';
     begin
-       let c: int := 1;
-       let d: int := 2;
-       let ds: int := 0;
-       let i: int := 1;
-       let x[10]: int;
+    	let prev: int := 1;
+    	let next: int := 2;
+    	let curr: int := 0;
+    	let x: int := 1;
+    
+    	func calcAndPrint() begin
+        	next := (prev + curr);
+        	print (next + " ");
+        	prev := curr;
+        	curr := next;
+    	end
 
-       func swap(v: int, u: int) begin
-          let t: int := 0;
-             t := x[v];
-          x[v] := x[u];
-          x[u] := t;
-          ds := 1;
-       end
-
-       func showArr(n: int) begin
-           let k: int := 1;
-          while (k < n) begin
-            print (x[k] + " ");
-            k := k + 1;
-          end;
-          print "\n";
-       end
-
-       func sortPass(m: int, n: int) begin
-          c := m;
-          d := c + 1;
-          while (d < n) begin
-             if (x[d] < x[c]) then
-                swap(c, d);
-             end;
-             c := c + 1;
-             d := c + 1;
-          end;
-       end
-
-       func sort(l: int) begin
-          ds := 0; {* did swap flag, once sortPass completes without setting to 1, were done *}
-          sortPass(1, l);  {* do bubble pass *}
-          end;
-          if (ds = 0) then
-            return 0;
-          else
-            sort(l);
-          end;
-       end
-
-      {* main program starts here *}
-      
-       i := 1;
-       while (i < 10) begin      
-          x[i] := rand(100);
-          i := i + 1;
-       end;
-      print "Random Numbers: ";
-      showArr(10);
-      sort(10);
-      print "Sorted Numbers: ":
-      showArr(10);
+    	while (x <= 10) begin
+        	calcAndPrint();
+        	x := (x + 1);
+    	end;
+    
+    	print "\n";
     end
 
+And you can always save yourself a few cycles by cacheing using Owl's Array type
+
+    program 'fibonacci';
+    begin
+   	let m: int := 1;
+    	let cache[15]: int;
+    	func fibCached(n: int) begin
+        
+	 	if (n < 2) then
+            		return n;
+        	else
+            		if (cache[n] != 0) then
+                		return cache[n];
+            		else
+                		cache[n] := fibCached(n - 1) + fibCached(n-2);
+            		end;
+            		print (n + " ");
+            		return cache[n];
+        	end;
+	 
+    	end
+        while (m <= 13) begin
+             	print (fibR(m) + " ");
+             	m := m + 1;
+    	end;
+    	print "\n";
+    end
+    
 # Misc
 Owl is (c) 2024 Max Goren, http://maxgcoding.com, see LICENSE.md for more info.
