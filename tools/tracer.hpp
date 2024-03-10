@@ -39,7 +39,7 @@ void printToLog(string s) {
 }
 
 void logError(string s) {
-    cout<<FLACO<<" "<<s<<endl;
+    cout<<"\n"<<FLACO<<" "<<s<<endl;
     if (logfile.is_open()) {
         logfile<<s<<endl;
     }

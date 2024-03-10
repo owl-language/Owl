@@ -1,0 +1,26 @@
+program 'EvalOrderAndRefExample';
+begin
+    let x: int := 1;
+    func f(x: int) begin
+        print ("f: " + x + " ");
+        return x;
+    end
+    
+    func b(x: ref int) begin
+        x := x + 2;
+        print ("b: " + x + "\n");
+    end
+
+    func a(x: int) begin
+        print ("a: " + x + "\n");
+        b(x)
+        print ("a: " + x + "\n");
+    end
+
+    print (f(3-2) + f(1+1));
+    print ("\n" + x + "\n");
+    a(x);
+    print (x + "\n");
+    b(x);
+    print (x + "\n");
+end

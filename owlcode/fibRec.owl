@@ -1,15 +1,41 @@
 program 'fibonacci';
 begin
     let m: int := 1;
-    func fibR(n: int) begin
+    let cache[15]: int;
+    func fibCached(n: int) begin
         if (n < 2) then
             return n;
         else
-            return fibR(n - 1) + fibR(n-2);
+            if (cache[n] != 0) then
+                return cache[n];
+            else
+                cache[n] := fibCached(n - 1) + fibCached(n-2);
+            end
+            print (n + " ");
+            return cache[n];
         end;
     end
+
+    func fibR(n: int) begin 
+        if (n < 2) then
+            return n;
+        else
+            print (n + " ");
+            return fibR(n-1) + fibR(n-2);
+        end;
+    end
+    
+    print "No Cacheing of Previous Results: \n";
     while (m <= 13) begin
-        print (fibR(m) + " ");
+        print (fibR(m) + "\n");
+        m := m + 1;
+    end;
+    print "\n";
+    
+    print "With Cacheing Previous Results: \n";
+    m := 1;
+    while (m <= 13) begin
+        print (fibCached(m) + "\n");
         m := m + 1;
     end;
     print "\n";

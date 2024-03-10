@@ -199,7 +199,7 @@ Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
         say("Calculating Offset.");
         offset = interpretExpression(x->child[0]).data.intValue();
         if (offset < 0) {
-            logError("Hoot: Invalid Index: " + to_string(offset));
+            logError("Hoot! Invalid Index: " + to_string(offset));
             return Object(-1);
         }
         say("Array Reference, offset: " + to_string(offset));
@@ -234,7 +234,7 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
         say("Retrieving subscript " + x->child[0]->attribute.name);
         offset = interpretExpression(x->child[0]->child[0]).data.intValue();
         if (offset <= 0) {
-            cout<<"Hoot! Invalid Index: "<<offset<<endl;
+            logError("Hoot! Invalid Index: " + to_string(offset));
         }
         say("Array Reference, offset: " + offset);
     }
@@ -320,7 +320,7 @@ void Interpreter::declareVariable(ASTNode* x) {
             obj.data._value = x->child[1]->attribute.name;
         } else if (x->child[1]->attribute.type == as_real) { 
             obj.type = REAL;
-            obj.data._value = x->child[1]->attribute.name;
+            obj.data._value = to_string(x->child[1]->attribute.realValue);
         } else {
             obj.type = INTEGER;
             obj.data._value = to_string(x->child[1]->attribute.intValue);
