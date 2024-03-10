@@ -171,6 +171,26 @@ And you can always save yourself a few cycles by cacheing using Owl's Array type
     	end;
     	print "\n";
     end
+
+And if you find yourself using your fibonacci procedure in many different programs, you can
+package it as a library, and import it into your code, reducing code duplication and encouraging re-use
+
+    library 'fibLib';
+    begin
+        func fibR(n: int) begin 
+        	if (n < 2) then
+            		return n;
+        	else
+            		return fibR(n-1) + fibR(n-2);
+        	end;
+   	end;
+    end
+    
+    program 'libtest';
+    import fibLib;
+    begin
+         print (fibR(13) + "\n");
+    end;
     
 # Misc
 Owl is (c) 2024 Max Goren, http://maxgcoding.com, see LICENSE.md for more info.
