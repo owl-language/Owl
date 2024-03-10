@@ -3,8 +3,9 @@
 #include <cstring>
 #include "../interpreter/interpreter.hpp"
 #include "../ast/ast.hpp"
-#include "../parser/parser.hpp"
+#include "../tools/tracer.hpp"
 #include "../lexer/lexer.hpp"
+#include "../parser/parser.hpp"
 using namespace std;
 
 void showUsage() {
@@ -24,24 +25,18 @@ int main(int argc, char* argv[]) {
         showUsage();
         return 0;
     }
-    vector<Token> ts;
+    ASTBuilder astBuilder;
     ASTNode* ast;
-    OwlLexer lexer;
-    Parser mp;
     Interpreter interpreter;
     if (argv[1][0] == '-' && argv[1][1] == 'v') {
         initTracer(argv[1]);
         setTraceState(PARSE);
-        ts = lexer.tokenize(argv[2]);
-        for (Token tok : ts) {
-            tok.print();
-        }
-        ast = mp.start(ts);
+        string file = argv[2];
+        ast = astBuilder.build(file);
         printTree(ast);
     } else {
         setTraceState(PARSE);
-        ts = lexer.tokenize(argv[1]);
-        ast = mp.start(ts);
+        ast = astBuilder.build(argv[1]);
     }
     printToLog("[Parsing Complete.]");
     traceAST(ast);

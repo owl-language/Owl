@@ -27,7 +27,7 @@ struct Attributes {
 };
 
 enum NodeKind {
-    EXPRNODE, STMTNODE
+    EXPRNODE, STMTNODE, DIRECTIVE
 };
 
 enum ExprKind {
@@ -46,9 +46,16 @@ vector<string> StmtKindStr = {
     "VARDECL", "FUNCDECL", "READSTM", "PRINTSTMT", "ASSIGNSTM", "EXPRSTM", "WHILESTM", "IFSTM", "RETURNSTM"
 };
 
+enum DirectiveKind {
+    IMPORT_DIRECTIVE
+};
+
+vector<string> DirectiveKindStr = { "IMPORT_DIRECTIVE" };
+
 typedef union NodeType {
     StmtKind stmt;
     ExprKind expr;
+    DirectiveKind drctv;
 } NodeType;
 
 const int MAX_CHILDREN = 3;
@@ -82,14 +89,24 @@ ASTNode* makeStatementNode(StmtKind stmt, Attributes attr) {
     return node;
 }
 
+ASTNode* makeInterpreterDirective(DirectiveKind directive, Attributes attr) {
+    ASTNode* node = new ASTNode();
+    node->kind = DIRECTIVE;
+    node->type.drctv = directive;
+    node->attribute = attr;
+    return node;
+}
+
 void printNode(ASTNode* node) {
     if (node->kind == EXPRNODE) {
         cout<<"["<<ExprKindStr[node->type.expr]<<"] "<<node->attribute.name<<" - ";
         if (node->type.expr == OP_EXPR) 
             cout<<tokenString[node->attribute.op];
         cout<<endl;
-    } else {
+    } else if (node->kind == STMTNODE) {
         cout<<"["<<StmtKindStr[node->type.stmt]<<"] "<<node->attribute.name<<endl;
+    } else if (node->kind == DIRECTIVE) {
+        cout<<"["<<DirectiveKindStr[node->type.drctv]<<"] "<<node->attribute.name<<endl;
     }
 }
 

@@ -1,0 +1,5 @@
+program 'libtest';
+import fibLib;
+begin
+    print (fibR(13) + "\n");
+end;

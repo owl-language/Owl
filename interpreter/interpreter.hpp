@@ -2,6 +2,7 @@
 #define interpreter_hpp
 #include <iostream>
 #include <map>
+#include "ast_builder.hpp"
 #include "../ast/ast.hpp"
 #include "../tokens/tokens.hpp"
 #include "../tools/tracer.hpp"
@@ -9,6 +10,7 @@
 #include "memstore.hpp"
 #include "memobject.hpp"
 using namespace std;
+
 
 class Interpreter {
     private:
@@ -32,8 +34,10 @@ class Interpreter {
         void doReadStatement(ASTNode* x);
         void handleIfStatement(ASTNode* x);
         void handleWhileStatement(ASTNode* x);
+        void compilerDirective(ASTNode* x);
         StackFrame* prepStackFrame(StackFrame* x);
         Object Dispatch(ASTNode* x);
+        void importLibrary(string libName);
     public:
         void Execute(ASTNode* x);
         void memoryUsage() {
@@ -535,10 +539,28 @@ void Interpreter::Execute(ASTNode* node) {
         case STMTNODE:
             interpretStatement(node);
             break;
+        case DIRECTIVE:
+            compilerDirective(node);
     }
     if (node->kind == STMTNODE && node->type.stmt == RETURNSTM)
         return;
     Execute(node->sibling);
+}
+
+void Interpreter::compilerDirective(ASTNode* node) {
+    onEnter("Compiler Directive.");
+    if (node->type.drctv == IMPORT_DIRECTIVE) {
+        importLibrary(node->attribute.name);
+    }
+    onExit();
+}
+
+void Interpreter::importLibrary(string libName) {
+    onEnter("Importing " + libName);
+    ASTNode* libAst;
+    ASTBuilder libBuilder;
+    libAst = libBuilder.build("owlcode/" + libName + ".owl");
+    Execute(libAst);
 }
 
 #endif

@@ -1,0 +1,10 @@
+library 'fibLib';
+begin
+    func fibR(n: int) begin 
+        if (n < 2) then
+            return n;
+        else
+            return fibR(n-1) + fibR(n-2);
+        end;
+    end;
+end

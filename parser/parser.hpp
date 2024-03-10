@@ -7,7 +7,7 @@
 #include "../tools/tracer.hpp"
 using namespace std;
 
-class Parser {
+class OwlParser {
     private:
         using TokenStream = vector<Token>::iterator;
         vector<Token> tokenvector;
@@ -50,7 +50,7 @@ class Parser {
             currentToken = *ts;
         }
     public:
-        Parser() {
+        OwlParser() {
 
         }
         ASTNode* start(vector<Token>& ts);
@@ -80,33 +80,67 @@ class Parser {
         ASTNode* factor();
         ASTNode* var();
         ASTNode* strValue();
+        ASTNode* program();
+        ASTNode* library();
 };
 
-ASTNode* Parser::replParse(vector<Token>& tokens) {
+ASTNode* OwlParser::replParse(vector<Token>& tokens) {
     depth = 0;
     initStream(tokens);
     ASTNode* singleLine = statement();
     return singleLine;
 }
 
-ASTNode* Parser::start(vector<Token>& tokens) {
+ASTNode* OwlParser::start(vector<Token>& tokens) {
     if (tokens.empty()) {
         logError("Error: token stream is empty.");
         return nullptr;
     }
     depth = 0;
     initStream(tokens);
+    if (lookahead().tokenval == LIB) {
+        return library();
+    }  else {
+        return program();
+    }
+}
+
+ASTNode* OwlParser::library() {
+    ASTNode* mainBlock;
+    match(LIB);
+    match(SQUOTE);
+    match(ID);
+    match(SQUOTE);
+    match(SEMI);
+    mainBlock = block();
+    depth = 0;
+    return mainBlock;
+}
+
+
+ASTNode* OwlParser::program() {
+    ASTNode* mainBlock, *imports;
     match(PROG);
     match(SQUOTE);
     match(ID);
     match(SQUOTE);
     match(SEMI);
-    ASTNode* mainBlock = block();
+    if (lookahead().tokenval == IMPORT) {
+        match(IMPORT);
+        imports = makeInterpreterDirective(IMPORT_DIRECTIVE, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
+        match(ID);
+        match(SEMI);
+    }
+    mainBlock = block();
+    if (imports) {
+        imports->sibling = mainBlock;
+        return imports;
+    }
     depth = 0;
     return mainBlock;
 }
 
-ASTNode* Parser::block() {
+ASTNode* OwlParser::block() {
     onEnter("block");
     match(BEGIN);
     ASTNode* node = statementList();
@@ -115,7 +149,7 @@ ASTNode* Parser::block() {
     return node;
 }
 
-ASTNode* Parser::statementList() {
+ASTNode* OwlParser::statementList() {
     onEnter("statementList");
     ASTNode* node = statement();
     ASTNode* next = node;
@@ -134,7 +168,7 @@ ASTNode* Parser::statementList() {
     return node;
 }
 
-ASTNode* Parser::statement() {
+ASTNode* OwlParser::statement() {
     onEnter("statement");
     ASTNode* node = nullptr;
     switch (lookahead().tokenval) {
@@ -173,7 +207,7 @@ ASTNode* Parser::statement() {
     return node;
 }
 
-ASTNode* Parser::assignStatement() {
+ASTNode* OwlParser::assignStatement() {
     onEnter("assignmentStatement");
     ASTNode* node = makeStatementNode(ASSIGNSTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     if (node != nullptr && lookahead().tokenval == ID) {
@@ -186,7 +220,7 @@ ASTNode* Parser::assignStatement() {
     return node;
 }
 
-ASTNode* Parser::declareVarStatement() {
+ASTNode* OwlParser::declareVarStatement() {
     onEnter("declareVarStatement");
     ASTNode* node = makeStatementNode(VARDECL, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(LET);
@@ -222,7 +256,7 @@ ASTNode* Parser::declareVarStatement() {
     return node;
 }
 
-ASTNode* Parser::declareProcedureStatement() {
+ASTNode* OwlParser::declareProcedureStatement() {
     onEnter("declareProcedure");
     ASTNode* node = makeStatementNode(FUNCDECL, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(FUNC);
@@ -236,7 +270,7 @@ ASTNode* Parser::declareProcedureStatement() {
     return node;
 }
 
-ASTNode* Parser::parameterList() {
+ASTNode* OwlParser::parameterList() {
     ASTNode* t = nullptr;
     onEnter("paramList");
     if (lookahead().tokenval == RPAREN) {
@@ -273,7 +307,7 @@ ASTNode* Parser::parameterList() {
     return t;
 }
 
-ASTNode* Parser::procedureCall() {
+ASTNode* OwlParser::procedureCall() {
     onEnter("procedureCall");
     ASTNode* node = makeExpressionNode(PROCDCALL, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(LPAREN);
@@ -284,7 +318,7 @@ ASTNode* Parser::procedureCall() {
     return node;
 }
 
-ASTNode* Parser::argumentList() {
+ASTNode* OwlParser::argumentList() {
     onEnter("argumentList");
     ASTNode* node = nullptr;
     if (lookahead().tokenval == RPAREN)
@@ -303,7 +337,7 @@ ASTNode* Parser::argumentList() {
     return node;
 }
 
-ASTNode* Parser::exprStatement() {
+ASTNode* OwlParser::exprStatement() {
     onEnter("exprStatement");
     ASTNode* t = makeStatementNode(EXPRSTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     if (lookahead().tokenval == ID) {
@@ -337,7 +371,7 @@ ASTNode* Parser::exprStatement() {
     return t;
 }
 
-ASTNode* Parser::whileStatement() {
+ASTNode* OwlParser::whileStatement() {
     ASTNode* t = makeStatementNode(WHILESTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     onEnter("whileStatement");
     match(WHILE);
@@ -349,7 +383,7 @@ ASTNode* Parser::whileStatement() {
     return t;
 }
 
-ASTNode* Parser::ifStatement() {
+ASTNode* OwlParser::ifStatement() {
     ASTNode* t = makeStatementNode(IFSTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     onEnter("ifStatement");
     match(IF);
@@ -365,7 +399,7 @@ ASTNode* Parser::ifStatement() {
     return t;
 }
 
-ASTNode* Parser::printStatement() {
+ASTNode* OwlParser::printStatement() {
     ASTNode* node = makeStatementNode(PRINTSTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(PRINT);
     if (lookahead().tokenval == QUOTE) 
@@ -375,7 +409,7 @@ ASTNode* Parser::printStatement() {
     return node;
 }
 
-ASTNode* Parser::readStatement() {
+ASTNode* OwlParser::readStatement() {
     ASTNode* node = makeStatementNode(READSTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(READ);
     node->child[0] = var();
@@ -383,7 +417,7 @@ ASTNode* Parser::readStatement() {
     return node;
 }
 
-ASTNode* Parser::randExpression() {
+ASTNode* OwlParser::randExpression() {
     ASTNode* node = makeExpressionNode(RAND_EXPR, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(RAND);
     match(LPAREN);
@@ -392,7 +426,7 @@ ASTNode* Parser::randExpression() {
     return node;
 }
 
-ASTNode* Parser::returnStatement() {
+ASTNode* OwlParser::returnStatement() {
     ASTNode* t = makeStatementNode(RETURNSTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     onEnter("return statement");
     match(RETURN);
@@ -403,7 +437,7 @@ ASTNode* Parser::returnStatement() {
 }
 
 
-ASTNode* Parser::expression() {
+ASTNode* OwlParser::expression() {
     onEnter("expression");
     ASTNode* node = simpleExpression();
     if (lookahead().tokenval == LESS || lookahead().tokenval == GREATER || 
@@ -422,7 +456,7 @@ ASTNode* Parser::expression() {
     return node; 
 }
 
-ASTNode* Parser::simpleExpression() {
+ASTNode* OwlParser::simpleExpression() {
     onEnter("simpleExpression");
     ASTNode* node = term();
     while (lookahead().tokenval == PLUS || lookahead().tokenval == MINUS) {
@@ -438,7 +472,7 @@ ASTNode* Parser::simpleExpression() {
     return node;
 }
 
-ASTNode* Parser::term() {
+ASTNode* OwlParser::term() {
     onEnter("term");
     ASTNode* node = factor();
     while (lookahead().tokenval == MULT || lookahead().tokenval == DIVD) {
@@ -452,7 +486,7 @@ ASTNode* Parser::term() {
     return node;
 }
 
-ASTNode* Parser::factor() {
+ASTNode* OwlParser::factor() {
     ASTNode* node = nullptr;
     onEnter("factor");
     if (lookahead().tokenval == ID) {
@@ -492,7 +526,7 @@ ASTNode* Parser::factor() {
     return node;
 }
 
-ASTNode* Parser::var() {
+ASTNode* OwlParser::var() {
     onEnter("var");
     ASTNode* node = makeExpressionNode(ID_EXPR, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(ID);
@@ -511,7 +545,7 @@ ASTNode* Parser::var() {
     return node;
 }
 
-ASTNode* Parser::strValue() {
+ASTNode* OwlParser::strValue() {
     onEnter("String value");
     match(QUOTE);
     ASTNode* node = makeExpressionNode(CONST_STR, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));

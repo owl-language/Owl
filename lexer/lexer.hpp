@@ -41,6 +41,7 @@ void OwlLexer::initReserved() {
     reserved["else"] = ELSE;
     reserved["while"] = WHILE;
     reserved["program"] = PROG;
+    reserved["library"] = LIB;
     reserved["func"] = FUNC;
     reserved["begin"] = BEGIN;
     reserved["end"]  = END;
@@ -51,6 +52,8 @@ void OwlLexer::initReserved() {
     reserved["rand"] = RAND;
     reserved["real"] = REALT;
     reserved["ref"] = REF;
+    reserved["import"] = IMPORT;
+
 }
 
 TokenType OwlLexer::handleKeywordOrId(string word) {
