@@ -17,7 +17,8 @@ this should be viewed as no more than an approximation of Owl's grammar
 ## reserved words: 
 
       begin, end, input, print, if, then , else, while, 
-      func, let, int, string, real, rand, program, return
+      func, let, int, string, real, rand, program, library,
+      return, ref, import
 
 ## reserved symbols:
       , . := : ; + - * / [ ] ( ) {* *} < > <= >= == !=
