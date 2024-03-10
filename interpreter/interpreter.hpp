@@ -168,7 +168,9 @@ Object Interpreter::eval(ASTNode* x) {
     } else if (rightChild.type == REAL) {
         rightOperand = rightChild.data.realValue();
     }
+    
     say(to_string(leftOperand) + " " + tokenString[x->attribute.op] + " " + to_string(rightOperand));
+    
     if (leftChild.type == STRING || rightChild.type == STRING)
         return stringOp(x->attribute.op, leftChild, rightChild);
     
@@ -320,7 +322,7 @@ void Interpreter::declareVariable(ASTNode* x) {
             obj.data._value = x->child[1]->attribute.name;
         } else if (x->child[1]->attribute.type == as_real) { 
             obj.type = REAL;
-            obj.data._value = to_string(x->child[1]->attribute.realValue);
+            obj.data._value = x->child[1]->attribute.name;
         } else {
             obj.type = INTEGER;
             obj.data._value = to_string(x->child[1]->attribute.intValue);
