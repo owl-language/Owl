@@ -182,4 +182,4 @@ right now, input will only accept integers. sorry.
     end
 
 # Misc
-Owl is Releassed under the MIT License and is (c) 2024 Max Goren, http://maxgcoding.com
+Owl is (c) 2024 Max Goren, http://maxgcoding.com, see LICENSE.md for more info.
