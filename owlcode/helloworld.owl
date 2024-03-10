@@ -1,0 +1,7 @@
+program 'hello';
+begin
+    func sayHello(n: string) begin
+        print ("Hello " + n + "!\n");
+    end
+    sayHello("world");
+end

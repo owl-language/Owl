@@ -66,8 +66,8 @@ TracerStates getTracerState() {
 void say(string s) {
     if (shouldTrace.find(getTracerState()) != shouldTrace.end()) {
         for (int i = 0; i < depth; i++) {
-            cout<<" ";
-            logfile<<"  ";
+            cout<<"  ";
+            logfile<<" ";
         }
         string msg = "(" + to_string(depth) + ") " + s;
         printToLog(msg);

@@ -86,6 +86,12 @@ class SourceBuffer {
                 readChar = eofChar;
             }
         }
+        void loadString(string str) {
+            scanner.reset();
+            vector<string> line;
+            line.push_back(str);
+            initSourceBuffer(line);
+        }
         bool isEOF() {
             return readChar == eofChar;
         }

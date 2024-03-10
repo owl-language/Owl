@@ -21,6 +21,11 @@ class ASTBuilder {
              result = parser.start(ts);
              return result;
         }
+        ASTNode* translate(string input) {
+            auto ts = lexer.tokenizeStatement(input);
+            result = parser.replParse(ts);
+            return result;
+        }
 };
 
 #endif

@@ -30,7 +30,10 @@ class OwlLexer {
             sb.loadFile(filename);
             return tokenize();
         }
-        
+        vector<Token> tokenizeStatement(string statement) {
+            sb.loadString(statement);
+            return tokenize();
+        }
 };
 
 void OwlLexer::initReserved() {

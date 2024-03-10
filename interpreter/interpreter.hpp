@@ -53,17 +53,6 @@ class Interpreter {
 
 };
 
-int divide(int a, int b) {
-    if (b == 0) {
-        logError("Hoot! Hoot!: Divide By Zero. (Don't do that.)");
-        return 0;
-    }
-    float fa = (float) a;
-    float fb = (float) b;
-    float t = fa/fb;
-    return (int)t;
-}
-
 Object Interpreter::stringOp(TokenType op, Object left, Object right) {
     onEnter("String Operation");
     Object retObj(" ");
@@ -87,11 +76,19 @@ Object Interpreter::stringOp(TokenType op, Object left, Object right) {
     } else if (op == NOTEQUAL) {
         retObj = Object(left.data.stringValue() == right.data.stringValue());
     } else {
-        logError("Hoot! Operation: " + tokenString[op] + " no support on strings.");
+        logError("Hoot! Operation: " + tokenString[op] + " not supported on strings.");
         retObj = Object(0);
     }
     onExit();
     return retObj;
+}
+
+float divide(float a, float b) {
+    if (b == 0) {
+        logError("Hoot! Hoot!: Divide By Zero. (Don't do that.)");
+        return 0;
+    }
+    return a/b;
 }
 
 Object Interpreter::mathOp(TokenType op, Object leftChild, Object rightChild) {
@@ -100,6 +97,7 @@ Object Interpreter::mathOp(TokenType op, Object leftChild, Object rightChild) {
     float leftOperand, rightOperand, result = 0;
     leftOperand = leftChild.data.realValue();
     rightOperand = rightChild.data.realValue();
+    say(to_string(leftOperand) + " " + tokenString[op] + " " + to_string(rightOperand));
     switch (op) {
         case PLUS:
             result = leftOperand + rightOperand;
@@ -129,6 +127,7 @@ Object Interpreter::mathOp(TokenType op, Object leftChild, Object rightChild) {
 Object Interpreter::relOp(TokenType op, float leftOperand, float rightOperand) {
     onEnter("rel Op");
     Object retVal;
+    say(to_string(leftOperand) + " " + tokenString[op] + " " + to_string(rightOperand));
     bool result;
     switch (op) {
         case LESS:
@@ -162,19 +161,11 @@ Object Interpreter::eval(ASTNode* x) {
     leftChild = interpretExpression(x->child[0]);
     onExit();
     rightChild = interpretExpression(x->child[1]);
-    if (leftChild.type == INTEGER) {
-        leftOperand = (float) leftChild.data.intValue();
-    }  else if (leftChild.type == REAL) {
+    if (leftChild.type != STRING)
         leftOperand = leftChild.data.realValue();
-    }
-    if (rightChild.type == INTEGER) {
-        rightOperand = (float) rightChild.data.intValue();
-    } else if (rightChild.type == REAL) {
+    if (rightChild.type != STRING)
         rightOperand = rightChild.data.realValue();
-    }
-    
-    say(to_string(leftOperand) + " " + tokenString[x->attribute.op] + " " + to_string(rightOperand));
-    
+        
     if (leftChild.type == STRING || rightChild.type == STRING)
         return stringOp(x->attribute.op, leftChild, rightChild);
     
@@ -186,7 +177,8 @@ Object Interpreter::eval(ASTNode* x) {
         x->attribute.op == GREATER || x->attribute.op == LESSEQ || x->attribute.op == GREATEREQ) {
         retObj = relOp(x->attribute.op, leftOperand, rightOperand);
     }
-    onExit("eval result: " + retObj.toString());
+    say("eval result: " + retObj.toString());
+    onExit();
     return retObj;
 }
 

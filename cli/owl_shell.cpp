@@ -11,7 +11,7 @@ class OwlShell {
     private:
         OwlLexer lexer;  //Lexer Returns ts
         vector<Token> ts;
-        Parser parser; //Parser returns ast
+        OwlParser parser; //Parser returns ast
         ASTNode* ast;
         Interpreter interpreter; //take a wild guess
         vector<string> tokenizeInput(string input);
@@ -55,6 +55,7 @@ void OwlShell::showHelp() {
     cout<<"  run            execute the current Owl script."<<endl;
     cout<<"  list tokens    display all tokens from current Owl script."<<endl;
     cout<<"  list ast       display the AST of current Owl script."<<endl;
+    cout<<"  list libfuncs  display any loaded library procedure's ASTs"<<endl;
     cout<<"  reset          Places OwlShell into its initial state, "<<endl;
     cout<<"                 Unloads any scripts and clears OwlVM memory."<<endl;
     cout<<"  spy memory     display memory usage in OwlVM."<<endl;
