@@ -2,9 +2,8 @@
 
 Owl is an interpreted, dynamically typed, procedural language.
 It features pascal-like syntax, with C-style scope rules.
-Variables and procedures are declare before used. Variables must be
-declared with an _initial_ type, but a variables type can be changed 
-implicitly through assignment
+Variables and procedures are declare before used. Variable types are assigned 
+implicitly and can change through assignment over time.
 
 Owl's Mascot, (\\^(OvO)^/), is named Flaco, in dedication to the memory of Flaco the Owl who came
 to fame for escaping his enclosure in the central park zoo after years of captivity.
@@ -61,7 +60,7 @@ this should be viewed as no more than an approximation of Owl's grammar
                 return statement 
                     ) <;>
 
-      declareVar := let term <:> type {<;> |  <:=> term <;>}
+      declareVar := let term <;> | { (<:=> term)* <;>}
 
       declareProcedure := func id ( {paraneter_list} ) block
 
@@ -105,25 +104,15 @@ this should be viewed as no more than an approximation of Owl's grammar
 
       Types := Integer | Real | String
 
-## Some Quirks
-
-using the + operator on any type and a string will 
-result in the cocatenation of the string and the string representation of the other value.
-
-during all math op and rel ops, 
-all values are cast to float, and then 
-cast back to their appropriate type. *except strings.
-
-right now, input will only accept integers. sorry.
 
 ##  Owl by Example
 
 Recursive Procedures are fully supported making the canonical fibonacci algorithm straight forward to implement
-While typing is dynamic, its still required to declare an inital type for the variable.
+typing is dynamic, so specifying a variables type isnt required, just use the 'let' keyword!
 
     program 'fibonacci';
     begin
-    	let m: int := 1;
+    	let m := 1;
     	func fibR(n: int) begin
         	if (n < 2) then
             		return n;
@@ -138,14 +127,14 @@ While typing is dynamic, its still required to declare an inital type for the va
     	print "\n";
     end
 
-If recusrion isn't you're thing, you can owl use the while loop for iteration
+If recusrion isn't you're thing, you can use the while loop for iteration
 
     program 'fibonacciEx';
     begin
-    	let prev: int := 1;
-    	let next: int := 2;
-    	let curr: int := 0;
-    	let x: int := 1;
+    	let prev := 1;
+    	let next := 2;
+    	let curr := 0;
+    	let x := 1;
     
     	func calcAndPrint() begin
         	next := (prev + curr);
@@ -162,15 +151,15 @@ If recusrion isn't you're thing, you can owl use the while loop for iteration
     	print "\n";
     end
 
-And you can always save yourself a few cycles by cacheing using Owl's Array type
+And you can always save yourself a few cycles by cacheing using Owl's array types
+arrays can hold mixed types as well, so feel free to mix up your elements!
 
     program 'fibonacci';
     begin
-   	let m: int := 1;
-    	let cache[15]: int;
+   	    let m := 1;
+    	let cache[15];
     	func fibCached(n: int) begin
-        
-	 	if (n < 2) then
+	 	    if (n < 2) then
             		return n;
         	else
             		if (cache[n] != 0) then
@@ -181,7 +170,6 @@ And you can always save yourself a few cycles by cacheing using Owl's Array type
             		print (n + " ");
             		return cache[n];
         	end;
-	 
     	end
         while (m <= 13) begin
              	print (fibR(m) + " ");
@@ -201,7 +189,7 @@ package it as a library, and import it into your code, reducing code duplication
         	else
             		return fibR(n-1) + fibR(n-2);
         	end;
-   	end;
+   	    end;
     end
     
     program 'libtest';
