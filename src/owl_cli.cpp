@@ -2,7 +2,8 @@
 #include <map>
 #include <cstring>
 #include "cli/cli.hpp"
-using namespace std;
+using std::cout;
+using std::endl;
 
 void showUsage() {
     cout<<"[ Owl v"<<OWL_VERSION<<" "<<FLACO<<" ]"<<endl;

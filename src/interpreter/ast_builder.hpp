@@ -5,7 +5,7 @@
 #include "../ast/ast.hpp"
 #include "../lexer/lexer.hpp"
 #include "../parser/parser.hpp"
-using namespace std;
+using std::string;
 
 // This was originally implemented to ease parsing individual statements
 // entered into the repl. I do believe with some modifications that

@@ -1,7 +1,8 @@
 #ifndef memobject_hpp
 #define memobject_hpp
 #include <iostream>
-using namespace std;
+using std::string;
+using std::to_string;
 
 //Run time Type of data stored in Object
 enum RTType {

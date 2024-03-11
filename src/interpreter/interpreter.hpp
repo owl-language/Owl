@@ -9,7 +9,9 @@
 #include "callstack.hpp"
 #include "memstore.hpp"
 #include "memobject.hpp"
-using namespace std;
+using std::cout;
+using std::endl;
+using std::map;
 
 
 class Interpreter {

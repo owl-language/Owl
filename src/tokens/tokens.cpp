@@ -1,6 +1,6 @@
 #include "tokens.hpp"
 #include <vector>
-using namespace std;
+using std::vector;
 
 void printTokens(vector<Token>& tokens) {
     for (Token token : tokens)

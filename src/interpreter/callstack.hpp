@@ -6,14 +6,24 @@
 #include "../tools/tracer.hpp"
 #include "../ast/ast.hpp"
 #include "memstore.hpp"
-using namespace std;
+using std::cout;
+using std::endl;
+using std::map;
+using std::string;
 
+inline const int MAX_RT_STACK = 150;
 
-const int MAX_RT_STACK = 150;
-
+struct stEntry {
+    int addr;
+    bool isRef;
+    stEntry(int ad = 0, bool ref = false) {
+        addr = ad;
+        isRef = ref;
+    }
+};
 
 struct StackFrame {
-    map<string, pair<int,bool>> symbolTable;
+    map<string, stEntry> symbolTable;
     ASTNode* body;
     ASTNode* params;
     StackFrame* staticLink;

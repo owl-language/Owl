@@ -6,7 +6,12 @@
 #include "../ast/ast.hpp"
 #include "../tokens/tokens.hpp"
 #include "../tools/tracer.hpp"
-using namespace std;
+using std::cout;
+using std::endl;
+using std::string;
+using std::to_string;
+using std::stof;
+using std::vector;
 
 class OwlParser {
     private:

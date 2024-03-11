@@ -4,7 +4,10 @@
 #include <iostream>
 #include <vector>
 #include "../tokens/tokens.hpp"
-using namespace std;
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
 
 enum storedType {
     as_int, as_real, as_string, as_ref

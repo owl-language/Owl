@@ -3,7 +3,7 @@
 #include <iostream>
 #include "memobject.hpp"
 #include "../tools/tracer.hpp"
-using namespace std;
+using std::string;
 
 const int MAX_MEM_STORE = 1500; //completely arbitrary
 

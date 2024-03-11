@@ -3,7 +3,11 @@
 #define tokens_hpp
 #include <iostream>
 #include <vector>
-using namespace std;
+using std::string;
+using std::to_string;
+using std::cout;
+using std::endl;
+using std::vector;
 
 enum TokenType {
     NONE,ERROR,ENDFILE,OPENCOMMENT,CLOSECOMMENT,LINECOMMENT,

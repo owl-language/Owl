@@ -4,7 +4,9 @@
 #include "../interpreter/ast_builder.hpp"
 #include "../interpreter/interpreter.hpp"
 #include <iostream>
-using namespace std;
+using std::cout;
+using std::endl;
+using std::string;
 
 
 class OwlREPL {

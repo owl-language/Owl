@@ -150,7 +150,7 @@ Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
         say("Array Reference, offset: " + to_string(offset));
     }
     if (callStack.size() && (callStack.top()->symbolTable.find(x->attribute.name) != callStack.top()->symbolTable.end())) {
-        addr = callStack.top()->symbolTable[x->attribute.name].first;
+        addr = callStack.top()->symbolTable[x->attribute.name].addr;
     } else  if (variables.find(x->attribute.name) != variables.end()) {
         addr = variables[x->attribute.name];
     } else {
@@ -184,7 +184,7 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
         say("Array Reference, offset: " + offset);
     }
     if (callStack.size() && callStack.top()->symbolTable.find(varname) != callStack.top()->symbolTable.end()) {
-        addr = callStack.top()->symbolTable[varname].first;
+        addr = callStack.top()->symbolTable[varname].addr;
         say("stored local variable " + varname  + " with value: " + valToAssign.toString() + " at " + to_string(addr) + " offset: " + to_string(offset) + " as: " + rtTypeAsStr[valToAssign.type]);
     } else if (variables.find(varname) != variables.end()) {
         addr = variables[varname];
@@ -264,7 +264,7 @@ void Interpreter::declareVariable(ASTNode* x) {
         say("Declaring Variable: " + name + " with value " + obj.toString() + " type: " + rtTypeAsStr[obj.type]);
     }
     if (callStack.empty())  variables[name] = addr;
-    else callStack.top()->symbolTable[name].first = addr;
+    else callStack.top()->symbolTable[name].addr = addr;
 }
 
 
@@ -277,7 +277,7 @@ void Interpreter::declareFunction(ASTNode* node) {
         for (ASTNode* param = node->child[1]; param != nullptr; param = param->sibling) {
             say("Parameter: " + param->attribute.name + " added to procedures symbol table.");
             Object obj(0);
-            procRec->symbolTable[param->attribute.name].first = memStore.storeAtNextFree(obj);
+            procRec->symbolTable[param->attribute.name].addr = memStore.storeAtNextFree(obj);
         } 
         procedures[node->attribute.name] = procRec;
     }
@@ -355,7 +355,7 @@ StackFrame* Interpreter::prepStackFrame(StackFrame* masterFrame) {
     nextFrame->params = masterFrame->params;
     nextFrame->returnVal = Object(0);
     for (auto m : masterFrame->symbolTable) {
-        nextFrame->symbolTable[m.first].first = memStore.allocate(1);
+        nextFrame->symbolTable[m.first].addr = memStore.allocate(1);
     }
     return nextFrame;
 }
@@ -372,15 +372,15 @@ Object Interpreter::Dispatch(ASTNode* node) {
             if (paramIt->attribute.type == as_ref) {
                 if (!callStack.empty()) {
                     if (callStack.top()->symbolTable.find(paramIt->attribute.name) != callStack.top()->symbolTable.end()) {
-                        nsf->symbolTable[paramIt->attribute.name].first = callStack.top()->symbolTable[paramIt->attribute.name].first;
+                        nsf->symbolTable[paramIt->attribute.name].addr = callStack.top()->symbolTable[paramIt->attribute.name].addr;
                     } else if (variables.find(paramIt->attribute.name) != variables.end()) {
-                        nsf->symbolTable[paramIt->attribute.name].first = variables[paramIt->attribute.name]; 
+                        nsf->symbolTable[paramIt->attribute.name].addr = variables[paramIt->attribute.name]; 
                     } else {
                         logError("No such variable " + paramIt->attribute.name);
                     }
                 } else {
                      if (variables.find(paramIt->attribute.name) != variables.end()) {
-                        nsf->symbolTable[paramIt->attribute.name].first = variables[paramIt->attribute.name]; 
+                        nsf->symbolTable[paramIt->attribute.name].addr = variables[paramIt->attribute.name]; 
                     } else {
                         logError("No such variable " + paramIt->attribute.name);
                     }
@@ -388,10 +388,10 @@ Object Interpreter::Dispatch(ASTNode* node) {
             }
             Object obj = interpretExpression(argIt);
             if (paramIt->attribute.type == as_ref)
-                nsf->symbolTable[paramIt->attribute.name].second = true;
+                nsf->symbolTable[paramIt->attribute.name].isRef = true;
             else
-                nsf->symbolTable[paramIt->attribute.name].second = false;
-            memStore.store(nsf->symbolTable[paramIt->attribute.name].first, obj);
+                nsf->symbolTable[paramIt->attribute.name].isRef = false;
+            memStore.store(nsf->symbolTable[paramIt->attribute.name].addr, obj);
             paramIt = paramIt->sibling;
             argIt = argIt->sibling;
         }
@@ -399,8 +399,8 @@ Object Interpreter::Dispatch(ASTNode* node) {
         Execute(callStack.top()->body);
         retVal = callStack.top()->returnVal;
         for (auto addr : callStack.top()->symbolTable) {
-            if (addr.second.second == false)
-                memStore.free(addr.second.first);
+            if (addr.second.isRef == false)
+                memStore.free(addr.second.addr);
         }
         callStack.pop();
         say("value returned: " + retVal.toString());

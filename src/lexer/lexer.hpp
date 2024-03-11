@@ -7,7 +7,13 @@
 #include "../tokens/tokens.hpp"
 #include "../tools/filebuffer.hpp"
 #include "../tools/tracer.hpp"
-using namespace std;
+using std::string;
+using std::cout;
+using std::endl;
+using std::to_string;
+using std::stof;
+using std::vector;
+using std::unordered_map;
 
 class OwlLexer {
     private:
