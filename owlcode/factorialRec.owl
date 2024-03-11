@@ -1,8 +1,8 @@
 program 'factorial';
 begin
-    let x: int := 0;
+    let x := 0;
     func factR(x: int) begin
-        let t: int := 1;
+        let t := 1;
         if (x <= 1) then
             return 1;
         else

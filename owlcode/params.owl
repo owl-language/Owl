@@ -1,8 +1,8 @@
 program 'param';
 begin
-    let x: int := 7;
-    let y: int := 13;
-    let t: int := 0;
+    let x := 7;
+    let y := 13;
+    let t := 0;
     func add(a: int, b: int) begin
         return (a + b);
     end

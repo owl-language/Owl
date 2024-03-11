@@ -1,6 +1,6 @@
 program 'simpler';
 begin 
-    let x: int := 1;
+    let x := 1;
     {* add the constant two to variable n *}
     func addTwo(n: int) begin
         return (n+2);

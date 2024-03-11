@@ -1,7 +1,7 @@
 program 'loopEx';
 begin
-    let x: int := 7;
-    let y: int := 27;
+    let x := 7;
+    let y := 27;
     while (x < y) begin
         print(x + y + " ");
         x := (x + 1);

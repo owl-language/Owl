@@ -1,7 +1,7 @@
 program 'fibonacci';
 begin
-    let m: int := 1;
-    let cache[15]: int;
+    let m := 1;
+    let cache[15];
     func fibCached(n: int) begin
         if (n < 2) then
             return n;

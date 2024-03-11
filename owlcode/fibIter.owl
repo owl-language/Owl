@@ -1,9 +1,9 @@
 program 'fibonacciEx';
 begin
-    let prev: int := 1;
-    let next: int := 2;
-    let curr: int := 0;
-    let x: int := 1;
+    let prev := 1;
+    let next := 2;
+    let curr := 0;
+    let x := 1;
     func calcAndPrint() begin
         next := (prev + curr);
         print (next + " ");

@@ -1,12 +1,12 @@
 program 'ArrayFib';
 begin
-    let m: int := 3;
-    let n: int := 5;
-    let fib[52]: int;
+    let m := 3;
+    let n := 5;
+    let fib[52];
     fib[1] := 0;
     fib[2] := 1;
     func nthFib(n: int) begin
-        let i: int := 3;
+        let i := 3;
         while (i < n) begin
             fib[i] := fib[i - 1] + fib[i - 2];
             i := i + 1;

@@ -141,34 +141,14 @@ ASTNode* OwlParser::declareVarStatement() {
     ASTNode* node = makeStatementNode(VARDECL, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(LET);
     node->child[0] = term();
-    match(COLON);
-    if (lookahead().tokenval == INT) {
-        match(INT);
-        if (lookahead().tokenval == SEMI) {
-            match(SEMI);
-            return node;
-        }
-        match(ASSIGN);
-        node->child[1] = term();
-    } else if (lookahead().tokenval == REALT) {
-        match(REALT);
-        if (lookahead().tokenval == SEMI) {
-            match(SEMI);
-            return node;
-        }
-        match(ASSIGN);
-        node->child[1] = term();
-    } else if (lookahead().tokenval == STR) {
-        match(STR);
-        if (lookahead().tokenval == SEMI) {
-            match(SEMI);
-            return node;
-        }
-        match(ASSIGN);
-        node->child[1] = strValue();
+    if (lookahead().tokenval == SEMI) {
         match(SEMI);
-        onExit("declareVarStatement");
+        return node;
     }
+    match(ASSIGN);
+    node->child[1] = expression();
+    match(SEMI);
+    onExit("declareVarStatement");
     return node;
 }
 

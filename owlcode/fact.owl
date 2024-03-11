@@ -1,9 +1,9 @@
 program 'factorial';
 begin
-    let x: int := 5;
-    let fact: int := 1;
-    let y: int := 1;
-    let ans: int := 0;
+    let x := 5;
+    let fact := 1;
+    let y := 1;
+    let ans := 0;
     while (x > 0) begin
         fact := (fact * x);
         x := (x - 1);

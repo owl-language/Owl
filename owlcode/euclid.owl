@@ -1,7 +1,7 @@
 program 'euclids';
 begin
-    let a: int := 72;
-    let b: int := 42;
+    let a := 72;
+    let b := 42;
     func gcd(a: int, b: int) begin
         while (a != b) begin
             if (b < a) then

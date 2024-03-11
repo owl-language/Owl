@@ -259,17 +259,7 @@ void Interpreter::declareVariable(ASTNode* x) {
         say("Declaring Array: " + name + " of size " + to_string(size) + " at address " + to_string(addr));
     } else {
         name = x->child[0]->attribute.name;
-        Object obj;
-        if (x->child[1]->attribute.type == as_string) {
-            obj.type = STRING;
-            obj.data._value = x->child[1]->attribute.name;
-        } else if (x->child[1]->attribute.type == as_real) { 
-            obj.type = REAL;
-            obj.data._value = x->child[1]->attribute.name;
-        } else {
-            obj.type = INTEGER;
-            obj.data._value = to_string(x->child[1]->attribute.intValue);
-        }
+        Object obj = interpretExpression(x->child[1]);
         addr = memStore.storeAtNextFree(obj);
         say("Declaring Variable: " + name + " with value " + obj.toString() + " type: " + rtTypeAsStr[obj.type]);
     }
@@ -380,13 +370,10 @@ Object Interpreter::Dispatch(ASTNode* node) {
         //now we want to assign the parameters to their correct symbol tables.
         while (paramIt && argIt) {
             if (paramIt->attribute.type == as_ref) {
-                cout<<"Pass by Ref."<<endl;
                 if (!callStack.empty()) {
                     if (callStack.top()->symbolTable.find(paramIt->attribute.name) != callStack.top()->symbolTable.end()) {
-                        cout<<"Address taken from TOS ST"<<endl;
                         nsf->symbolTable[paramIt->attribute.name].first = callStack.top()->symbolTable[paramIt->attribute.name].first;
                     } else if (variables.find(paramIt->attribute.name) != variables.end()) {
-                        cout<<"Address Taken From global ST"<<endl;
                         nsf->symbolTable[paramIt->attribute.name].first = variables[paramIt->attribute.name]; 
                     } else {
                         logError("No such variable " + paramIt->attribute.name);

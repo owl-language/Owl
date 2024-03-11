@@ -1,6 +1,6 @@
 program 'hello';
 begin
-    let m: string := " ";
+    let m := " ";
     func sayHello(n: string) begin
         print ("Hello " + n + "!\n");
     end

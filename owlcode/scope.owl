@@ -1,6 +1,6 @@
 program 'scope';
 begin
-    let t: int := 13;
+    let t := 13;
     func scoped(x: int) begin
         if (x < 4) then
             scoped(x+1);

@@ -1,7 +1,7 @@
 program 'ifEx';
 begin
-    let x: int := 7;
-    let y: int := 12;
+    let x := 7;
+    let y := 12;
     if (x < y) then
         x := (x+y);
     end; 

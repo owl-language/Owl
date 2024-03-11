@@ -1,9 +1,9 @@
 program 'realnums';
 begin
-    let m: int := 13;
-    let x: real := 0.42;
-    let j: string := "oh yeah";
-    let rar[10]: real;
+    let m := 13;
+    let x := 0.42;
+    let j := "oh yeah";
+    let rar[10];
     print m;
     print x;
     print j;

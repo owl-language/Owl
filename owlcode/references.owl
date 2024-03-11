@@ -1,6 +1,6 @@
 program 'EvalOrderAndRefExample';
 begin
-    let x: int := 1;
+    let x := 1;
     func f(x: int) begin
         print ("f: " + x + " ");
         return x;
@@ -13,7 +13,7 @@ begin
 
     func a(x: int) begin
         print ("a: " + x + "\n");
-        b(x)
+        b(x);
         print ("a: " + x + "\n");
     end
 

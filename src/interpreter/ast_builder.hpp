@@ -7,6 +7,9 @@
 #include "../parser/parser.hpp"
 using namespace std;
 
+// This was originally implemented to ease parsing individual statements
+// entered into the repl. I do believe with some modifications that
+// something similar will also work for implementing an eval() function/lambdas.
 class ASTBuilder {
     private:
         OwlLexer lexer;
