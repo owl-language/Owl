@@ -1,3 +1,4 @@
+#pragma once
 #ifndef tokens_hpp
 #define tokens_hpp
 #include <iostream>
@@ -13,7 +14,7 @@ enum TokenType {
     LPAREN,RPAREN,QUOTE,SEMI,COMA,PERIOD,LSQBRACKET,RSQBRACKET, SQUOTE, COLON
 };
 
-string tokenString[] = {
+inline string tokenString[] = {
     "NONE","ERROR","ENDFILE","OPENCOMMENT","CLOSECOMMENT",
     "ARRAY","INT","REALT","REF", "STRING",
     "RETURN","IMPORT", "IF","THEN","ELSE","ENDIF","WHILE", "PROG","LIBR", "FUNC", "READ", "PRINT","BEGIN","END","LET", "RAND",
@@ -37,9 +38,6 @@ struct Token {
     }
 };
 
-void printTokens(vector<Token>& tokens) {
-    for (Token token : tokens)
-        token.print();
-}
+void printTokens(vector<Token>& tokens);
 
 #endif
