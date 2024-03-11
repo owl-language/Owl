@@ -1,128 +1,45 @@
+#pragma once
 #ifndef tracer_hpp
 #define tracer_hpp
 #include <iostream>
 #include <fstream>
 #include <unordered_set>
+#include "../ast/ast.hpp"
 using namespace std;
-const string OWL_VERSION = "0.1a";
-const string FLACO = "(\\^(OvO)^/)";
-fstream logfile;
+inline const string OWL_VERSION = "0.1a";
+inline const string FLACO = "(\\^(OvO)^/)";
+inline fstream logfile;
 enum TracerStates {
     INTERP, PARSE, PARSE_AND_INTERP, OFF
 };
+inline TracerStates TRACE_STATE;
+inline int depth;
+inline unordered_set<TracerStates> shouldTrace;
 
-unordered_set<TracerStates> shouldTrace;
+void initTracer(char *lstr);
 
-void initTracer(char *lstr) {
-    logfile.open(".runlog.tree", ios::out);
-    if (!logfile.is_open()) {
-        cout<<"Couldn't open logfile."<<endl;
-        exit(0);
-    }
-    logfile<<"[Owl Interpreter "<<OWL_VERSION<<" started.]"<<endl;
-    if (lstr[0] == '-' && lstr[1] == 'v') {
-        if (lstr[2] == 'i') {
-            shouldTrace.insert(INTERP);
-        } else if (lstr[2] == 'p') {
-                shouldTrace.insert(PARSE);
-        } else if (lstr[2] == 'a') {
-            shouldTrace.insert(INTERP);
-            shouldTrace.insert(PARSE);
-        }
-    }
-}
+void printToLog(string s);
 
-void printToLog(string s) {
-    if (logfile.is_open()) {
-        logfile<<s<<endl;
-    }
-}
+void logError(string s);
 
-void logError(string s) {
-    cout<<"\n"<<FLACO<<" "<<s<<endl;
-    if (logfile.is_open()) {
-        logfile<<s<<endl;
-    }
-}
+void endTrace();
 
-void endTrace() {
-    if (logfile.is_open()) {
-        logfile<<endl<<"Trace Complete."<<endl;
-        logfile.close();
-    }
-}
+void setTraceState(TracerStates ts);
 
-TracerStates TRACE_STATE;
-int depth;
+TracerStates getTracerState();
 
-void setTraceState(TracerStates ts) {
-    TRACE_STATE = ts;
-}
+void say(string s);
 
-TracerStates getTracerState() {
-    return TRACE_STATE;
-}
+void onEnter(string s);
 
-void say(string s) {
-    if (shouldTrace.find(getTracerState()) != shouldTrace.end()) {
-        for (int i = 0; i < depth; i++) {
-            cout<<"  ";
-            logfile<<" ";
-        }
-        string msg = "(" + to_string(depth) + ") " + s;
-        printToLog(msg);
-        cout<<msg<<endl;
-    }
-}
+void onExit(string s);
 
-void onEnter(string s) {
-    ++depth;
-    say(s);
-}
+void onExit();
 
-void onExit(string s) {
-    say(s);
-    --depth;
-}
+void traceNode(ASTNode* node);
 
-void onExit() {
-    --depth;
-}
+void traceTree(ASTNode* node);
 
-void traceNode(ASTNode* node) {
-    if (node->kind == EXPRNODE) {
-        logfile<<"["<<ExprKindStr[node->type.expr]<<"] "<<node->attribute.name<<" ";
-        if (node->type.expr == OP_EXPR) 
-            logfile<<" - "<<tokenString[node->attribute.op];
-        logfile<<endl;
-    } else {
-        logfile<<"["<<StmtKindStr[node->type.stmt]<<"] "<<node->attribute.name<<endl;
-    }
-}
-
-void traceTree(ASTNode* node) {
-    ++depth;
-    if (node != nullptr) {
-        for (int i = 0; i < depth; i++) 
-            logfile<<"  ";
-        traceNode(node);
-        for (int i = 0; i < MAX_CHILDREN; i++)
-            traceTree(node->child[i]);
-        
-        if (node->sibling) --depth;
-        traceTree(node->sibling);
-    }
-    if (depth > 0)
-        --depth;
-}
-
-void traceAST(ASTNode* node) {
-    
-    printToLog("Abstract Syntax Tree:");
-    printToLog("---------------------");
-    depth = 0;
-    traceTree(node);
-}
-
+void traceAST(ASTNode* node);
 
 #endif
