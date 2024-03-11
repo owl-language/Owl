@@ -1,8 +1,8 @@
 program 'strings';
 begin
-    let aNum: int := 13;
-    let pre: string := "this is a string, before an int";
-    let post: string := "this is another string, after an int";
+    let aNum := 13;
+    let pre := "this is a string, before an int";
+    let post := "this is another string, after an int";
     print pre;
     print aNum;
     print post;

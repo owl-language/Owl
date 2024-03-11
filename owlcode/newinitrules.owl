@@ -1,0 +1,19 @@
+program 'newinitrules';
+begin
+    let z := "sasquatch";
+    func count(n: int, tot: int) begin 
+        if (n < 1) then
+            print (tot + "\n");
+            return 0;
+        else
+            print (n + " ");
+            return 1 + count(n - 1, tot + n);
+        end
+            
+    end
+    let x := (1 + 1);
+    let y := 7;
+    count(5, 0);
+    count(y, 0);
+    print (y + z + "\n");
+end

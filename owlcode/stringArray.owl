@@ -1,7 +1,7 @@
 program 'stringArray';
 begin
-    let cnt: int := 0;
-    let strs[10]: string;
+    let cnt := 0;
+    let strs[10];
     strs[1] := "oh";
     strs[2] := "what";
     strs[3] := "a";

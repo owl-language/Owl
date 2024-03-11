@@ -12,6 +12,9 @@ all:
 	make owlrepl
 	make owlshell
 
+install:
+	cp owl /usr/bin/owl
+
 clean:
 	rm ./owl
 	rm ./owlrepl
