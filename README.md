@@ -30,7 +30,7 @@ this should be viewed as no more than an approximation of Owl's grammar
       return, ref, import
 
 ## reserved symbols:
-      , . := : ; + - * / [ ] ( ) {* *} < > <= >= == !=
+      , . := : ; + - * / [ ] ( ) {* *} # < > <= >= == != 
 
 ## Grammar
 
@@ -103,7 +103,11 @@ this should be viewed as no more than an approximation of Owl's grammar
       string_literal := <"> string <">
 
       Types := Integer | Real | String
-
+	  
+	  multiline comment := {* comment
+	  						  on multiple lines *}
+      
+	  single line comment := # comment on single line
 
 ##  Owl by Example
 

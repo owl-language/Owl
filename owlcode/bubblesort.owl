@@ -20,7 +20,7 @@ begin
         while (k < n) begin
             print (x[k] + " ");
             k := k + 1;
-        end;
+        end
         print "\n";
     end
 
@@ -33,7 +33,7 @@ begin
             end;
             c := c + 1;
             d := c + 1;
-        end;
+        end
     end
 
     func sort(l: int) begin
