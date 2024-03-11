@@ -1,7 +1,7 @@
 #include <iostream>
 #include <map>
 #include <cstring>
-#include "cli.hpp"
+#include "cli/cli.hpp"
 using namespace std;
 
 void showUsage() {

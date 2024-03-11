@@ -2,6 +2,10 @@
 #include <iostream>
 using namespace std;
 
+OwlREPL::OwlREPL() {
+    
+}
+
 void OwlREPL::clear_screen() {
     for (int i = 0; i < 40; i++) {
         cout<<"\n";
