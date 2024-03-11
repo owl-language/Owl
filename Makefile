@@ -1,5 +1,5 @@
 owlcli:
-	g++ --std=c++17 ./src/tools/tracer.cpp ./src/tools/filebuffer.cpp ./src/ast/ast.cpp ./src/parser/parser.cpp ./src/interpreter/memobject.cpp ./src/cli/cli.cpp ./src/owl_cli.cpp ./src/lexer/lexer.cpp ./src/interpreter/callstack.cpp ./src/interpreter/memstore.cpp ./src/interpreter/interpreter.cpp -o owlcli
+	g++ --std=c++17 ./src/tools/tracer.cpp ./src/tools/filebuffer.cpp ./src/ast/ast.cpp ./src/parser/parser.cpp ./src/interpreter/memobject.cpp ./src/cli/cli.cpp ./src/owl_cli.cpp ./src/lexer/lexer.cpp ./src/interpreter/callstack.cpp ./src/interpreter/memstore.cpp ./src/interpreter/interpreter.cpp -o owl
 
 owlrepl:
 	g++ --std=c++17 ./src/tools/tracer.cpp ./src/tools/filebuffer.cpp ./src/ast/ast.cpp ./src/parser/parser.cpp ./src/interpreter/memobject.cpp ./src/repl/repl.cpp ./src/owl_repl.cpp ./src/lexer/lexer.cpp ./src/interpreter/callstack.cpp ./src/interpreter/memstore.cpp ./src/interpreter/interpreter.cpp -o owlrepl
@@ -13,6 +13,6 @@ all:
 	make owlshell
 
 clean:
-	rm ./owlcli
+	rm ./owl
 	rm ./owlrepl
 	rm ./owlsh

@@ -11,12 +11,13 @@ to fame for escaping his enclosure in the central park zoo after years of captiv
 
 # Using Owl
 
-Owl can be invoked in three different ways:
-   1) Owl shell - this interactive shell lets you load files, run them , display their AST, see memory usage etc
-   2) Owl repl - a standard read-eval-print-loop, lets you enter statements, and they run as soon as you hit enter
-   3) Owl cli - your normal CLI interpreter, owlcli <options> <filename> will run a supplied owl program
+Simply run the included Makefile by typing 'make' in your terminal. Owl requires a C++ compiler which supports C++17 to compile. 
 
-It is planned to merge owlshell and owlrepl sometime soon.
+Once built, Owl can be invoked in three different ways:
+1) Owl cli - your everyday command line interpreter, owl <options> <filename> will run a supplied owl program
+2) Owl shell - this interactive shell lets you load files, run them , display their AST, see memory usage etc
+3) Owl repl - a standard read-eval-print-loop, lets you enter statements, and they run as soon as you hit enter
+
 
 # Syntax
 
