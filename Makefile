@@ -1,5 +1,5 @@
 owlcli:
-	g++ --std=c++17 ./tools/tracer.cpp ./tools/filebuffer.cpp ./ast/ast.cpp ./parser/parser.cpp ./interpreter/memobject.cpp ./cli/owl_cli.cpp ./lexer/lexer.cpp ./interpreter/callstack.cpp ./interpreter/memstore.cpp ./interpreter/interpreter.cpp -o owlcli
+	g++ --std=c++17 ./tools/tracer.cpp ./tools/filebuffer.cpp ./ast/ast.cpp ./parser/parser.cpp ./interpreter/memobject.cpp ./cli/cli.cpp ./cli/owl_cli.cpp ./lexer/lexer.cpp ./interpreter/callstack.cpp ./interpreter/memstore.cpp ./interpreter/interpreter.cpp -o owlcli
 
 owlrepl:
 	g++ --std=c++17 ./tools/tracer.cpp ./tools/filebuffer.cpp ./ast/ast.cpp ./parser/parser.cpp ./interpreter/memobject.cpp ./cli/repl.cpp ./cli/owl_repl.cpp ./lexer/lexer.cpp ./interpreter/callstack.cpp ./interpreter/memstore.cpp ./interpreter/interpreter.cpp -o owlrepl

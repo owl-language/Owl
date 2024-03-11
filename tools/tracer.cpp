@@ -1,6 +1,6 @@
 #include "tracer.hpp"
 
-void initTracer(char *lstr) {
+void initTracer(string lstr) {
     logfile.open(".runlog.tree", ios::out);
     if (!logfile.is_open()) {
         cout<<"Couldn't open logfile."<<endl;

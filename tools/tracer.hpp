@@ -16,7 +16,7 @@ inline TracerStates TRACE_STATE;
 inline int depth;
 inline unordered_set<TracerStates> shouldTrace;
 
-void initTracer(char *lstr);
+void initTracer(string lstr);
 
 void printToLog(string s);
 

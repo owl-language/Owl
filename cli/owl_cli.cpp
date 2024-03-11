@@ -1,11 +1,7 @@
 #include <iostream>
 #include <map>
 #include <cstring>
-#include "../interpreter/interpreter.hpp"
-#include "../ast/ast.hpp"
-#include "../tools/tracer.hpp"
-#include "../lexer/lexer.hpp"
-#include "../parser/parser.hpp"
+#include "cli.hpp"
 using namespace std;
 
 void showUsage() {
@@ -25,25 +21,11 @@ int main(int argc, char* argv[]) {
         showUsage();
         return 0;
     }
-    ASTBuilder astBuilder;
-    ASTNode* ast;
-    Interpreter interpreter;
+    OwlCLI owlCLI;
     if (argv[1][0] == '-' && argv[1][1] == 'v') {
-        initTracer(argv[1]);
-        setTraceState(PARSE);
-        string file = argv[2];
-        ast = astBuilder.build(file);
-        printTree(ast);
+        owlCLI.runVerbose(argv[1], argv[2]);
     } else {
-        setTraceState(PARSE);
-        ast = astBuilder.build(argv[1]);
+        owlCLI.runQuiet(argv[1]);
     }
-    printToLog("[Parsing Complete.]");
-    traceAST(ast);
-    printToLog("[Running Program]");
-    setTraceState(INTERP);
-    interpreter.Execute(ast);
-    freeTree(ast);
-    endTrace();
     return 0;
 }
