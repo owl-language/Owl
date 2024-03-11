@@ -1,3 +1,4 @@
+#pragma once
 #ifndef miniast_hpp
 #define miniast_hpp
 #include <iostream>
@@ -9,7 +10,7 @@ enum storedType {
     as_int, as_real, as_string, as_ref
 };
 
-string storedTypeStr[] = { "as_int", "as_real", "as_string", "as_ref"};
+inline string storedTypeStr[] = { "as_int", "as_real", "as_string", "as_ref"};
 
 struct Attributes {
     string name;
@@ -34,7 +35,7 @@ enum ExprKind {
     ID_EXPR, OP_EXPR, CONST_EXPR, PARAM_EXPR, PROCDCALL, SUBSCRIPT_EXPR, RAND_EXPR, CONST_STR
 };
 
-vector<string> ExprKindStr = {
+inline vector<string> ExprKindStr = {
     "ID_EXPR", "OP_EXPR", "CONST_EXPR", "PARAM_EXPR", "PROCDCALL", "SUBSCRIPT_EXPR", "RAND_EXPR", "CONST_STR"
 };
 
@@ -42,7 +43,7 @@ enum StmtKind {
     VARDECL, FUNCDECL, READSTM, PRINTSTM, ASSIGNSTM, EXPRSTM, WHILESTM, IFSTM, RETURNSTM
 };
 
-vector<string> StmtKindStr = {
+inline vector<string> StmtKindStr = {
     "VARDECL", "FUNCDECL", "READSTM", "PRINTSTMT", "ASSIGNSTM", "EXPRSTM", "WHILESTM", "IFSTM", "RETURNSTM"
 };
 
@@ -50,7 +51,7 @@ enum DirectiveKind {
     IMPORT_DIRECTIVE
 };
 
-vector<string> DirectiveKindStr = { "IMPORT_DIRECTIVE" };
+inline vector<string> DirectiveKindStr = { "IMPORT_DIRECTIVE" };
 
 typedef union NodeType {
     StmtKind stmt;
@@ -58,7 +59,7 @@ typedef union NodeType {
     DirectiveKind drctv;
 } NodeType;
 
-const int MAX_CHILDREN = 3;
+inline const int MAX_CHILDREN = 3;
 
 struct ASTNode {
     NodeKind kind;
@@ -73,64 +74,17 @@ struct ASTNode {
     }
 };
 
-ASTNode* makeExpressionNode(ExprKind expr, Attributes attr) {
-    ASTNode* node = new ASTNode();
-    node->kind = EXPRNODE;
-    node->type.expr = expr;
-    node->attribute = attr;
-    return node;
-}
+ASTNode* makeExpressionNode(ExprKind expr, Attributes attr);
 
-ASTNode* makeStatementNode(StmtKind stmt, Attributes attr) {
-    ASTNode* node = new ASTNode();
-    node->kind = STMTNODE;
-    node->type.stmt = stmt;
-    node->attribute = attr;
-    return node;
-}
+ASTNode* makeStatementNode(StmtKind stmt, Attributes attr);
 
-ASTNode* makeInterpreterDirective(DirectiveKind directive, Attributes attr) {
-    ASTNode* node = new ASTNode();
-    node->kind = DIRECTIVE;
-    node->type.drctv = directive;
-    node->attribute = attr;
-    return node;
-}
+ASTNode* makeInterpreterDirective(DirectiveKind directive, Attributes attr);
 
-void printNode(ASTNode* node) {
-    if (node->kind == EXPRNODE) {
-        cout<<"["<<ExprKindStr[node->type.expr]<<"] "<<node->attribute.name<<" - ";
-        if (node->type.expr == OP_EXPR) 
-            cout<<tokenString[node->attribute.op];
-        cout<<endl;
-    } else if (node->kind == STMTNODE) {
-        cout<<"["<<StmtKindStr[node->type.stmt]<<"] "<<node->attribute.name<<endl;
-    } else if (node->kind == DIRECTIVE) {
-        cout<<"["<<DirectiveKindStr[node->type.drctv]<<"] "<<node->attribute.name<<endl;
-    }
-}
+void printNode(ASTNode* node);
 
-int rd = 0;
-void printTree(ASTNode* node) {
-    ++rd;
-    if (node != nullptr) {
-        for (int i = 0; i < rd; i++) cout<<"  ";
-        printNode(node);
-        for (int i = 0; i < MAX_CHILDREN; i++)
-            printTree(node->child[i]);
-        
-        if (node->sibling) --rd;
-        printTree(node->sibling);
-    }
-    --rd;
-}
+inline int rd = 0;
+void printTree(ASTNode* node);
 
-void freeTree(ASTNode* h) {
-    if (h == nullptr) return;
-    for (int i = 0; i < MAX_CHILDREN; i++)
-        freeTree(h->child[i]);
-    freeTree(h->sibling);
-    delete h;
-}
+void freeTree(ASTNode* h);
 
 #endif
