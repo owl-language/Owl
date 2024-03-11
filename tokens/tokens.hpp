@@ -2,6 +2,7 @@
 #ifndef tokens_hpp
 #define tokens_hpp
 #include <iostream>
+#include <vector>
 using namespace std;
 
 enum TokenType {
