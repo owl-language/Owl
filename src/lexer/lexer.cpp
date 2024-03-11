@@ -75,7 +75,9 @@ Token OwlLexer::handleSpecials() {
             return Token(CLOSECOMMENT, "*}", -1, sb.lineNumber());
         } 
         sb.UnGetChar();
-        return Token(MULT, "*", -1, sb.lineNumber());        
+        return Token(MULT, "*", -1, sb.lineNumber());  
+    } else if (sb.Char() == '#') {
+        return Token(LINECOMMENT, "#", -1, sb.lineNumber());      
     } else if (sb.Char() == '(') {
         return Token(LPAREN, "(", -1, sb.lineNumber());
     } else if (sb.Char() == ')') {
@@ -198,6 +200,12 @@ vector<Token> OwlLexer::tokenize() {
                         if (nextToken.tokenval == QUOTE) {
                             sb.GetChar();
                             processString(tokenList);
+                        }
+                        if (nextToken.tokenval == LINECOMMENT) {
+                            int ln = sb.lineNumber();
+                            while (ln == sb.lineNumber()) 
+                                sb.GetChar();
+                            tokenList.pop_back();
                         }
                         if (nextToken.tokenval == OPENCOMMENT) {
                             inComment = true;
