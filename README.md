@@ -64,7 +64,7 @@ this should be viewed as no more than an approximation of Owl's grammar
 
       declareProcedure := func id ( {paraneter_list} ) block
 
-      parameter_list := id <:> type {<,> parameter_list}*
+      parameter_list := id<:> { ref } type {<,> parameter_list}*
 
       expressionStatement := simpleExpression | assignmentStatement | procedureCall
 
