@@ -34,11 +34,18 @@ this should be viewed as no more than an approximation of Owl's grammar
 
 ## Grammar
 
-      program := block
-    
+      program := program 'id';
+      		{ import library_name; }
+		 block
+      
+      library := library 'id';
+                 begin
+  			 declareProcedure { declareProcedure* }
+		 end;
+   
       block := begin 
-                  statement_list
-	            end
+               statement_list
+               end
 
       statement_list := statement | statement*
 
