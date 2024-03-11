@@ -358,10 +358,14 @@ void Interpreter::doPrintStatement(ASTNode* node) {
 }
 
 void Interpreter::doReadStatement(ASTNode* node) {
-    int input;
-    cin>>input;
+    onEnter("[READ]");
+    string input;
+    getline(cin, input);
     int addr = variables[node->attribute.name];
-    memStore.store(addr, Object(input));
+    Object val = memStore.get(addr);
+    val.data._value = input;
+    memStore.store(addr, val);
+    onExit();
 }
 
 void Interpreter::handleIfStatement(ASTNode* node) {

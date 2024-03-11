@@ -3,111 +3,98 @@
 Abstract Syntax Tree:
 ---------------------
   [VARDECL] let
-    [ID_EXPR] x 
-    [CONST_EXPR] 17 
-  [VARDECL] let
-    [ID_EXPR] y 
-    [CONST_EXPR] 30 
-  [VARDECL] let
     [ID_EXPR] m 
-    [CONST_EXPR] 0 
-  [EXPRSTM] m
-    [ASSIGNSTM] :=
-      [ID_EXPR] m 
-      [OP_EXPR] +  - PLUS
-        [OP_EXPR] /  - DIVD
-          [CONST_EXPR] 100 
-          [CONST_EXPR] 2 
-        [CONST_EXPR] 6 
+    [CONST_EXPR] 1 
+  [FUNCDECL] sum
+    [IFSTM] if
+      [OP_EXPR] =  - EQUAL
+        [ID_EXPR] n 
+        [CONST_EXPR] 0 
+      [RETURNSTM] return
+        [CONST_EXPR] 0 
+      [RETURNSTM] return
+        [OP_EXPR] +  - PLUS
+          [ID_EXPR] n 
+          [PROCDCALL] sum 
+            [OP_EXPR] -  - MINUS
+              [ID_EXPR] n 
+              [CONST_EXPR] 1 
+    [PARAM_EXPR] n 
+  [PRINTSTMT] print
+    [CONST_STR] Enter a number:  
+  [READSTM] input
+    [ID_EXPR] m 
   [PRINTSTMT] print
     [OP_EXPR] +  - PLUS
-      [ID_EXPR] m 
-      [CONST_STR] 
- 
-  [EXPRSTM] y
-    [ASSIGNSTM] :=
-      [ID_EXPR] y 
-      [OP_EXPR] +  - PLUS
-        [CONST_EXPR] 2 
-        [OP_EXPR] *  - MULT
-          [CONST_EXPR] 3 
-          [CONST_EXPR] 4 
-  [PRINTSTMT] print
-    [OP_EXPR] +  - PLUS
-      [ID_EXPR] y 
+      [PROCDCALL] sum 
+        [ID_EXPR] m 
       [CONST_STR] 
  
 [Running Program]
-(0) Declaring Variable: x with value 17 type: INTEGER
-(0) Declaring Variable: y with value 30 type: INTEGER
-(0) Declaring Variable: m with value 0 type: INTEGER
- (1) ExprStatement 
-  (2) storeToMemoryByName 
-  (2) Assign to m: 
-   (3) Expression OP_EXPR
-    (4) eval: PLUS
-     (5) Expression OP_EXPR
-      (6) eval: DIVD
-       (7) Expression CONST_EXPR
-       (7) CONST_EXPR value: 100
-       (7) Expression CONST_EXPR
-       (7) CONST_EXPR value: 2
-        (8) math Op
-        (8) 100.000000 DIVD 2.000000
-       (7) eval result: 50.000000
-      (6) value: 50.000000
-     (5) Expression CONST_EXPR
-     (5) CONST_EXPR value: 6
-      (6) math Op
-      (6) 50.000000 PLUS 6.000000
-     (5) eval result: 56.000000
-    (4) value: 56.000000
-   (3) stored global variable m value: 56.000000 at 3 offset: 0 as: INTEGER
-   (3) storeToMemoryByName 
-  (2) ExprStatement 
-  (2) [PRINT]
-   (3) Expression OP_EXPR
-    (4) eval: PLUS
+(0) Declaring Variable: m with value 1 type: INTEGER
+ (1) Procedure Declaration: sum
+ (1) Parameter: n added to procedures symbol table.
+ (1) [PRINT]
+ (1) [PRINT]
+  (2) Expression OP_EXPR
+   (3) eval: PLUS
+    (4) Expression PROCDCALL
+    (4) Dispatch: sum
      (5) Expression ID_EXPR
       (6) retrieveFromMemoryByName
-      (6) ID: m, Address: 3, offset: 0, value: 56.000000, type: INTEGER
-     (5) Expression CONST_STR
-      (6) String Operation
-     (5) value: 56
-
-    (4) ExprStatement 
-     (5) storeToMemoryByName 
-     (5) Assign to y: 
+      (6) ID: m, Address: 1, offset: 0, value: 13, type: STRING
       (6) Expression OP_EXPR
-       (7) eval: PLUS
-        (8) Expression CONST_EXPR
-        (8) CONST_EXPR value: 2
-        (8) Expression OP_EXPR
-         (9) eval: MULT
-          (10) Expression CONST_EXPR
-          (10) CONST_EXPR value: 3
-          (10) Expression CONST_EXPR
-          (10) CONST_EXPR value: 4
-           (11) math Op
-           (11) 3.000000 MULT 4.000000
-          (10) eval result: 12.000000
-         (9) value: 12.000000
-         (9) math Op
-         (9) 2.000000 PLUS 12.000000
-        (8) eval result: 14.000000
-       (7) value: 14.000000
-      (6) stored global variable y value: 14.000000 at 2 offset: 0 as: INTEGER
-      (6) storeToMemoryByName 
-     (5) ExprStatement 
-     (5) [PRINT]
-      (6) Expression OP_EXPR
-       (7) eval: PLUS
+       (7) eval: EQUAL
         (8) Expression ID_EXPR
          (9) retrieveFromMemoryByName
-         (9) ID: y, Address: 2, offset: 0, value: 14.000000, type: INTEGER
-        (8) Expression CONST_STR
+         (9) ID: n, Address: 3, offset: 0, value: 13, type: STRING
+        (8) Expression CONST_EXPR
+        (8) CONST_EXPR value: 0
          (9) String Operation
-        (8) value: 14
+        (8) value: false
+       (7) else clause
+        (8) Return Statement.
+         (9) Expression OP_EXPR
+          (10) eval: PLUS
+           (11) Expression ID_EXPR
+            (12) retrieveFromMemoryByName
+            (12) ID: n, Address: 3, offset: 0, value: 13, type: STRING
+           (11) Expression PROCDCALL
+           (11) Dispatch: sum
+            (12) Expression OP_EXPR
+             (13) eval: MINUS
+              (14) Expression ID_EXPR
+               (15) retrieveFromMemoryByName
+               (15) ID: n, Address: 3, offset: 0, value: 13, type: STRING
+              (14) Expression CONST_EXPR
+              (14) CONST_EXPR value: 1
+               (15) String Operation
+Hoot! Operation: MINUS not supported on strings.
+              (14) value: 0
+              (14) Expression OP_EXPR
+               (15) eval: EQUAL
+                (16) Expression ID_EXPR
+                 (17) retrieveFromMemoryByName
+                 (17) ID: n, Address: 4, offset: 0, value: 0, type: INTEGER
+                (16) Expression CONST_EXPR
+                (16) CONST_EXPR value: 0
+                 (17) rel Op
+                 (17) 0.000000 EQUAL 0.000000
+                 (17) eval result: 1
+                (16) value: true
+               (15) passed test
+                (16) Return Statement.
+                 (17) Expression CONST_EXPR
+                 (17) CONST_EXPR value: 0
+                 (17) 0 saved as return value.
+                (16) value returned: 0
+                 (17) String Operation
+                (16) value: 130
+               (15) 130 saved as return value.
+              (14) value returned: 130
+              (14) Expression CONST_STR
+               (15) String Operation
+              (14) value: 130
 
 
 Trace Complete.

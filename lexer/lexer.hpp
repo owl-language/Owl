@@ -144,7 +144,7 @@ Token OwlLexer::handleSpecials() {
             return Token(STRING_LITERAL, "\r\n", -1, sb.lineNumber());
         }
     }
-    logError("ERROR uknown symbol: " + to_string(sb.Char()) + "\n");
+    logError("Error: unknown Symbol.");
     sb.GetChar();
     return Token(ERROR, "Error", -1, sb.lineNumber());
 }
