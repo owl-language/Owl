@@ -3,7 +3,7 @@
 Owl is an interpreted, dynamically typed, procedural language.
 It features pascal-like syntax, with C-style scope rules.
 Variables and procedures are declare before used. Variable types are assigned 
-implicitly and can change through assignment over time.
+implicitly and can change through assignment.
 
 Owl's Mascot, (\\^(OvO)^/), is named Flaco, in dedication to the memory of Flaco the Owl who came
 to fame for escaping his enclosure in the central park zoo after years of captivity.
