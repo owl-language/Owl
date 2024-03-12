@@ -5,9 +5,10 @@ begin
         if (x < 4) then
             scoped(x+1);
         end;
-        print x;
-    end;
+        print (x + " ");
+    end
     scoped(1);
-    print (t);
+    print ("\n" + t + "\n");
     scoped(1);
+    print "\n";
 end

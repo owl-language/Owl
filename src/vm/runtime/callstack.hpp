@@ -3,8 +3,8 @@
 #define callstack_hpp
 #include <iostream>
 #include <map>
-#include "../tools/tracer.hpp"
-#include "../ast/ast.hpp"
+#include "../../tools/tracer.hpp"
+#include "../../ast/ast.hpp"
 #include "memstore.hpp"
 using std::cout;
 using std::endl;

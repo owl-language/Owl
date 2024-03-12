@@ -15,6 +15,6 @@ begin
     while (cnt <= 9) begin
         print (strs[cnt] + " ");
         cnt := cnt + 1;
-    end;
+    end
     print "\n";
-end;
+end

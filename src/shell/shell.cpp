@@ -1,10 +1,4 @@
 #include "shell.hpp"
-#include "../ast/ast.hpp"
-#include "../lexer/lexer.hpp"
-#include "../parser/parser.hpp"
-#include "../tokens/tokens.hpp"
-#include "../interpreter/interpreter.hpp"
-#include "../tools/tracer.hpp"
 #include <iostream>
 #include <vector>
 using namespace std;

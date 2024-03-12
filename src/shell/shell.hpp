@@ -5,7 +5,7 @@
 #include "../lexer/lexer.hpp"
 #include "../parser/parser.hpp"
 #include "../tokens/tokens.hpp"
-#include "../interpreter/interpreter.hpp"
+#include "../vm/interpreter.hpp"
 #include "../tools/tracer.hpp"
 using namespace std;
 

@@ -1,6 +1,7 @@
 #ifndef cli_hpp
 #define cli_hpp
-#include "../interpreter/interpreter.hpp"
+#include "../vm/ast_builder.hpp"
+#include "../vm/interpreter.hpp"
 #include "../ast/ast.hpp"
 #include "../tools/tracer.hpp"
 #include "../lexer/lexer.hpp"

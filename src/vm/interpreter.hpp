@@ -6,9 +6,9 @@
 #include "../ast/ast.hpp"
 #include "../tokens/tokens.hpp"
 #include "../tools/tracer.hpp"
-#include "callstack.hpp"
-#include "memstore.hpp"
-#include "memobject.hpp"
+#include "runtime/callstack.hpp"
+#include "runtime/memstore.hpp"
+#include "runtime/memobject.hpp"
 using std::cout;
 using std::endl;
 using std::map;
