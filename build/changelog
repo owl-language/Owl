@@ -1,0 +1,8 @@
+v0.3
+  -declaring variables no longer requires type
+  -experimental 'import' functionality
+  -experimental pass by reference.
+
+v0.1a
+  -An interpreted, procedural, algol like language
+  -with pascal-like syntax, c-like scoping and dynamic typing.
