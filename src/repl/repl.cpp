@@ -25,12 +25,20 @@ void OwlREPL::repl() {
             break;
         } else if (input == "clear") {
             clear_screen();
+            continue;
         }
         if (!input.empty()) {
             cout<<"-> "<<input<<endl;
             auto ast = astbuiler.translate(input);
+            bool newline = false;
             printTree(ast);
+            if (ast->type.stmt == PRINTSTM) {
+                newline = true;
+            }
             interpreter.Execute(ast);
+            if (newline) {
+                cout<<endl;
+            }
         }
     }
 }

@@ -13,7 +13,7 @@ begin
             end
             print (n + " ");
             return cache[n];
-        end;
+        end
     end
 
     func fibR(n: int) begin 
@@ -22,21 +22,20 @@ begin
         else
             print (n + " ");
             return fibR(n-1) + fibR(n-2);
-        end;
+        end
     end
     
     print "No Cacheing of Previous Results: \n";
     while (m <= 13) begin
         print (fibR(m) + "\n");
         m := m + 1;
-    end;
+    end
     print "\n";
-    
-    print "With Cacheing Previous Results: \n";
-    m := 1;
-    while (m <= 13) begin
+
+     print "With Cacheing Previous Results: \n";
+     m := 1;
+     while (m <= 13) begin
         print (fibCached(m) + "\n");
         m := m + 1;
-    end;
-    print "\n";
+     end;
 end

@@ -29,18 +29,9 @@ class OwlLexer {
         void processString(vector<Token>& tokenList);
         unordered_map<string, TokenType> reserved;
     public:
-        OwlLexer() {
-            inComment = false;
-            initReserved();
-        }
-        vector<Token> tokenize(string filename) {
-            sb.loadFile(filename);
-            return tokenize();
-        }
-        vector<Token> tokenizeStatement(string statement) {
-            sb.loadString(statement);
-            return tokenize();
-        }
+        OwlLexer();
+        vector<Token> tokenize(string filename);
+        vector<Token> tokenizeStatement(string statement);
 };
 
 

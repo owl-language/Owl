@@ -2,6 +2,19 @@
 #include "../tools/tracer.hpp"
 #include "../ast/ast.hpp"
 
+OwlLexer::OwlLexer() {
+    inComment = false;
+    initReserved();
+}
+vector<Token> OwlLexer::tokenize(string filename) {
+    sb.loadFile(filename);
+    return tokenize();
+}
+vector<Token> OwlLexer::tokenizeStatement(string statement) {
+    sb.loadString(statement);
+    return tokenize();
+}
+
 void OwlLexer::initReserved() {
     reserved["print"] = PRINT;
     reserved["input"] = READ;

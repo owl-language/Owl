@@ -2,6 +2,7 @@
 #include <map>
 #include <cstring>
 #include "cli/cli.hpp"
+#include "repl/repl.hpp"
 using std::cout;
 using std::endl;
 
@@ -23,7 +24,10 @@ int main(int argc, char* argv[]) {
         return 0;
     }
     OwlCLI owlCLI;
-    if (argv[1][0] == '-' && argv[1][1] == 'v') {
+    OwlREPL OwlREPL;
+    if (argv[1][0] == '-' && argv[1][1] == 'r') {
+        OwlREPL.repl();
+    } else if (argv[1][0] == '-' && argv[1][1] == 'v') {
         owlCLI.runVerbose(argv[1], argv[2]);
     } else {
         owlCLI.runQuiet(argv[1]);
