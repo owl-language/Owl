@@ -32,13 +32,17 @@ void MemStore::display() {
 }
 
 Object& MemStore::get(int addr) {
-    if (addr >= 0 && addr < MAX_MEM_STORE)
+    if (addr >= 1 && addr < MAX_MEM_STORE)
         return objmem[addr];
     logError("[INVALID ADDRESS: " + to_string(addr) + "]");
     return objmem[0];
 }
 
 void MemStore::store(int addr, Object toStore) {
+    if (addr < 1 && addr > MAX_MEM_STORE) {
+        logError("Invalid Memory Address provided: " + to_string(addr));
+        return;
+    }
     objmem[addr] = toStore;
 }
 

@@ -54,7 +54,7 @@ void say(string s) {
             logfile<<" ";
         }
         string msg = "(" + to_string(depth) + ") " + s;
-        printToLog(msg);
+        //printToLog(msg);
         cout<<msg<<endl;
     }
 }

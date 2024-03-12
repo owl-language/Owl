@@ -42,6 +42,7 @@ Object::Object(double val) {
     type = REAL;
 }
 
+
 Object& Object::operator=(const Object& o) {
     type = o.type;
     data._value = o.data._value;

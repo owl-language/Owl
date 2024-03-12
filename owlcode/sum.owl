@@ -8,7 +8,5 @@ begin
             return n + sum(n - 1);
         end;
     end
-    print "Enter a number: ";
-    input m;
-    print (sum(m) + "\n");
+    print (sum(15) + "\n");
 end

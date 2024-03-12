@@ -12,6 +12,7 @@ void showUsage() {
     cout<<"      owl -r to launch REPL"<<endl;
     cout<<"      owl <options> <filename> to load Owl code from file."<<endl;
     cout<<"Optional Flags: "<<endl;
+    cout<<"       -h   display this help message."<<endl;
     cout<<"       -v   display tokens and generated AST"<<endl;
     cout<<"       -vp  include trace of parse step"<<endl;
     cout<<"       -vi  show trace of interpreter"<<endl;
@@ -26,10 +27,21 @@ int main(int argc, char* argv[]) {
     }
     OwlCLI owlCLI;
     OwlREPL OwlREPL;
-    if (argv[1][0] == '-' && argv[1][1] == 'r') {
-        OwlREPL.repl();
-    } else if (argv[1][0] == '-' && argv[1][1] == 'v') {
-        owlCLI.runVerbose(argv[1], argv[2]);
+    if (argv[1][0] == '-') {
+        switch (argv[1][1]) {
+            case 'h':
+                showUsage();
+                break;
+            case 'r':
+                OwlREPL.repl();
+                break;
+            case 'v':
+                owlCLI.runVerbose(argv[1], argv[2]);
+                break;
+            default:
+                cout<<"Unknown option: "<<argv[1]<<endl;
+                return 0;
+        }
     } else {
         owlCLI.runQuiet(argv[1]);
     }

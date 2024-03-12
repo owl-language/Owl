@@ -1,9 +1,11 @@
 #ifndef memstore_hpp
 #define memstore_hpp
 #include <iostream>
+#include <list>
 #include "memobject.hpp"
 #include "../../tools/tracer.hpp"
 using std::string;
+using std::list;
 
 const int MAX_MEM_STORE = 1500; //completely arbitrary
 
