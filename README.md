@@ -6,7 +6,8 @@ Variables and procedures are declare before used. Variable types are assigned
 implicitly and can change through assignment.
 
 Owl's Mascot, (\\^(OvO)^/), is named Flaco, in dedication to the memory of Flaco the Owl who came
-to fame for escaping his enclosure in the central park zoo after years of captivity.
+to fame for escaping his enclosure in New York City's Central Park Zoo after years of captivity and 
+embodying a spirit of freedom which I think we can all be inspired by.
 
 # Using Owl
 
