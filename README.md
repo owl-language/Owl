@@ -2,8 +2,6 @@
 
 Owl is an interpreted, dynamically typed, procedural language.
 It features pascal-like syntax, with C-style scope rules.
-Variables and procedures are declare before used. Variable types are assigned 
-implicitly and can change through assignment.
 
 Owl's Mascot, (\\^(OvO)^/), is named Flaco, in dedication to the memory of Flaco the Owl who came
 to fame for escaping his enclosure in New York City's Central Park Zoo after years of captivity and 
@@ -11,12 +9,14 @@ embodies a spirit of freedom in which we can all find inspiration.
 
 # Using Owl
 
-Simply run the included Makefile by typing 'make' in your terminal. Owl requires a C++ compiler which supports C++17 to compile. 
+To build owl run the included Makefile by typing 'make' in your terminal and running 'make install' as root. 
+Owl requires a C++ compiler which supports C++17 to compile, and has only been tested on linux 
+and macOS with G++ and clang++. 
 
 Once built, Owl can be invoked in three different ways:
 1) Owl cli - your everyday command line interpreter, owl <options> <filename> will run a supplied owl program
-2) Owl shell - this interactive shell lets you load files, run them , display their AST, see memory usage etc
-3) Owl repl - a standard read-eval-print-loop. Enter statements and they run as soon as you hit enter, invoked with owl -r
+2) Owl repl - a standard read-eval-print-loop. Enter statements and they run as soon as you hit enter, invoked with 
+3) Owl shell - this interactive shell lets you load files, run them , display their AST, see memory usage etc, It will soon also feature the ability to step through a program line by line.
 
 
 # Syntax
