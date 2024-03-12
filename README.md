@@ -10,8 +10,8 @@ embodies a spirit of freedom in which we can all find inspiration.
 # Using Owl
 
 To build owl run the included Makefile by typing 'make' in your terminal and running 'make install' as root. 
-Owl requires a C++ compiler which supports C++17 to compile, and has only been tested on linux 
-and macOS with G++ and clang++. 
+Owl requires a C++ compiler which supports C++17 to compile, and has been tested on linux 
+and macOS with GNU GCC's G++ and the LLVM clang++ compilers. 
 
 Once built, Owl can be invoked in three different ways:
 1) Owl cli - your everyday command line interpreter, owl <options> <filename> will run a supplied owl program
