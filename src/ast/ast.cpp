@@ -26,7 +26,10 @@ ASTNode* makeInterpreterDirective(DirectiveKind directive, Attributes attr) {
 
 void printNode(ASTNode* node) {
     if (node->kind == EXPRNODE) {
-        cout<<"["<<ExprKindStr[node->type.expr]<<"] "<<node->attribute.name<<" - ";
+        cout<<"["<<ExprKindStr[node->type.expr]<<"] ";
+        if (node->attribute.name[0] == '\n')
+            cout<<node->attribute.name<<"\\n";
+        else cout<<node->attribute.name<<" ";
         if (node->type.expr == OP_EXPR) 
             cout<<tokenString[node->attribute.op];
         cout<<endl;

@@ -1,4 +1,4 @@
-# Owl lang. v0.1a  (\\^(OvO)^/)
+# Owl lang. v0.3a  (\\^(OvO)^/)
 
 Owl is an interpreted, dynamically typed, procedural language.
 It features pascal-like syntax, with C-style scope rules.
@@ -15,7 +15,7 @@ Simply run the included Makefile by typing 'make' in your terminal. Owl requires
 Once built, Owl can be invoked in three different ways:
 1) Owl cli - your everyday command line interpreter, owl <options> <filename> will run a supplied owl program
 2) Owl shell - this interactive shell lets you load files, run them , display their AST, see memory usage etc
-3) Owl repl - a standard read-eval-print-loop, lets you enter statements, and they run as soon as you hit enter
+3) Owl repl - a standard read-eval-print-loop. Enter statements and they run as soon as you hit enter, invoked with owl -r
 
 
 # Syntax

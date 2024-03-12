@@ -8,8 +8,9 @@ using std::endl;
 
 void showUsage() {
     cout<<"[ Owl v"<<OWL_VERSION<<" "<<FLACO<<" ]"<<endl;
-    cout<<"Useage: "<<endl;
-    cout<<"      owlcli <options> <filename> "<<endl;
+    cout<<"Usage: "<<endl;
+    cout<<"      owl -r to launch REPL"<<endl;
+    cout<<"      owl <options> <filename> to load Owl code from file."<<endl;
     cout<<"Optional Flags: "<<endl;
     cout<<"       -v   display tokens and generated AST"<<endl;
     cout<<"       -vp  include trace of parse step"<<endl;

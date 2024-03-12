@@ -6,7 +6,7 @@
 #include <unordered_set>
 #include "../ast/ast.hpp"
 using namespace std;
-inline const string OWL_VERSION = "0.1a";
+inline const string OWL_VERSION = "0.3a";
 inline const string FLACO = "(\\^(OvO)^/)";
 inline fstream logfile;
 enum TracerStates {
