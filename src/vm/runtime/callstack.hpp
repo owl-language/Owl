@@ -24,6 +24,7 @@ struct stEntry {
 
 struct StackFrame {
     map<string, stEntry> symbolTable;
+    map<string, StackFrame*> nestedProcedures;
     ASTNode* body;
     ASTNode* params;
     StackFrame* staticLink;
