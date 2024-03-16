@@ -1,0 +1,53 @@
+[Owl Interpreter 0.3a started.]
+[Parsing Complete.]
+Abstract Syntax Tree:
+---------------------
+  [VARDECL] let
+    [ID_EXPR] i 
+    [CONST_EXPR] 1 
+  [VARDECL] let
+    [SUBSCRIPT_EXPR] x 
+      [CONST_EXPR] 5 
+  [WHILESTM] while
+    [OP_EXPR] <=  - LESSEQ
+      [ID_EXPR] i 
+      [CONST_EXPR] 5 
+    [EXPRSTM] x
+      [ASSIGNSTM] :=
+        [SUBSCRIPT_EXPR] x 
+          [ID_EXPR] i 
+        [ID_EXPR] i 
+    [EXPRSTM] i
+      [ASSIGNSTM] :=
+        [ID_EXPR] i 
+        [OP_EXPR] +  - PLUS
+          [ID_EXPR] i 
+          [CONST_EXPR] 1 
+[EXPRSTM] i
+  [ASSIGNSTM] :=
+    [ID_EXPR] i 
+    [CONST_EXPR] 1 
+[WHILESTM] while
+  [OP_EXPR] <=  - LESSEQ
+    [ID_EXPR] i 
+    [CONST_EXPR] 8 
+  [PRINTSTMT] print
+    [OP_EXPR] +  - PLUS
+      [SUBSCRIPT_EXPR] x 
+        [ID_EXPR] i 
+      [CONST_STR]   
+  [EXPRSTM] i
+    [ASSIGNSTM] :=
+      [ID_EXPR] i 
+      [OP_EXPR] +  - PLUS
+        [ID_EXPR] i 
+        [CONST_EXPR] 1 
+[PRINTSTMT] print
+  [CONST_STR] 
+ 
+[Running Program]
+Hoot! Index 6 out of range for array x of size 5 at address 2
+Hoot! Index 7 out of range for array x of size 5 at address 2
+Hoot! Index 8 out of range for array x of size 5 at address 2
+
+Trace Complete.

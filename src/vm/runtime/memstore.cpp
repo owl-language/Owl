@@ -43,7 +43,8 @@ void MemStore::store(int addr, Object toStore) {
         logError("Invalid Memory Address provided: " + to_string(addr));
         return;
     }
-    objmem[addr] = toStore;
+    objmem[addr].data._value = toStore.data._value;
+    objmem[addr].type = toStore.type;
 }
 
 int MemStore::storeAtNextFree(Object o) {
@@ -85,6 +86,8 @@ int MemStore::allocate(int cells) {
         baseAddr = ++nextFreeAddress;
         for (; nextFreeAddress < baseAddr + cells; nextFreeAddress++) {
             objmem[nextFreeAddress].attr.isLive = true;
+            objmem[nextFreeAddress].attr.size = cells;
+            objmem[nextFreeAddress].type = INTEGER;
             liveCellCount++;
         }
     }

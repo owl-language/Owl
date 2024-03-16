@@ -1,0 +1,21 @@
+[Owl Interpreter 0.3a started.]
+[Parsing Complete.]
+Abstract Syntax Tree:
+---------------------
+  [FUNCDECL] outter
+    [FUNCDECL] inner
+      [RETURNSTM] return
+        [OP_EXPR] +  - PLUS
+          [ID_EXPR] x 
+          [ID_EXPR] y 
+      [PARAM_EXPR] y 
+    [RETURNSTM] return
+      [PROCDCALL] inner 
+        [ID_EXPR] x 
+  [PARAM_EXPR] x 
+[PRINTSTMT] print
+  [PROCDCALL] outter 
+    [CONST_EXPR] 7 
+[Running Program]
+                                                                                                                                                                                                                                
+Trace Complete.

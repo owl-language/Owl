@@ -6,6 +6,7 @@
 #include "../ast/ast.hpp"
 #include "../tokens/tokens.hpp"
 #include "../tools/tracer.hpp"
+#include "eval.hpp"
 #include "runtime/callstack.hpp"
 #include "runtime/memstore.hpp"
 #include "runtime/memobject.hpp"
@@ -20,10 +21,8 @@ class Interpreter {
         map<string, StackFrame*> procedures;
         CallStack callStack;
         MemStore memStore;
+        Evaluator evaluator;
         Object eval(ASTNode* x);
-        Object stringOp(TokenType op, Object left, Object right);
-        Object mathOp(TokenType op, Object left, Object right);
-        Object relOp(TokenType op, float left, float right);
         void addProcedureToSymbolTable(map<string, StackFrame*>& procdefs, ASTNode* node);
         void declareVariable(ASTNode* x);
         void declareFunction(ASTNode* x);
@@ -41,6 +40,8 @@ class Interpreter {
         void handleWhileStatement(ASTNode* x);
         void compilerDirective(ASTNode* x);
         void assignLocalSymbols(ASTNode* node, StackFrame* nsf);
+        int resolveNameToAddress(string name);
+        int calculateArrayIndex(ASTNode* x);
         StackFrame* prepStackFrame(StackFrame* x);
         Object Dispatch(ASTNode* x, StackFrame* nsf);
         void importLibrary(string libName);

@@ -1,105 +1,5 @@
 #include "interpreter.hpp"
 
-Object Interpreter::stringOp(TokenType op, Object left, Object right) {
-    onEnter("String Operation");
-    Object retObj(" ");
-    Object convObj;
-    if (op == PLUS) {
-        if (left.type == STRING) {
-            retObj.data._value = left.data.stringValue();
-            convObj = right;
-            if (convObj.type == INTEGER) convObj.data._value = to_string(convObj.data.intValue());
-                else if (convObj.type == REAL) convObj.data._value = to_string(convObj.data.realValue());
-                retObj.data._value += convObj.data.stringValue();
-            } else {
-                retObj.data._value = right.data.stringValue();
-                convObj = left;
-                if (convObj.type == INTEGER) convObj.data._value = to_string(convObj.data.intValue());
-                else if (convObj.type == REAL) convObj.data._value = to_string(convObj.data.realValue());
-                retObj.data._value = convObj.data.stringValue() + retObj.data.stringValue();
-            }
-    } else if (op == EQUAL) {
-        retObj = Object(left.data.stringValue() == right.data.stringValue());
-    } else if (op == NOTEQUAL) {
-        retObj = Object(left.data.stringValue() != right.data.stringValue());
-    } else {
-        logError("Hoot! Operation: " + tokenString[op] + " not supported on strings.");
-        retObj = Object(0);
-    }
-    onExit();
-    return retObj;
-}
-
-float divide(float a, float b) {
-    if (b == 0) {
-        logError("Hoot! Hoot!: Divide By Zero. (Don't do that.)");
-        return 0;
-    }
-    return a/b;
-}
-
-Object Interpreter::mathOp(TokenType op, Object leftChild, Object rightChild) {
-    onEnter("math Op");
-    Object retObj;
-    float leftOperand, rightOperand, result = 0;
-    leftOperand = leftChild.data.realValue();
-    rightOperand = rightChild.data.realValue();
-    say(to_string(leftOperand) + " " + tokenString[op] + " " + to_string(rightOperand));
-    switch (op) {
-        case PLUS:
-            result = leftOperand + rightOperand;
-            break;
-        case MINUS:
-            result = leftOperand - rightOperand;
-            break;
-        case MULT:
-            result = leftOperand * rightOperand;
-            break;
-        case DIVD:
-            result = divide(leftOperand, rightOperand);
-            break;
-        default:
-            break;
-    }
-     if (leftChild.type == INTEGER && rightChild.type == INTEGER) {
-        retObj.type = INTEGER;
-    } else {
-        retObj.type = REAL;
-    }
-    retObj.data._value = to_string(result);
-    onExit();
-    return retObj;
-}
-
-Object Interpreter::relOp(TokenType op, float leftOperand, float rightOperand) {
-    onEnter("rel Op");
-    Object retVal;
-    say(to_string(leftOperand) + " " + tokenString[op] + " " + to_string(rightOperand));
-    bool result;
-    switch (op) {
-        case LESS:
-            result = (leftOperand < rightOperand);
-            break;
-        case GREATER:
-            result = (leftOperand > rightOperand);
-            break;
-        case EQUAL:
-            result = (leftOperand == rightOperand);
-            break;
-        case NOTEQUAL:
-            result = (leftOperand != rightOperand);
-            break;
-        case LESSEQ:
-            result = (leftOperand <= rightOperand);
-            break;
-        case GREATEREQ:
-            result = (leftOperand >= rightOperand);
-            break;
-    }
-    retVal = Object(result);
-    retVal.type = INTEGER;
-    return retVal;
-}
 
 Object Interpreter::eval(ASTNode* x) {
     onEnter("eval: " + tokenString[x->attribute.op]);
@@ -114,49 +14,60 @@ Object Interpreter::eval(ASTNode* x) {
         rightOperand = rightChild.data.realValue();
         
     if (leftChild.type == STRING || rightChild.type == STRING)
-        return stringOp(x->attribute.op, leftChild, rightChild);
+        return evaluator.stringOp(x->attribute.op, leftChild, rightChild);
     
     if (x->attribute.op == PLUS || x->attribute.op == MINUS || 
         x->attribute.op == MULT || x->attribute.op == DIVD) {
-        retObj = mathOp(x->attribute.op, leftChild, rightChild);    
+        retObj = evaluator.mathOp(x->attribute.op, leftChild, rightChild);    
     }
     if (x->attribute.op == EQUAL || x->attribute.op == NOTEQUAL || x->attribute.op == LESS || 
         x->attribute.op == GREATER || x->attribute.op == LESSEQ || x->attribute.op == GREATEREQ) {
-        retObj = relOp(x->attribute.op, leftOperand, rightOperand);
+        retObj = evaluator.relOp(x->attribute.op, leftOperand, rightOperand);
     }
     say("eval result: " + retObj.toString());
     onExit();
     return retObj;
 }
 
+int Interpreter::resolveNameToAddress(string varname) {
+    int addr = 0;
+    if (callStack.size() && callStack.top()->symbolTable.find(varname) != callStack.top()->symbolTable.end()) {
+        addr = callStack.top()->symbolTable[varname].addr;
+    } else if (callStack.size() > 1 && callStack.top()->staticLink->symbolTable.find(varname) != callStack.top()->staticLink->symbolTable.end()) {
+        addr = callStack.top()->staticLink->symbolTable[varname].addr;
+    } else  if (variables.find(varname) != variables.end()) {
+        addr = variables[varname];
+    } else {
+        logError("Hoot! couldnt find: " + varname);
+    }
+    return addr;
+}
+
+int Interpreter::calculateArrayIndex(ASTNode* x) {
+    int offset = 0;
+
+    say("Calculating Offset.");
+    offset = interpretExpression(x).data.intValue();
+    if (offset < 0) {
+        logError("Hoot! Invalid Index: " + to_string(offset));
+        return 0;
+    }
+    say("Array Reference, offset: " + to_string(offset));
+
+    return offset;
+}
+
 Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
     onEnter("retrieveFromMemoryByName");
     Object retVal;
-    int offset = 0, addr = 0;
+    int offset = 0, addr = resolveNameToAddress(x->attribute.name);
     if (x->kind == EXPRNODE && x->type.expr == SUBSCRIPT_EXPR) {
-        say("Calculating Offset.");
-        offset = interpretExpression(x->child[0]).data.intValue();
-        if (offset < 0) {
-            logError("Hoot! Invalid Index: " + to_string(offset));
-            return Object(-1);
+        offset = calculateArrayIndex(x->child[0]);
+        if (offset > 0 && offset > memStore.get(addr).attr.size) {
+            logError("Hoot! Index " + to_string(offset) + " out of range for array " + x->attribute.name + " of size " + to_string(memStore.get(addr).attr.size) + + " at address " + to_string(addr));
+            onExit();
+            return Object(0);
         }
-        say("Array Reference, offset: " + to_string(offset));
-    }
-    if (callStack.size() && callStack.top()->symbolTable.find(x->attribute.name) != callStack.top()->symbolTable.end()) {
-        addr = callStack.top()->symbolTable[x->attribute.name].addr;
-    } else if (callStack.size() > 1 && callStack.top()->staticLink->symbolTable.find(x->attribute.name) != callStack.top()->staticLink->symbolTable.end()) {
-        addr = callStack.top()->staticLink->symbolTable[x->attribute.name].addr;
-    } else  if (variables.find(x->attribute.name) != variables.end()) {
-        addr = variables[x->attribute.name];
-    } else {
-        logError("Hoot! couldnt find: " + x->attribute.name);
-        onExit();
-        return retVal;
-    }
-    
-    if (offset > memStore.get(addr).attr.size) {
-        logError("Hoot! Index " + to_string(offset) + " out of range for array " + x->attribute.name);
-        return -1;
     }
     retVal = memStore.get(addr + offset);
     say("ID: " + x->attribute.name + ", Address: " + to_string(addr) + ", offset: " +to_string(offset) + ", value: " + retVal.toString() + ", type: " + rtTypeAsStr[retVal.type]);
@@ -169,30 +80,14 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
     string varname = x->child[0]->attribute.name; //variable name
     say("Assign to " + varname + ": ");
     Object valToAssign = interpretExpression(x->child[1]);   //value to assign
-    int offset = 0, addr = 0;
+    int offset = 0, addr = resolveNameToAddress(varname);
     if (x->child[0]->kind == EXPRNODE && x->child[0]->type.expr == SUBSCRIPT_EXPR) {
-        say("Retrieving subscript " + x->child[0]->attribute.name);
-        offset = interpretExpression(x->child[0]->child[0]).data.intValue();
-        if (offset <= 0) {
-            logError("Hoot! Invalid Index: " + to_string(offset));
+        offset = calculateArrayIndex(x->child[0]->child[0]);
+        if (offset > 0 && offset > memStore.get(addr).attr.size) {
+            logError("Hoot! Index " + to_string(offset) + " out of range for array " + varname + " of size " + to_string(memStore.get(addr).attr.size) + + " at address " + to_string(addr));
+            onExit();
+            return;
         }
-        say("Array Reference, offset: " + offset);
-    }
-    if (callStack.size() && callStack.top()->symbolTable.find(varname) != callStack.top()->symbolTable.end()) {
-        addr = callStack.top()->symbolTable[varname].addr;
-        say("stored local variable " + varname  + " with value: " + valToAssign.toString() + " at " + to_string(addr) + " offset: " + to_string(offset) + " as: " + rtTypeAsStr[valToAssign.type]);
-    } else if (variables.find(varname) != variables.end()) {
-        addr = variables[varname];
-        say("stored global variable " + varname + " value: " + valToAssign.toString() + " at " + to_string(addr) + " offset: " + to_string(offset) + " as: " + rtTypeAsStr[valToAssign.type]);
-    } else {
-        logError("Error: unknown identifier: " + varname);
-        onExit();
-        return;
-    }
-    if (offset > 0 && offset > memStore.get(addr).attr.size) {
-        logError("Hoot! Index " + to_string(offset) + " out of range for array " + varname);
-        onExit();
-        return;
     }
     memStore.store(addr + offset, valToAssign);
     onExit("storeToMemoryByName ");
@@ -260,7 +155,6 @@ void Interpreter::declareVariable(ASTNode* x) {
         name = child->attribute.name;
         int size = child->child[0]->attribute.intValue;
         addr = memStore.allocate(size);
-        memStore.get(addr).attr.size = size;
         say("Declaring Array: " + name + " of size " + to_string(size) + " at address " + to_string(addr));
     } else {
         name = x->child[0]->attribute.name;
