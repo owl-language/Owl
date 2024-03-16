@@ -2,13 +2,13 @@
 #define memstore_hpp
 #include <iostream>
 #include <list>
+#include <unordered_map>
 #include "memobject.hpp"
 #include "../../tools/tracer.hpp"
 using std::string;
 using std::list;
 
-const int MAX_MEM_STORE = 1500; //completely arbitrary
-
+const int MAX_MEM_STORE = 3500; //completely arbitrary
 class MemStore {
     private:
         int free_list_count;

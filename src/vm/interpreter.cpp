@@ -21,7 +21,7 @@ Object Interpreter::stringOp(TokenType op, Object left, Object right) {
     } else if (op == EQUAL) {
         retObj = Object(left.data.stringValue() == right.data.stringValue());
     } else if (op == NOTEQUAL) {
-        retObj = Object(left.data.stringValue() == right.data.stringValue());
+        retObj = Object(left.data.stringValue() != right.data.stringValue());
     } else {
         logError("Hoot! Operation: " + tokenString[op] + " not supported on strings.");
         retObj = Object(0);
@@ -133,13 +133,6 @@ Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
     onEnter("retrieveFromMemoryByName");
     Object retVal;
     int offset = 0, addr = 0;
-    if (procedures.find(x->attribute.name) != procedures.end()) {
-        say("Procedure Found, Dispatching.");
-        retVal = Dispatch(x);
-        say("return from " + x->attribute.name + " value: " + retVal.toString());
-        onExit();
-        return retVal;
-    }
     if (x->kind == EXPRNODE && x->type.expr == SUBSCRIPT_EXPR) {
         say("Calculating Offset.");
         offset = interpretExpression(x->child[0]).data.intValue();
@@ -149,8 +142,10 @@ Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
         }
         say("Array Reference, offset: " + to_string(offset));
     }
-    if (callStack.size() && (callStack.top()->symbolTable.find(x->attribute.name) != callStack.top()->symbolTable.end())) {
+    if (callStack.size() && callStack.top()->symbolTable.find(x->attribute.name) != callStack.top()->symbolTable.end()) {
         addr = callStack.top()->symbolTable[x->attribute.name].addr;
+    } else if (callStack.size() > 1 && callStack.top()->staticLink->symbolTable.find(x->attribute.name) != callStack.top()->staticLink->symbolTable.end()) {
+        addr = callStack.top()->staticLink->symbolTable[x->attribute.name].addr;
     } else  if (variables.find(x->attribute.name) != variables.end()) {
         addr = variables[x->attribute.name];
     } else {
@@ -203,6 +198,19 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
     onExit("storeToMemoryByName ");
 }
 
+Object Interpreter::doProcedureCall(ASTNode* x) {
+    if (!callStack.empty() && callStack.top()->nestedProcedures.find(x->attribute.name) != callStack.top()->nestedProcedures.end()) {
+        say("nested procedure.");
+        return Dispatch(x, prepStackFrame(callStack.top()->nestedProcedures[x->attribute.name]));
+    } else if (procedures.find(x->attribute.name) != procedures.end()) {
+        say("global procedure");
+        return Dispatch(x, prepStackFrame(procedures[x->attribute.name]));
+    } else {
+        logError("No such procedure: " + x->attribute.name);
+    }
+    return Object(0);
+}
+
 Object Interpreter::interpretExpression(ASTNode* x) {
     Object retVal; int rbound = 1;
     string msg, result;
@@ -227,10 +235,7 @@ Object Interpreter::interpretExpression(ASTNode* x) {
             return retrieveFromMemoryByName(x);
             break; 
         case PROCDCALL:
-            if (procedures.find(x->attribute.name) != procedures.end()) {
-                retVal = Dispatch(x);
-                return retVal;
-            }
+            return doProcedureCall(x);
             break;
         case OP_EXPR:
             retVal = eval(x);
@@ -267,19 +272,32 @@ void Interpreter::declareVariable(ASTNode* x) {
     else callStack.top()->symbolTable[name].addr = addr;
 }
 
+void Interpreter::declareStruct(ASTNode* x) {
+
+};
+
+void Interpreter::addProcedureToSymbolTable(map<string, StackFrame*>& procdefs, ASTNode* node) {
+    StackFrame *procRec = new StackFrame;
+    procRec->body = node->child[0];
+    procRec->params = node->child[1]; 
+    for (ASTNode* param = node->child[1]; param != nullptr; param = param->sibling) {
+        say("Parameter: " + param->attribute.name + " added to procedures symbol table.");
+        Object obj(0);
+        procRec->symbolTable[param->attribute.name].addr = memStore.storeAtNextFree(obj);
+    } 
+    procdefs[node->attribute.name] = procRec;
+}
 
 void Interpreter::declareFunction(ASTNode* node) {
     onEnter("Procedure Declaration: " + node->attribute.name);
-    if (procedures.find(node->attribute.name) == procedures.end()) {
-        StackFrame *procRec = new StackFrame;
-        procRec->body = node->child[0];
-        procRec->params = node->child[1]; 
-        for (ASTNode* param = node->child[1]; param != nullptr; param = param->sibling) {
-            say("Parameter: " + param->attribute.name + " added to procedures symbol table.");
-            Object obj(0);
-            procRec->symbolTable[param->attribute.name].addr = memStore.storeAtNextFree(obj);
-        } 
-        procedures[node->attribute.name] = procRec;
+    if (!callStack.empty() && callStack.top()->nestedProcedures.find(node->attribute.name) ==  callStack.top()->nestedProcedures.end()) {
+        addProcedureToSymbolTable(callStack.top()->nestedProcedures, node);
+        say("nested procedure " + node->attribute.name + " added to stackframe");
+    } else if (procedures.find(node->attribute.name) == procedures.end()) {
+        addProcedureToSymbolTable(procedures, node);
+        say("procedure " + node->attribute.name + " added to global namespace");
+    } else {
+        logError("A procedure with name " + node->attribute.name + " has already been defined.");
     }
     onExit();
 }
@@ -360,54 +378,53 @@ StackFrame* Interpreter::prepStackFrame(StackFrame* masterFrame) {
     return nextFrame;
 }
 
-Object Interpreter::Dispatch(ASTNode* node) {
-    say("Dispatch: " + node->attribute.name);
-    Object retVal;
-    if (procedures.find(node->attribute.name) != procedures.end()) {
-        StackFrame* nsf = prepStackFrame(procedures[node->attribute.name]);
-        auto paramIt = nsf->params;
-        auto argIt = node->child[1];
-        //now we want to assign the parameters to their correct symbol tables.
-        while (paramIt && argIt) {
-            if (paramIt->attribute.type == as_ref) {
-                if (!callStack.empty()) {
-                    if (callStack.top()->symbolTable.find(paramIt->attribute.name) != callStack.top()->symbolTable.end()) {
-                        nsf->symbolTable[paramIt->attribute.name].addr = callStack.top()->symbolTable[paramIt->attribute.name].addr;
-                    } else if (variables.find(paramIt->attribute.name) != variables.end()) {
-                        nsf->symbolTable[paramIt->attribute.name].addr = variables[paramIt->attribute.name]; 
-                    } else {
-                        logError("No such variable " + paramIt->attribute.name);
-                    }
+void Interpreter::assignLocalSymbols(ASTNode* node, StackFrame* nsf) {
+    auto paramIt = nsf->params;
+    auto argIt = node->child[1];
+    //now we want to assign the parameters to their correct symbol tables.
+    while (paramIt && argIt) {
+        if (paramIt->attribute.type == as_ref) {
+            if (!callStack.empty()) {
+                if (callStack.top()->symbolTable.find(paramIt->attribute.name) != callStack.top()->symbolTable.end()) {
+                    nsf->symbolTable[paramIt->attribute.name].addr = callStack.top()->symbolTable[paramIt->attribute.name].addr;
+                } else if (variables.find(paramIt->attribute.name) != variables.end()) {
+                    nsf->symbolTable[paramIt->attribute.name].addr = variables[paramIt->attribute.name]; 
                 } else {
-                     if (variables.find(paramIt->attribute.name) != variables.end()) {
-                        nsf->symbolTable[paramIt->attribute.name].addr = variables[paramIt->attribute.name]; 
-                    } else {
-                        logError("No such variable " + paramIt->attribute.name);
-                    }
+                    logError("No such variable " + paramIt->attribute.name);
+                }
+            } else {
+                if (variables.find(paramIt->attribute.name) != variables.end()) {
+                    nsf->symbolTable[paramIt->attribute.name].addr = variables[paramIt->attribute.name]; 
+                } else {
+                    logError("No such variable " + paramIt->attribute.name);
                 }
             }
-            Object obj = interpretExpression(argIt);
-            if (paramIt->attribute.type == as_ref)
-                nsf->symbolTable[paramIt->attribute.name].isRef = true;
-            else
-                nsf->symbolTable[paramIt->attribute.name].isRef = false;
-            memStore.store(nsf->symbolTable[paramIt->attribute.name].addr, obj);
-            paramIt = paramIt->sibling;
-            argIt = argIt->sibling;
         }
-        callStack.push(nsf);
-        Execute(callStack.top()->body);
-        retVal = callStack.top()->returnVal;
-        for (auto addr : callStack.top()->symbolTable) {
-            if (addr.second.isRef == false)
-                memStore.free(addr.second.addr);
-        }
-        callStack.pop();
-        say("value returned: " + retVal.toString());
-        return retVal;
-    } else {
-        say("Hoot! No such procedure: " + node->attribute.name);
+        Object obj = interpretExpression(argIt);
+        if (paramIt->attribute.type == as_ref)
+            nsf->symbolTable[paramIt->attribute.name].isRef = true;
+        else
+            nsf->symbolTable[paramIt->attribute.name].isRef = false;
+        memStore.store(nsf->symbolTable[paramIt->attribute.name].addr, obj);
+        paramIt = paramIt->sibling;
+        argIt = argIt->sibling;
     }
+}
+
+Object Interpreter::Dispatch(ASTNode* node, StackFrame* nsf) {
+    say("Dispatch: " + node->attribute.name);
+    Object retVal;
+    assignLocalSymbols(node, nsf);
+    callStack.push(nsf);
+    Execute(callStack.top()->body);
+    retVal = callStack.top()->returnVal;
+    for (auto addr : callStack.top()->symbolTable) {
+        if (addr.second.isRef == false)
+            memStore.free(addr.second.addr);
+    }
+    callStack.pop();
+    say("value returned: " + retVal.toString());
+    return retVal;
     onExit("Dispatch");
     return retVal;
 }

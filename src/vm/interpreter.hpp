@@ -24,21 +24,25 @@ class Interpreter {
         Object stringOp(TokenType op, Object left, Object right);
         Object mathOp(TokenType op, Object left, Object right);
         Object relOp(TokenType op, float left, float right);
+        void addProcedureToSymbolTable(map<string, StackFrame*>& procdefs, ASTNode* node);
         void declareVariable(ASTNode* x);
         void declareFunction(ASTNode* x);
+        void declareStruct(ASTNode* x);
         Object retrieveFromMemoryByName(ASTNode* x);
         void storeToMemoryByName(ASTNode* x);
         Object interpretExpression(ASTNode* x);
         void interpretStatement(ASTNode* x);
         void interpretExprStatement(ASTNode* x);
+        Object doProcedureCall(ASTNode* x);
         void doReturnStatement(ASTNode* x);
         void doPrintStatement(ASTNode* x);
         void doReadStatement(ASTNode* x);
         void handleIfStatement(ASTNode* x);
         void handleWhileStatement(ASTNode* x);
         void compilerDirective(ASTNode* x);
+        void assignLocalSymbols(ASTNode* node, StackFrame* nsf);
         StackFrame* prepStackFrame(StackFrame* x);
-        Object Dispatch(ASTNode* x);
+        Object Dispatch(ASTNode* x, StackFrame* nsf);
         void importLibrary(string libName);
     public:
         void Execute(ASTNode* x);
