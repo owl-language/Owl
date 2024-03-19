@@ -1,0 +1,22 @@
+program 'recordsEx';
+begin 
+    record kvpair begin 
+        let key;
+        let value;
+    end
+    let x := make kvpair;
+    let y := make kvpair;
+    x.key := "max";
+    x.value := "platter";
+    y.key := "mickey";
+    y.value := "heepheep";
+    print x.key; 
+    print " and ";
+    print y.key;
+    print "\n";
+    print "are watching ";
+    print x.value;
+    print " and ";
+    print y.value;
+    print "\n";
+ end

@@ -1,0 +1,21 @@
+program 'pentanacci';
+begin
+    let stiz := 0;
+    func pentR(n: int) begin 
+        let m := 1;
+        print (n + " ");
+        if (n <= 3) then
+            return 0;    
+        else
+            if (n == 4) then
+                print "| "; 
+                return 1;
+            else 
+                return (pentR(n-5) + pentR(n-4) + pentR(n-3) + pentR(n-2) + pentR(n-1));
+            end;
+        end;
+    end;
+    stiz := 13;
+    print ("pentR(" + stiz + "): " + "\n");
+    print (pentR(stiz) + "\n");
+end

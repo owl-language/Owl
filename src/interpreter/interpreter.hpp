@@ -10,6 +10,7 @@
 #include "runtime/callstack.hpp"
 #include "runtime/memstore.hpp"
 #include "runtime/memobject.hpp"
+#include "runtime/record.hpp"
 using std::cout;
 using std::endl;
 using std::map;
@@ -19,6 +20,8 @@ class Interpreter {
     private:
         map<string, int> variables;
         map<string, StackFrame*> procedures;
+        map<string, Record*> recordInstances;
+        map<string, Record*> recordDefinitions;
         CallStack callStack;
         MemStore memStore;
         Evaluator evaluator;
@@ -27,8 +30,11 @@ class Interpreter {
         void declareVariable(ASTNode* x);
         void declareFunction(ASTNode* x);
         void declareStruct(ASTNode* x);
+        void initializeRecord(ASTNode* x);
         Object retrieveFromMemoryByName(ASTNode* x);
+        Object retrieveFromRecord(ASTNode* x);
         void storeToMemoryByName(ASTNode* x);
+        void storeToRecord(ASTNode* x);
         Object interpretExpression(ASTNode* x);
         void interpretStatement(ASTNode* x);
         void interpretExprStatement(ASTNode* x);
