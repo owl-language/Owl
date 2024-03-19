@@ -8,16 +8,22 @@
 using std::string;
 using std::list;
 
-const int MAX_MEM_STORE = 3500; //completely arbitrary
+// 3/6/24
+//Both MemStore and Object should probably have a complete overhaul
+//this entire set up was a quick hack to get started, and has only
+//accrued technical debt since
+
 class MemStore {
     private:
+        int MAX_MEM_STORE;
         int free_list_count;
-        int freedList[MAX_MEM_STORE/2];
-        Object objmem[MAX_MEM_STORE];
+        int *freedList;
+        Object *objmem;
         int nextFreeAddress;
         int liveCellCount;
     public:
         MemStore();
+        ~MemStore();
         Object& get(int addr);
         void store(int addr, Object o);
         int storeAtNextFree(Object o);

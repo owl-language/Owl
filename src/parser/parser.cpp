@@ -1,5 +1,9 @@
 #include "parser.hpp"
 
+OwlParser::OwlParser() {
+
+}
+
 ASTNode* OwlParser::replParse(vector<Token>& tokens) {
     depth = 0;
     initStream(tokens);
@@ -91,14 +95,17 @@ ASTNode* OwlParser::statement() {
         case LET:
             node = declareVarStatement();
             break;
+        case FUNC:
+            node = declareProcedureStatement();
+            break;
+        case RECORD:
+            node = declareRecordType();
+            break;
         case PRINT:
             node = printStatement();
             break;
         case READ:
             node = readStatement();
-            break;
-        case FUNC:
-            node = declareProcedureStatement();
             break;
         case WHILE:
             node = whileStatement();
@@ -147,8 +154,32 @@ ASTNode* OwlParser::declareVarStatement() {
     }
     match(ASSIGN);
     node->child[1] = expression();
+    if (node->child[1]->type.expr == RECORD_EXPR) {
+        node->child[1]->attribute.name += " - " + node->child[0]->attribute.name;
+        ASTNode* t = node->child[0];
+        node->child[0] = node->child[1];
+        node->child[1] = nullptr;
+        delete t;
+    }
     match(SEMI);
     onExit("declareVarStatement");
+    return node;
+}
+
+ASTNode* OwlParser::declareRecordType() {
+    onEnter("declareRecordType");
+    ASTNode* node = makeStatementNode(RECDECL, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
+    match(RECORD);
+    node->child[0] = term();
+    match(BEGIN);
+    ASTNode *p = node->child[0];
+    while (lookahead().tokenval != END) {
+        ASTNode* t = declareVarStatement();
+        p->sibling = t;
+        p = t;
+    }
+    match(END);
+    onExit("declareRecordType");
     return node;
 }
 
@@ -238,6 +269,10 @@ ASTNode* OwlParser::exprStatement() {
     ASTNode* t = makeStatementNode(EXPRSTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     if (lookahead().tokenval == ID) {
         t->child[0] = var();
+        if (lookahead().tokenval == PERIOD) {
+            match(PERIOD);
+            t->child[0]->sibling = var();
+        } 
         if (lookahead().tokenval == ASSIGN) {
             ASTNode* p = makeStatementNode(ASSIGNSTM, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
             p->attribute.op = ASSIGN;
@@ -414,6 +449,9 @@ ASTNode* OwlParser::factor() {
         if (lookahead().tokenval != RPAREN)
             node = expression();
         match(RPAREN);
+    } else if (lookahead().tokenval == MAKE) {
+        match(MAKE);
+        node = initRecord();
     } else {
         cout<<"I have no idea."<<endl;
         reSync();
@@ -436,6 +474,9 @@ ASTNode* OwlParser::var() {
         replace->attribute.name = node->attribute.name;
         delete node;
         node = replace;
+    } else if (lookahead().tokenval == PERIOD) {
+        match(PERIOD);
+        node->child[0] = expression();
     }
     onExit("var");
     return node;
@@ -451,4 +492,52 @@ ASTNode* OwlParser::strValue() {
     match(QUOTE);
     onExit("String value");
     return node;
+}
+
+ASTNode* OwlParser::initRecord() {
+    onEnter("initRecord");
+    ASTNode* node = makeExpressionNode(RECORD_EXPR, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
+    match(ID);
+    onExit("initRecord");
+    return node;
+}
+
+Token& OwlParser::lookahead() {
+    return *ts;
+}
+
+void OwlParser::nexttoken() {
+    std::advance(ts,1);
+    if (ts != tokenvector.end()) {
+        currentToken = *ts;
+    } else {
+        say("Token Stream Consumed.");
+        std::advance(ts, -1);
+    }
+}
+
+void OwlParser::reSync() {
+    if (stumbleCount > 2) {
+        logError("Too many errors during parsing, bailing out.");
+        exit(0);
+    }
+    stumbleCount++;
+}
+
+bool OwlParser::match(TokenType token) {
+    if (lookahead().tokenval == token) {
+        say("Match: " + currentToken.stringval);
+        nexttoken();
+        return true;
+    }
+    cout<<"Mismatched Token on line "<<lookahead().lineno<<": "<<lookahead().stringval<<endl;
+    cout<<"Expected: "<<tokenString[token]<<" but found "<<tokenString[lookahead().tokenval]<<endl;
+    stumbleCount++;
+    return false;
+}
+
+void OwlParser::initStream(vector<Token>& tokens) {
+    tokenvector = tokens;
+    ts = tokenvector.begin();
+    currentToken = *ts;
 }

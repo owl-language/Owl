@@ -2,52 +2,60 @@
 [Parsing Complete.]
 Abstract Syntax Tree:
 ---------------------
-  [VARDECL] let
-    [ID_EXPR] i 
-    [CONST_EXPR] 1 
-  [VARDECL] let
-    [SUBSCRIPT_EXPR] x 
-      [CONST_EXPR] 5 
-  [WHILESTM] while
-    [OP_EXPR] <=  - LESSEQ
-      [ID_EXPR] i 
-      [CONST_EXPR] 5 
-    [EXPRSTM] x
-      [ASSIGNSTM] :=
-        [SUBSCRIPT_EXPR] x 
-          [ID_EXPR] i 
-        [ID_EXPR] i 
-    [EXPRSTM] i
-      [ASSIGNSTM] :=
-        [ID_EXPR] i 
-        [OP_EXPR] +  - PLUS
-          [ID_EXPR] i 
-          [CONST_EXPR] 1 
-[EXPRSTM] i
+  [RECDECL] record
+    [ID_EXPR] kvpair 
+    [VARDECL] let
+      [ID_EXPR] key 
+    [VARDECL] let
+      [ID_EXPR] value 
+[VARDECL] let
+  [RECORD_EXPR] kvpair - x 
+[VARDECL] let
+  [RECORD_EXPR] kvpair - y 
+[EXPRSTM] x
   [ASSIGNSTM] :=
-    [ID_EXPR] i 
-    [CONST_EXPR] 1 
-[WHILESTM] while
-  [OP_EXPR] <=  - LESSEQ
-    [ID_EXPR] i 
-    [CONST_EXPR] 8 
-  [PRINTSTMT] print
-    [OP_EXPR] +  - PLUS
-      [SUBSCRIPT_EXPR] x 
-        [ID_EXPR] i 
-      [CONST_STR]   
-  [EXPRSTM] i
-    [ASSIGNSTM] :=
-      [ID_EXPR] i 
-      [OP_EXPR] +  - PLUS
-        [ID_EXPR] i 
-        [CONST_EXPR] 1 
+    [ID_EXPR] x 
+      [ID_EXPR] key 
+    [CONST_STR] max 
+[EXPRSTM] x
+  [ASSIGNSTM] :=
+    [ID_EXPR] x 
+      [ID_EXPR] value 
+    [CONST_STR] platter 
+[EXPRSTM] y
+  [ASSIGNSTM] :=
+    [ID_EXPR] y 
+      [ID_EXPR] key 
+    [CONST_STR] mickey 
+[EXPRSTM] y
+  [ASSIGNSTM] :=
+    [ID_EXPR] y 
+      [ID_EXPR] value 
+    [CONST_STR] heepheep 
+[PRINTSTMT] print
+  [ID_EXPR] x 
+    [ID_EXPR] key 
+[PRINTSTMT] print
+  [CONST_STR]  and  
+[PRINTSTMT] print
+  [ID_EXPR] y 
+    [ID_EXPR] key 
+[PRINTSTMT] print
+  [CONST_STR] 
+ 
+[PRINTSTMT] print
+  [CONST_STR] are watching  
+[PRINTSTMT] print
+  [ID_EXPR] x 
+    [ID_EXPR] value 
+[PRINTSTMT] print
+  [CONST_STR]  and  
+[PRINTSTMT] print
+  [ID_EXPR] y 
+    [ID_EXPR] value 
 [PRINTSTMT] print
   [CONST_STR] 
  
 [Running Program]
-Hoot! Index 6 out of range for array x of size 5 at address 2
-Hoot! Index 7 out of range for array x of size 5 at address 2
-Hoot! Index 8 out of range for array x of size 5 at address 2
-
+                                                                                                                                                                                                                                                                                                     
 Trace Complete.

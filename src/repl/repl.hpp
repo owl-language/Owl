@@ -1,8 +1,8 @@
 #ifndef repl_hpp
 #define repl_hpp
 #include "../ast/ast.hpp"
-#include "../vm/ast_builder.hpp"
-#include "../vm/interpreter.hpp"
+#include "../interpreter/ast_builder.hpp"
+#include "../interpreter/interpreter.hpp"
 #include <iostream>
 using std::cout;
 using std::endl;

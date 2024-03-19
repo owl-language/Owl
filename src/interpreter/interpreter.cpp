@@ -57,8 +57,19 @@ int Interpreter::calculateArrayIndex(ASTNode* x) {
     return offset;
 }
 
+Object Interpreter::retrieveFromRecord(ASTNode* x) {
+    onEnter("retrieveFromRecord");
+    Record* instance = recordInstances[x->attribute.name];
+    int addr = instance->fieldAddrs[x->child[0]->attribute.name];
+    Object retVal = memStore.get(addr);
+    onExit();
+    return retVal;
+}
+
 Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
     onEnter("retrieveFromMemoryByName");
+    if (recordInstances.find(x->attribute.name) != recordInstances.end())
+        return retrieveFromRecord(x);
     Object retVal;
     int offset = 0, addr = resolveNameToAddress(x->attribute.name);
     if (x->kind == EXPRNODE && x->type.expr == SUBSCRIPT_EXPR) {
@@ -80,7 +91,14 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
     string varname = x->child[0]->attribute.name; //variable name
     say("Assign to " + varname + ": ");
     Object valToAssign = interpretExpression(x->child[1]);   //value to assign
-    int offset = 0, addr = resolveNameToAddress(varname);
+    int offset = 0, addr = 0;
+    if (recordInstances.find(x->child[0]->attribute.name) != recordInstances.end()) {
+        Record* instance = recordInstances[x->child[0]->attribute.name];
+        string fieldName = x->child[0]->child[0]->attribute.name;
+        addr = instance->fieldAddrs[fieldName];
+    } else {
+        addr = resolveNameToAddress(varname);
+    }
     if (x->child[0]->kind == EXPRNODE && x->child[0]->type.expr == SUBSCRIPT_EXPR) {
         offset = calculateArrayIndex(x->child[0]->child[0]);
         if (offset > 0 && offset > memStore.get(addr).attr.size) {
@@ -106,11 +124,40 @@ Object Interpreter::doProcedureCall(ASTNode* x) {
     return Object(0);
 }
 
+void Interpreter::initializeRecord(ASTNode* x) {
+    onEnter("Initializing Record");
+    string anotatedRecName = x->attribute.name;
+    string recName, instanceName;
+    int i;
+    for (i = 0; anotatedRecName[i] != ' '; i++)
+        recName.push_back(anotatedRecName[i]);
+    while (i < anotatedRecName.size()) {
+        if (isalpha(anotatedRecName[i]))
+            instanceName.push_back(anotatedRecName[i]);
+        i++;
+    }
+    if (recordDefinitions.find(recName) == recordDefinitions.end()) {
+        logError("No Record definition found with name: " + recName);
+    } else {
+        Record* recDef = recordDefinitions[recName];
+        Record* nRec = new Record(recName);
+        for (auto entries : recDef->fieldAddrs) {
+            nRec->fieldAddrs[entries.first] = memStore.allocate(1);
+        }
+        recordInstances[instanceName] = nRec;
+        say("Record " + instanceName + " of type " + recName + " instantiated");
+    }
+    onExit();
+}
+
 Object Interpreter::interpretExpression(ASTNode* x) {
     Object retVal; int rbound = 1;
     string msg, result;
     onEnter("Expression " + ExprKindStr[x->type.expr]);
     switch (x->type.expr) {
+        case RECORD_EXPR:
+            initializeRecord(x);
+            return retVal;
         case CONST_EXPR:
             if (x->attribute.type == as_int)
                 retVal = Object(x->attribute.intValue);
@@ -156,6 +203,8 @@ void Interpreter::declareVariable(ASTNode* x) {
         int size = child->child[0]->attribute.intValue;
         addr = memStore.allocate(size);
         say("Declaring Array: " + name + " of size " + to_string(size) + " at address " + to_string(addr));
+    } else if (x->child[0]->type.expr == RECORD_EXPR) {
+        initializeRecord(x->child[0]);
     } else {
         name = x->child[0]->attribute.name;
         Object obj = interpretExpression(x->child[1]);
@@ -167,8 +216,18 @@ void Interpreter::declareVariable(ASTNode* x) {
 }
 
 void Interpreter::declareStruct(ASTNode* x) {
-
-};
+    string recName;
+    if (x->child[0]) {
+        recName = x->child[0]->attribute.name;
+    }
+    Record* recordDef = new Record(recName);
+    for (ASTNode* it = x->child[0]->sibling; it != nullptr; it = it->sibling) {
+        string fieldname = it->child[0]->attribute.name;
+        recordDef->fieldAddrs[fieldname] = 0;
+    } 
+    recordDefinitions[recName] = recordDef;
+    say("Declared Record " + recName + " with " + to_string(recordDef->fieldAddrs.size()) + " fields");
+}
 
 void Interpreter::addProcedureToSymbolTable(map<string, StackFrame*>& procdefs, ASTNode* node) {
     StackFrame *procRec = new StackFrame;
@@ -345,6 +404,9 @@ void Interpreter::interpretStatement(ASTNode* node) {
         case FUNCDECL:
             declareFunction(node);
             break;
+        case RECDECL:
+            declareStruct(node);
+            break;
         case PRINTSTM:
             doPrintStatement(node->child[0]);
             break;
@@ -382,6 +444,7 @@ void Interpreter::Execute(ASTNode* node) {
             break;
         case DIRECTIVE:
             compilerDirective(node);
+            break;
     }
     if (node->kind == STMTNODE && node->type.stmt == RETURNSTM)
         return;

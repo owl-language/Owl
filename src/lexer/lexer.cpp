@@ -37,7 +37,8 @@ void OwlLexer::initReserved() {
     reserved["real"] = REALT;
     reserved["ref"] = REF;
     reserved["import"] = IMPORT;
-
+    reserved["record"] = RECORD;
+    reserved["make"] = MAKE;
 }
 
 TokenType OwlLexer::handleKeywordOrId(string word) {
@@ -127,7 +128,7 @@ Token OwlLexer::handleSpecials() {
             return Token(STRING_LITERAL, "\r\n", -1, sb.lineNumber());
         }
     }
-    logError("Error: unknown Symbol.");
+    logError("OwlLex Error: unknown symbol on line " + to_string(sb.lineNumber()));
     sb.GetChar();
     return Token(ERROR, "Error", -1, sb.lineNumber());
 }
@@ -183,7 +184,7 @@ void OwlLexer::processString(vector<Token>& tokenList) {
     tokenList.push_back(nextToken);
     nextToken = handleSpecials();
     if (nextToken.tokenval != QUOTE) {
-        logError("Error processing string.");
+        logError("OwlLexer: Error processing string.");
         exit(0);
     }
     tokenList.push_back(nextToken);

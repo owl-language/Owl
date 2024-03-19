@@ -20,45 +20,13 @@ class OwlParser {
         TokenStream ts;
         Token currentToken;
         int stumbleCount;
-        Token& lookahead() {
-            return *ts;
-        }
-        void nexttoken() {
-            std::advance(ts,1);
-            if (ts != tokenvector.end()) {
-                currentToken = *ts;
-            } else {
-                say("Token Stream Consumed.");
-                std::advance(ts, -1);
-            }
-        }
-        void reSync() {
-            if (stumbleCount > 2) {
-                logError("Too many errors during parsing, bailing out.");
-                exit(0);
-            }
-            stumbleCount++;
-        }
-        bool match(TokenType token) {
-            if (lookahead().tokenval == token) {
-                say("Match: " + currentToken.stringval);
-                nexttoken();
-                return true;
-            }
-            cout<<"Mismatched Token on line "<<lookahead().lineno<<": "<<lookahead().stringval<<endl;
-            cout<<"Expected: "<<tokenString[token]<<" but found "<<tokenString[lookahead().tokenval]<<endl;
-            stumbleCount++;
-            return false;
-        }
-        void initStream(vector<Token>& tokens) {
-            tokenvector = tokens;
-            ts = tokenvector.begin();
-            currentToken = *ts;
-        }
+        Token& lookahead();
+        void nexttoken();
+        void reSync();
+        bool match(TokenType token);
+        void initStream(vector<Token>& tokens);
     public:
-        OwlParser() {
-
-        }
+        OwlParser();
         ASTNode* start(vector<Token>& ts);
         ASTNode* replParse(vector<Token>& ts);
     private:
@@ -68,6 +36,8 @@ class OwlParser {
         ASTNode* declareVarStatement();
         ASTNode* declareProcedureStatement();
         ASTNode* declareArrayStatement();
+        ASTNode* declareRecordType();
+        ASTNode* initRecord();
         ASTNode* returnStatement();
         ASTNode* whileStatement();
         ASTNode* ifStatement();
@@ -89,6 +59,5 @@ class OwlParser {
         ASTNode* program();
         ASTNode* library();
 };
-
 
 #endif

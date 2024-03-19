@@ -1,21 +1,21 @@
 [Owl Interpreter 0.3a started.]
-[Parsing Complete.]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       [Parsing Complete.]
 Abstract Syntax Tree:
 ---------------------
-  [FUNCDECL] outter
-    [FUNCDECL] inner
-      [RETURNSTM] return
-        [OP_EXPR] +  - PLUS
-          [ID_EXPR] x 
-          [ID_EXPR] y 
-      [PARAM_EXPR] y 
-    [RETURNSTM] return
-      [PROCDCALL] inner 
-        [ID_EXPR] x 
-  [PARAM_EXPR] x 
+  [RECDECL] record
+    [ID_EXPR] kvpair 
+    [VARDECL] let
+      [ID_EXPR] key 
+    [VARDECL] let
+      [ID_EXPR] value 
+[VARDECL] let
+  [RECORD_EXPR] kvpair - x 
+[EXPRSTM] x
+  [ASSIGNSTM] :=
+    [ID_EXPR] x 
+      [ID_EXPR] key 
+    [CONST_STR] max 
 [PRINTSTMT] print
-  [PROCDCALL] outter 
-    [CONST_EXPR] 7 
+  [ID_EXPR] x 
+    [ID_EXPR] key 
 [Running Program]
-                                                                                                                                                                                                                                
-Trace Complete.
