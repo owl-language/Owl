@@ -68,9 +68,9 @@ Object Interpreter::retrieveFromRecord(ASTNode* x) {
 
 Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
     onEnter("retrieveFromMemoryByName");
-    Object retVal;
     if (recordInstances.find(x->attribute.name) != recordInstances.end())
         return retrieveFromRecord(x);
+    Object retVal;
     int offset = 0, addr = resolveNameToAddress(x->attribute.name);
     if (x->kind == EXPRNODE && x->type.expr == SUBSCRIPT_EXPR) {
         offset = calculateArrayIndex(x->child[0]);
@@ -93,12 +93,12 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
     Object valToAssign = interpretExpression(x->child[1]);   //value to assign
     int offset = 0, addr = 0;
     if (recordInstances.find(x->child[0]->attribute.name) != recordInstances.end()) {
-        cout<<"Found Instance"<<endl;
         Record* instance = recordInstances[x->child[0]->attribute.name];
         string fieldName = x->child[0]->child[0]->attribute.name;
         addr = instance->fieldAddrs[fieldName];
-        cout<<"Recovered Address: "<<addr<<endl;
-    } else addr = resolveNameToAddress(varname);
+    } else {
+        addr = resolveNameToAddress(varname);
+    }
     if (x->child[0]->kind == EXPRNODE && x->child[0]->type.expr == SUBSCRIPT_EXPR) {
         offset = calculateArrayIndex(x->child[0]->child[0]);
         if (offset > 0 && offset > memStore.get(addr).attr.size) {
