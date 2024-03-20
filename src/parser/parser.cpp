@@ -154,7 +154,7 @@ ASTNode* OwlParser::declareVarStatement() {
     }
     match(ASSIGN);
     node->child[1] = expression();
-    if (node->child[1]->type.expr == RECORD_EXPR) {
+    if (node->child[1]->type.expr == INITREC_EXPR) {
         node->child[1]->attribute.name += " - " + node->child[0]->attribute.name;
         ASTNode* t = node->child[0];
         node->child[0] = node->child[1];
@@ -280,6 +280,7 @@ ASTNode* OwlParser::exprStatement() {
             p->child[0] = t->child[0];
             p->child[1] = expression();
             t->child[0] = p;
+            t = t->child[0];
         } else if (lookahead().tokenval == LPAREN) {
             ASTNode* p = makeExpressionNode(PROCDCALL, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
             p->attribute.name = t->child[0]->attribute.name;
@@ -496,7 +497,7 @@ ASTNode* OwlParser::strValue() {
 
 ASTNode* OwlParser::initRecord() {
     onEnter("initRecord");
-    ASTNode* node = makeExpressionNode(RECORD_EXPR, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
+    ASTNode* node = makeExpressionNode(INITREC_EXPR, Attributes(lookahead().stringval, lookahead().numval, lookahead().realval, lookahead().tokenval));
     match(ID);
     onExit("initRecord");
     return node;

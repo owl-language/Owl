@@ -1,0 +1,17 @@
+program 'hashes';
+begin
+    record link begin 
+        let info;
+        let next;
+    end
+    let z := 1;
+    let x := make link;
+    let y := make link;
+    x.info := 1;
+    y.info := 2;
+    print (y.info);
+    print " dylatov ";
+    print (x.info);   
+    print " freemasons\n";
+    print (z + "\n");
+end

@@ -1,4 +1,4 @@
-# Owl v0.3a  (\\^(OvO)^/)
+# Owl v0.5a  (\\^(OvO)^/)
 
 Owl is an interpreted, dynamically typed, procedural language.
 It features pascal-like syntax, with C-style scope rules.

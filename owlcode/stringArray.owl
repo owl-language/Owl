@@ -1,6 +1,7 @@
 program 'stringArray';
 begin
     let cnt := 0;
+    let finale := "";
     let strs[10];
     strs[1] := "oh";
     strs[2] := "what";
@@ -14,7 +15,8 @@ begin
     cnt := 1;
     while (cnt <= 9) begin
         print (strs[cnt] + " ");
+        finale := finale + " " + strs[cnt];
         cnt := cnt + 1;
     end
-    print "\n";
+    print ("\n" + finale + "\n");
 end

@@ -1,0 +1,69 @@
+program 'heapsort';
+begin
+    let a[10];
+    let i := 0;
+    func swap(m: int, p: int) begin 
+        let t := 0;
+        print ("swapping");
+        t := a[m];
+        a[m] := a[p];
+        a[p] := t;
+    end
+    func heapify(n: int, k: int) begin
+        let max := k;
+        let left := 2*k;
+        let right := 2*k+1;
+        print (n + ", " + k + "\n");
+        print "heapify..\n";
+        print (max + "\n");
+        print (left + "\n");
+        print (right + "\n");
+        if (left < n) then 
+            print (a[left] + "> " + a[max]);
+            print "?\n";
+            if (a[left] > a[max]) then
+                max := left;
+                print "left is max\n";
+            end;
+        end;
+        if (right < n) then 
+            print (a[right] + "> " + a[max]);
+            print "?\n";
+            if (a[right] > a[max]) then 
+                max := right;
+                print "right is max\n";
+            end;    
+        end;
+        if (max != k) then 
+            print "swapping\n";
+            swap(max, k);
+            heapify(n, k);    
+        end;
+    end;
+    func printArr(n : int) begin 
+        let j := 0;
+        while (j < n) begin 
+            print (a[j] + " ");
+            j := j + 1;
+        end
+        print "\n";
+    end
+    i := 0;
+    while (i < 10) begin 
+        a[i] := rand(50);
+        i := i + 1;
+    end
+    printArr(10);
+    i := 9;
+    while (i >= 0) begin
+        print (i +": ");
+        heapify(10, i);
+        i := i - 1;
+    end
+    i := 0;
+    while (i < 10) begin 
+        print (a[i] + " ");
+        i := i + 1;
+    end;
+    print "\n";
+end

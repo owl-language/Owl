@@ -1,0 +1,15 @@
+program 'complex';
+begin 
+    record comp begin 
+        let top;
+        let bottom;
+    end
+    let x := make comp;
+    let z := 3;
+    x.top := 1;
+    x.bottom := 3;
+    print (z + 1);
+    print (1 + x.top);
+    print ((z + x.bottom) + "\n");
+    
+end

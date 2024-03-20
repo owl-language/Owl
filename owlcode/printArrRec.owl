@@ -1,0 +1,18 @@
+program 'printArrRec';
+begin
+    let a[10];
+    let i := 0;
+    func printRec(n: int) begin 
+        if (n < 10) then 
+            print (a[n] + " ");
+            printRec(n+1);    
+        else
+            print "\n";
+        end;
+    end
+    while (i < 10) begin 
+        a[i] := rand(50);
+        i := i + 1;
+    end
+    printRec(0);
+end

@@ -13,16 +13,17 @@ Object Interpreter::eval(ASTNode* x) {
     if (rightChild.type != STRING)
         rightOperand = rightChild.data.realValue();
         
-    if (leftChild.type == STRING || rightChild.type == STRING)
-        return evaluator.stringOp(x->attribute.op, leftChild, rightChild);
-    
-    if (x->attribute.op == PLUS || x->attribute.op == MINUS || 
-        x->attribute.op == MULT || x->attribute.op == DIVD) {
-        retObj = evaluator.mathOp(x->attribute.op, leftChild, rightChild);    
-    }
-    if (x->attribute.op == EQUAL || x->attribute.op == NOTEQUAL || x->attribute.op == LESS || 
-        x->attribute.op == GREATER || x->attribute.op == LESSEQ || x->attribute.op == GREATEREQ) {
-        retObj = evaluator.relOp(x->attribute.op, leftOperand, rightOperand);
+    if (leftChild.type == STRING || rightChild.type == STRING) {
+        retObj = evaluator.stringOp(x->attribute.op, leftChild, rightChild);
+    } else {
+        if (x->attribute.op == PLUS || x->attribute.op == MINUS || 
+            x->attribute.op == MULT || x->attribute.op == DIVD) {
+            retObj = evaluator.mathOp(x->attribute.op, leftChild, rightChild);    
+        }
+        if (x->attribute.op == EQUAL || x->attribute.op == NOTEQUAL || x->attribute.op == LESS || 
+            x->attribute.op == GREATER || x->attribute.op == LESSEQ || x->attribute.op == GREATEREQ) {
+            retObj = evaluator.relOp(x->attribute.op, leftOperand, rightOperand);
+        }
     }
     say("eval result: " + retObj.toString());
     onExit();
@@ -155,7 +156,7 @@ Object Interpreter::interpretExpression(ASTNode* x) {
     string msg, result;
     onEnter("Expression " + ExprKindStr[x->type.expr]);
     switch (x->type.expr) {
-        case RECORD_EXPR:
+        case INITREC_EXPR:
             initializeRecord(x);
             return retVal;
         case CONST_EXPR:
@@ -203,7 +204,7 @@ void Interpreter::declareVariable(ASTNode* x) {
         int size = child->child[0]->attribute.intValue;
         addr = memStore.allocate(size);
         say("Declaring Array: " + name + " of size " + to_string(size) + " at address " + to_string(addr));
-    } else if (x->child[0]->type.expr == RECORD_EXPR) {
+    } else if (x->child[0]->type.expr == INITREC_EXPR) {
         initializeRecord(x->child[0]);
     } else {
         name = x->child[0]->attribute.name;
@@ -258,10 +259,13 @@ void Interpreter::declareFunction(ASTNode* node) {
 
 void Interpreter::doPrintStatement(ASTNode* node) {
     onEnter("[PRINT]");
-    if (node->type.expr == CONST_STR) //I mean, thats WHY its a const string, right?
+    if (node->type.expr == CONST_STR) {
+        say("Respecting Const String's Authoritah");
         cout<<node->attribute.name;
-    else
+    } else {
+        say("Evaluating");
         cout<<interpretExpression(node).toString();
+    }
     onExit();
 }
 
@@ -423,7 +427,7 @@ void Interpreter::interpretStatement(ASTNode* node) {
             interpretExprStatement(node);
             break;
         case ASSIGNSTM:
-            storeToMemoryByName(node->child[0]);
+            storeToMemoryByName(node);
             break;
         case RETURNSTM:
             doReturnStatement(node);
@@ -463,6 +467,6 @@ void Interpreter::importLibrary(string libName) {
     onEnter("Importing " + libName);
     ASTNode* libAst;
     ASTBuilder libBuilder;
-    libAst = libBuilder.build("owlcode/" + libName + ".owl");
+    libAst = libBuilder.build("./" + libName + ".owl");
     Execute(libAst);
 }

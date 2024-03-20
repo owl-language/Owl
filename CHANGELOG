@@ -1,0 +1,13 @@
+v0.5a
+    - experimental support for record types
+v0.3a
+    - experimental support for import statement
+v0.3 
+    - added string supports
+    - input statements can now take any type
+    - added REPL
+v0.2a 
+    - added support for recursive procedures
+    - added support for arrays with bounds checking
+v0.1a 
+    - initial release

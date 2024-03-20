@@ -1,0 +1,13 @@
+program 'fromZero';
+begin
+    let i := 0;
+    let a[10];
+    a[0] := "yo fats";
+    a[1] := 32;
+    i := 0;
+    while (i < 2) begin 
+        print (a[i] + " ");
+        i := i + 1;
+    end
+    print "\n";
+end
