@@ -40,24 +40,15 @@ Abstract Syntax Tree:
 [ASSIGNSTM] :=
   [ID_EXPR] z 
     [ID_EXPR] info 
-  [CONST_EXPR] 1 
-[PRINTSTMT] print
-  [OP_EXPR] +  - PLUS
-    [ID_EXPR] z 
-      [ID_EXPR] info 
-    [ID_EXPR] y 
-      [ID_EXPR] info 
-[PRINTSTMT] print
-  [ID_EXPR] x 
-    [ID_EXPR] info 
+  [CONST_EXPR] 666 
 [ASSIGNSTM] :=
   [ID_EXPR] it 
   [ID_EXPR] x 
 [WHILESTM] while
-  [ID_EXPR] it 
-    [OP_EXPR] !=  - NOTEQUAL
-      [ID_EXPR] next 
-      [CONST_EXPR] 666 
+  [OP_EXPR] !=  - NOTEQUAL
+    [ID_EXPR] it 
+      [ID_EXPR] info 
+    [CONST_EXPR] 666 
   [PRINTSTMT] print
     [ID_EXPR] it 
       [ID_EXPR] info 
@@ -67,6 +58,17 @@ Abstract Syntax Tree:
     [ID_EXPR] it 
     [ID_EXPR] it 
       [ID_EXPR] next 
+[PRINTSTMT] print
+  [CONST_STR] 
+ 
+[IFSTM] if
+  [OP_EXPR] =  - EQUAL
+    [ID_EXPR] it 
+      [ID_EXPR] info 
+    [CONST_EXPR] 666 
+  [PRINTSTMT] print
+    [CONST_STR] dat fooseball
+ 
 [Running Program]
-                                                                                                                              
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 Trace Complete.

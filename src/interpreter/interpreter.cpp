@@ -67,6 +67,7 @@ Object Interpreter::resolveRecordFieldName(ASTNode* x, Record* rec) {
             int nextAddr = rec->fieldAddrs[fieldName];
             say("address: " + to_string(nextAddr));
             retVal = memStore.get(nextAddr);
+            say("address: " + to_string(nextAddr) + ", value: " + retVal.data._value);
         } else {
             logError("Invalid field name specified");
         }
@@ -181,21 +182,17 @@ Object Interpreter::interpretExpression(ASTNode* x) {
             else if (x->attribute.type == as_real)
                 retVal = Object(stof(x->attribute.name));
             say(ExprKindStr[x->type.expr] + " value: " + retVal.toString());
-            onExit();
             return retVal;
         case CONST_STR:
             retVal = Object(x->attribute.name);
             retVal.type = STRING;
-            onExit();
             return retVal;
         case RAND_EXPR:
             rbound = x->child[0]->attribute.intValue;
             retVal =  Object(rand() % (rbound - 1) + 1);
-            onExit();
             return retVal;
         case SUBSCRIPT_EXPR:
         case ID_EXPR:
-            onExit();
             return retrieveFromMemoryByName(x);
         case PROCDCALL:
             onExit();
@@ -208,7 +205,6 @@ Object Interpreter::interpretExpression(ASTNode* x) {
                 say(msg);
             } else
                 say("value: " + retVal.toString());
-            onExit();
             return retVal;
     }
     onExit();
