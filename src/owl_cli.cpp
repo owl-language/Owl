@@ -33,6 +33,9 @@ int main(int argc, char* argv[]) {
                 showUsage();
                 break;
             case 'r':
+                if (argv[1][2] == 'v') {
+                    initTracer("-vi");
+                }
                 OwlREPL.repl();
                 break;
             case 'v':

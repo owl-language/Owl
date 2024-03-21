@@ -65,7 +65,6 @@ Object Interpreter::resolveRecordFieldName(ASTNode* x, Record* rec) {
         say("field: " + fieldName);
         if (rec->fieldAddrs.find(fieldName) != rec->fieldAddrs.end()) {
             int nextAddr = rec->fieldAddrs[fieldName];
-            say("address: " + to_string(nextAddr));
             retVal = memStore.get(nextAddr);
             say("address: " + to_string(nextAddr) + ", value: " + retVal.data._value);
         } else {
@@ -111,7 +110,11 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
         fieldName = x->child[0]->child[2]->attribute.name;
         Record* ht = memStore.get(addr).data.recordValue();
         say("field: " + fieldName);
-        addr = ht->fieldAddrs[fieldName];
+        if (ht->fieldAddrs.find(fieldName) != ht->fieldAddrs.end())
+            addr = ht->fieldAddrs[fieldName];
+        else {
+            logError("Invalid field for record: " + fieldName);
+        }
     }
     if (x->child[0]->kind == EXPRNODE && x->child[0]->type.expr == SUBSCRIPT_EXPR) {
         offset = calculateArrayIndex(x->child[0]->child[0]);
