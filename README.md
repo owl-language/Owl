@@ -1,11 +1,12 @@
 # Owl v0.5a  (\\^(OvO)^/)
 
-Owl is an interpreted, dynamically typed, procedural language.
-It features pascal-like syntax, with C-style scope rules.
+Owl is an interpreted, dynamically typed, procedural language. With full support for recursive procedures implementing you're favorite algorithms is a breeze, while user defined records and dynamically typed arrays 
+facilitate powerful abstractions.
 
-Owl's Mascot, (\\^(OvO)^/), is named Flaco, in dedication to the memory of Flaco the Owl who came
-to fame for escaping his enclosure in New York City's Central Park Zoo after years of captivity and 
-embodies a spirit of freedom in which we can all find inspiration.
+Owl's Mascot (\\^(OvO)^/) is named Flaco. Named in dedication to the memory of Flaco the Owl who came
+to fame for escaping his enclosure in New York City's Central Park Zoo after years of captivity. Flaco 
+embodies a spirit of freedom from which we can all find some inspiration.
+
 
 # Using Owl
 
@@ -13,10 +14,9 @@ To build owl run the included Makefile by typing 'make' in your terminal and run
 Owl requires a C++ compiler which supports C++17 to compile, and has been tested on linux 
 and macOS with GNU GCC's G++ and the LLVM clang++ compilers. 
 
-Once built, Owl can be invoked in three different ways:
+Once built, Owl can be invoked in two different ways:
 1) Owl cli - your everyday command line interpreter, owl <options> <filename> will run a supplied owl program
 2) Owl repl - a standard read-eval-print-loop. Enter statements and they run as soon as you hit enter, invoked with 
-3) Owl shell - this interactive shell lets you load files, run them , display their AST, see memory usage etc, It will soon also feature the ability to step through a program line by line.
 
 
 # Syntax
@@ -27,8 +27,8 @@ this should be viewed as no more than an approximation of Owl's grammar
 ## reserved words: 
 
       begin, end, input, print, if, then , else, while, 
-      func, let, int, string, real, rand, program, library,
-      return, ref, import
+      func, let, int, string, real, record, rand, program, library,
+      return, ref, import, make
 
 ## reserved symbols:
       , . := : ; + - * / [ ] ( ) {* *} # < > <= >= == != 
@@ -93,7 +93,7 @@ this should be viewed as no more than an approximation of Owl's grammar
 
       factor := var | num | rand_num | real_num | string_literal | ( expression )
 
-      var := id[expression] | procedureCall
+      var := id[expression] | id.id | procedureCall
 
       num := ([0..9])*
 
@@ -103,7 +103,7 @@ this should be viewed as no more than an approximation of Owl's grammar
 
       string_literal := <"> string <">
 
-      Types := Integer | Real | String
+      Types := Integer | Real | String | Record
 	  
 	  multiline comment := {* comment
 	  						  on multiple lines *}
@@ -112,96 +112,25 @@ this should be viewed as no more than an approximation of Owl's grammar
 
 ##  Owl by Example
 
-Recursive Procedures are fully supported making the canonical fibonacci algorithm straight forward to implement
-typing is dynamic, so specifying a variables type isnt required, just use the 'let' keyword!
+The 'owlcode' folder contains many examples outlining owl's different features and capabilities. 
 
     program 'fibonacci';
     begin
     	let m := 1;
     	func fibR(n: int) begin
         	if (n < 2) then
-            		return n;
-             	else
-            		return fibR(n - 1) + fibR(n-2);
-             	end;
+            	return n;
+            else
+            	return fibR(n - 1) + fibR(n-2);
+            end;
     	end
     	while (m <= 13) begin
-             	print (fibR(m) + " ");
-             	m := m + 1;
+            print (fibR(m) + " ");
+            m := m + 1;
     	end;
     	print "\n";
     end
 
-If recusrion isn't you're thing, you can use the while loop for iteration
-
-    program 'fibonacciEx';
-    begin
-    	let prev := 1;
-    	let next := 2;
-    	let curr := 0;
-    	let x := 1;
-    
-    	func calcAndPrint() begin
-        	next := (prev + curr);
-        	print (next + " ");
-        	prev := curr;
-        	curr := next;
-    	end
-
-    	while (x <= 10) begin
-        	calcAndPrint();
-        	x := (x + 1);
-    	end;
-    
-    	print "\n";
-    end
-
-And you can always save yourself a few cycles by cacheing using Owl's array types
-arrays can hold mixed types as well, so feel free to mix up your elements!
-
-    program 'fibonacci';
-    begin
-   	    let m := 1;
-    	let cache[15];
-    	func fibCached(n: int) begin
-	 	    if (n < 2) then
-            		return n;
-        	else
-            		if (cache[n] != 0) then
-                		return cache[n];
-            		else
-                		cache[n] := fibCached(n - 1) + fibCached(n-2);
-            		end;
-            		print (n + " ");
-            		return cache[n];
-        	end;
-    	end
-        while (m <= 13) begin
-             	print (fibR(m) + " ");
-             	m := m + 1;
-    	end;
-    	print "\n";
-    end
-
-And if you find yourself using your fibonacci procedure in many different programs, you can
-package it as a library, and import it into your code, reducing code duplication and encouraging re-use
-
-    library 'fibLib';
-    begin
-        func fibR(n: int) begin 
-        	if (n < 2) then
-            		return n;
-        	else
-            		return fibR(n-1) + fibR(n-2);
-        	end;
-   	    end;
-    end
-    
-    program 'libtest';
-    import fibLib;
-    begin
-         print (fibR(13) + "\n");
-    end;
     
 # Misc
 Owl is (c) 2024 Max Goren, http://maxgcoding.com, see LICENSE.md for more info.

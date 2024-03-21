@@ -15,13 +15,13 @@ begin
     y.next := z;
     z.info := 666;
     it := x;
-    while (it.info != 666) begin 
+    while ((it.info) != 666) begin 
         print it.info;
         print " ";
         it := it.next;
     end;
     print "\n";
-    if ((it.info) == 666) then 
+    if ((it.info) == z.info) then 
         print "dat fooseball\n";
     end;
 end

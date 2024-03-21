@@ -308,16 +308,6 @@ ASTNode* OwlParser::whileStatement() {
     onEnter("whileStatement");
     match(WHILE);
     t->child[0] = expression();
-    if (t->child[0]->type.expr != OP_EXPR && t->child[0]->child[2]) {
-        ASTNode* recNameNode = t->child[0];
-        ASTNode* op = t->child[0]->child[2];
-        ASTNode* fieldName = op->child[0];
-        ASTNode* toComp = op->child[1];
-        recNameNode->child[2] = fieldName;
-        op->child[0] = recNameNode;
-        op->child[1] = toComp;
-        t->child[0] = op;
-    }
     match(BEGIN);
     t->child[1] = statementList();
     match(END);
@@ -378,7 +368,6 @@ ASTNode* OwlParser::returnStatement() {
     return t;
 }
 
-
 ASTNode* OwlParser::expression() {
     onEnter("expression");
     ASTNode* node = simpleExpression();
@@ -389,9 +378,7 @@ ASTNode* OwlParser::expression() {
         if (node != nullptr) {
             exp->child[0] = node;
             node = exp;
-            //node->child[0] = exp;
         }
-        cout<<"Now match on "<<lookahead().tokenval<<endl;
         match(lookahead().tokenval);
         if ( node != nullptr)
             node->child[1] = simpleExpression();
@@ -466,7 +453,7 @@ ASTNode* OwlParser::factor() {
         match(MAKE);
         node = initRecord();
     } else {
-        cout<<"I have no idea."<<endl;
+        cout<<"Parse error in factor: I have no idea what a '"<<lookahead().stringval<<"' is"<<endl;
         reSync();
     }
     onExit("factor");
@@ -530,6 +517,8 @@ void OwlParser::nexttoken() {
 }
 
 void OwlParser::reSync() {
+    //if you can't tell, im not a fan of trying to recover from a mistep in parseing
+    //better to have the programmer fix whats wrong that mangle weird AST
     if (stumbleCount > 2) {
         logError("Too many errors during parsing, bailing out.");
         exit(0);
