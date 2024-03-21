@@ -20,6 +20,7 @@ class MemStore {
         int *freedList;
         Object *objmem;
         int nextFreeAddress;
+        int nextHeapAddress;
         int liveCellCount;
     public:
         MemStore();
@@ -28,6 +29,7 @@ class MemStore {
         void store(int addr, Object& o);
         int storeAtNextFree(Object& o);
         int allocate(int cells);
+        int heap_allocate(int cells);
         void free(int cell);
         void display();
         float usage();

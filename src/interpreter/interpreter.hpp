@@ -20,7 +20,7 @@ class Interpreter {
     private:
         map<string, int> variables;
         map<string, StackFrame*> procedures;
-        map<string, Record*> recordInstances;
+        vector<Record*> recordInstances;
         map<string, Record*> recordDefinitions;
         CallStack callStack;
         MemStore memStore;

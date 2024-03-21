@@ -163,7 +163,8 @@ Object Interpreter::initializeRecord(ASTNode* x) {
         nRec->fieldAddrs[entries.first] = taddr; 
     }
     say("Record " + instanceName + " of type " + recName + " instantiated");
-    retVal = Object(nRec);
+    recordInstances.push_back(nRec);
+    retVal = Object(recordInstances.back());
     int addr = memStore.storeAtNextFree(retVal);
     variables[instanceName] = addr;
     say("Stored at address: " + to_string(variables[instanceName]));

@@ -4,23 +4,32 @@ begin
         let info;
         let next;
     end
+    let m := make node;
+    let n := make node;
+    let o := make node;
     let z := make node;
     let x := make node;
     let y := make node;
     let it := 2;
+    m.info := 24;
+    n.info := 51;
+    o.info := 11;
     x.info := 13;
     y.info := 42;
+    z.info := 66;
+    m.next := n;
+    n.next := o;
+    o.next := x;
     x.next := y;
-    z.next := 666;
     y.next := z;
-    z.info := 666;
-    it := x;
-    while ((it.info) != 666) begin 
+    z.next := 66;
+    it := m;
+    while ((it.info) != 66) begin 
         print it.info;
         print " ";
         it := it.next;
     end;
-    print "\n";
+    print ((it.info) + "\n");
     if ((it.info) == z.info) then 
         print "dat fooseball\n";
     end;

@@ -13,6 +13,7 @@ void MemStore::reset() {
     MAX_MEM_STORE = 1500;
     liveCellCount = 0;
     nextFreeAddress = 0;
+    nextHeapAddress = MAX_MEM_STORE-1;
     free_list_count = 0;
     objmem = new Object[MAX_MEM_STORE];
     freedList = new int[MAX_MEM_STORE];
@@ -74,8 +75,22 @@ void MemStore::free(int cell) {
     liveCellCount--;
 }
 
+int MemStore::heap_allocate(int cells) {
+    if (nextHeapAddress-cells <= nextFreeAddress) {
+        logError("ERROR: OUT OF MEMORY");
+        return -1;
+    }
+    int baseAddr = 0;
+    if (cells == 1) {
+        baseAddr = --nextHeapAddress;
+        objmem[baseAddr].attr.isLive = true;
+        liveCellCount++;
+    }
+    return baseAddr;
+}
+
 int MemStore::allocate(int cells) {
-    if (nextFreeAddress+cells >= MAX_MEM_STORE) {
+    if (nextFreeAddress+cells >= nextHeapAddress) {
         logError("ERROR: OUT OF MEMORY");
         return -1;
     }
