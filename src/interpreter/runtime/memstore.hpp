@@ -25,8 +25,8 @@ class MemStore {
         MemStore();
         ~MemStore();
         Object& get(int addr);
-        void store(int addr, Object o);
-        int storeAtNextFree(Object o);
+        void store(int addr, Object& o);
+        int storeAtNextFree(Object& o);
         int allocate(int cells);
         void free(int cell);
         void display();

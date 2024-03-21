@@ -30,7 +30,7 @@ class Interpreter {
         void declareVariable(ASTNode* x);
         void declareFunction(ASTNode* x);
         void declareStruct(ASTNode* x);
-        void initializeRecord(ASTNode* x);
+        Object initializeRecord(ASTNode* x);
         Object retrieveFromMemoryByName(ASTNode* x);
         Object retrieveFromRecord(ASTNode* x);
         void storeToMemoryByName(ASTNode* x);

@@ -47,16 +47,17 @@ Object& MemStore::get(int addr) {
     return objmem[0];
 }
 
-void MemStore::store(int addr, Object toStore) {
+void MemStore::store(int addr, Object& toStore) {
     if (addr < 1 && addr > MAX_MEM_STORE) {
         logError("Invalid Memory Address provided: " + to_string(addr));
         return;
     }
-    objmem[addr].data._value = toStore.data._value;
     objmem[addr].type = toStore.type;
+    objmem[addr].data._value = toStore.data._value;
+    objmem[addr].data._record = toStore.data._record;
 }
 
-int MemStore::storeAtNextFree(Object o) {
+int MemStore::storeAtNextFree(Object& o) {
     if (nextFreeAddress+1 >= MAX_MEM_STORE) {
         logError("ERROR: OUT OF MEMORY");
         return -1;

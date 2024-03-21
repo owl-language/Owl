@@ -1,15 +1,28 @@
 #ifndef record_hpp
 #define record_hpp
-#include <unordered_map>
-#include "memobject.hpp"
+#include <map>
+#include <iostream>
 using std::string;
-using std::unordered_map;
+using std::map;
+using std::cout;
+using std::endl;
 
 struct Record {
     string name;
-    unordered_map<string, int> fieldAddrs;
+    map<string, int> fieldAddrs;
     Record();
     Record(string name_);
+    Record(const Record& rec);
+    ~Record() {
+        cout<<name<<" out of scope and signing off."<<endl;
+    }
+    Record& operator=(const Record& o) {
+        name = o.name;
+        for (auto m : o.fieldAddrs) {
+            fieldAddrs[m.first] = m.second;
+        }
+        return *this;
+    }
 };
 
 #endif

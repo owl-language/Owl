@@ -1,0 +1,19 @@
+program 'assignRecords';
+begin 
+    record node begin
+        let info;
+        let next;
+    end
+    let z := 1;
+    let x := make node;
+    let y := make node;
+    x.info := 13;
+    y.info := 42;
+    x.next := y;
+    z := x;
+    print (z.info);
+    print "\n";
+    z := z.next;
+    print (z.info);
+    print "\n";
+end

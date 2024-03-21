@@ -3,6 +3,7 @@
 #include <iostream>
 #include <list>
 #include <unordered_map>
+#include "record.hpp"
 using std::string;
 using std::to_string;
 using std::unordered_map;
@@ -26,6 +27,7 @@ struct Object {
     RTType type;
     struct _data {
         string _value;
+        Record* _record;
         int intValue() {
             return atoi(_value.c_str());
         }
@@ -34,6 +36,9 @@ struct Object {
         }
         string stringValue() {
             return _value;
+        }
+        Record* recordValue() {
+            return _record;
         }
         _data() {
             _value = "none";
@@ -45,6 +50,7 @@ struct Object {
     Object(string val);
     Object(float val);
     Object(double val);
+    Object(Record* record);
     Object();
     Object& operator=(const Object& o);
     string toString();

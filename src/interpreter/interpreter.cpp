@@ -58,19 +58,9 @@ int Interpreter::calculateArrayIndex(ASTNode* x) {
     return offset;
 }
 
-Object Interpreter::retrieveFromRecord(ASTNode* x) {
-    onEnter("retrieveFromRecord");
-    Record* instance = recordInstances[x->attribute.name];
-    int addr = instance->fieldAddrs[x->child[0]->attribute.name];
-    Object retVal = memStore.get(addr);
-    onExit();
-    return retVal;
-}
 
 Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
     onEnter("retrieveFromMemoryByName");
-    if (recordInstances.find(x->attribute.name) != recordInstances.end())
-        return retrieveFromRecord(x);
     Object retVal;
     int offset = 0, addr = resolveNameToAddress(x->attribute.name);
     if (x->kind == EXPRNODE && x->type.expr == SUBSCRIPT_EXPR) {
@@ -78,11 +68,24 @@ Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
         if (offset > 0 && offset > memStore.get(addr).attr.size) {
             logError("Hoot! Index " + to_string(offset) + " out of range for array " + x->attribute.name + " of size " + to_string(memStore.get(addr).attr.size) + + " at address " + to_string(addr));
             onExit();
-            return Object(0);
+            return retVal;
         }
     }
     retVal = memStore.get(addr + offset);
     say("ID: " + x->attribute.name + ", Address: " + to_string(addr) + ", offset: " +to_string(offset) + ", value: " + retVal.toString() + ", type: " + rtTypeAsStr[retVal.type]);
+    if (retVal.type == HASH && x->child[0]) {
+        string fieldName = x->child[0]->attribute.name;
+        say("Its a hash! do we have a field name? " + fieldName);
+        if (retVal.data.recordValue()->fieldAddrs.find(fieldName) != retVal.data.recordValue()->fieldAddrs.end()) {
+            say("ok found.");
+            int nextAddr = retVal.data.recordValue()->fieldAddrs[fieldName];
+            say("address: " + to_string(nextAddr));
+            auto nr = memStore.get(nextAddr);
+            retVal = nr;
+        } else {
+            logError("Invalid field name specified");
+        }
+    }
     onExit();
     return retVal;
 }
@@ -90,15 +93,16 @@ Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
 void Interpreter::storeToMemoryByName(ASTNode* x) {
     onEnter("storeToMemoryByName ");
     string varname = x->child[0]->attribute.name; //variable name
+    string fieldName;
     say("Assign to " + varname + ": ");
     Object valToAssign = interpretExpression(x->child[1]);   //value to assign
     int offset = 0, addr = 0;
-    if (recordInstances.find(x->child[0]->attribute.name) != recordInstances.end()) {
-        Record* instance = recordInstances[x->child[0]->attribute.name];
-        string fieldName = x->child[0]->child[0]->attribute.name;
-        addr = instance->fieldAddrs[fieldName];
-    } else {
-        addr = resolveNameToAddress(varname);
+    addr = resolveNameToAddress(varname);
+    if (x->child[0]->child[0] && memStore.get(addr).type == HASH) {
+        fieldName = x->child[0]->child[0]->attribute.name;
+        Record* ht = memStore.get(addr).data.recordValue();
+        say("field: " + fieldName);
+        addr = ht->fieldAddrs[fieldName];
     }
     if (x->child[0]->kind == EXPRNODE && x->child[0]->type.expr == SUBSCRIPT_EXPR) {
         offset = calculateArrayIndex(x->child[0]->child[0]);
@@ -113,6 +117,7 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
 }
 
 Object Interpreter::doProcedureCall(ASTNode* x) {
+    Object retVal(0);
     if (!callStack.empty() && callStack.top()->nestedProcedures.find(x->attribute.name) != callStack.top()->nestedProcedures.end()) {
         say("nested procedure.");
         return Dispatch(x, prepStackFrame(callStack.top()->nestedProcedures[x->attribute.name]));
@@ -122,14 +127,15 @@ Object Interpreter::doProcedureCall(ASTNode* x) {
     } else {
         logError("No such procedure: " + x->attribute.name);
     }
-    return Object(0);
+    return retVal;
 }
 
-void Interpreter::initializeRecord(ASTNode* x) {
+Object Interpreter::initializeRecord(ASTNode* x) {
     onEnter("Initializing Record");
     string anotatedRecName = x->attribute.name;
     string recName, instanceName;
     int i;
+    Object retVal;
     for (i = 0; anotatedRecName[i] != ' '; i++)
         recName.push_back(anotatedRecName[i]);
     while (i < anotatedRecName.size()) {
@@ -139,16 +145,21 @@ void Interpreter::initializeRecord(ASTNode* x) {
     }
     if (recordDefinitions.find(recName) == recordDefinitions.end()) {
         logError("No Record definition found with name: " + recName);
-    } else {
-        Record* recDef = recordDefinitions[recName];
-        Record* nRec = new Record(recName);
-        for (auto entries : recDef->fieldAddrs) {
-            nRec->fieldAddrs[entries.first] = memStore.allocate(1);
-        }
-        recordInstances[instanceName] = nRec;
-        say("Record " + instanceName + " of type " + recName + " instantiated");
+        return retVal;
+    } 
+    Record* recDef = recordDefinitions[recName];
+    Record* nRec = new Record(instanceName);
+    for (auto entries : recDef->fieldAddrs) {
+        int taddr = memStore.allocate(1);
+        nRec->fieldAddrs[entries.first] = taddr; 
     }
+    say("Record " + instanceName + " of type " + recName + " instantiated");
+    retVal = Object(nRec);
+    int addr = memStore.storeAtNextFree(retVal);
+    variables[instanceName] = addr;
+    say("Stored at address: " + to_string(variables[instanceName]));
     onExit();
+    return retVal;
 }
 
 Object Interpreter::interpretExpression(ASTNode* x) {
@@ -156,9 +167,6 @@ Object Interpreter::interpretExpression(ASTNode* x) {
     string msg, result;
     onEnter("Expression " + ExprKindStr[x->type.expr]);
     switch (x->type.expr) {
-        case INITREC_EXPR:
-            initializeRecord(x);
-            return retVal;
         case CONST_EXPR:
             if (x->attribute.type == as_int)
                 retVal = Object(x->attribute.intValue);
@@ -172,7 +180,8 @@ Object Interpreter::interpretExpression(ASTNode* x) {
             return retVal;
         case RAND_EXPR:
             rbound = x->child[0]->attribute.intValue;
-            return Object(rand() % (rbound - 1) + 1);
+            retVal =  Object(rand() % (rbound - 1) + 1);
+            return retVal;
         case SUBSCRIPT_EXPR:
         case ID_EXPR:
             return retrieveFromMemoryByName(x);
@@ -198,6 +207,7 @@ Object Interpreter::interpretExpression(ASTNode* x) {
 void Interpreter::declareVariable(ASTNode* x) {
     string name;
     int addr;
+    Object obj;
     if (x->child[0]->type.expr == SUBSCRIPT_EXPR) {
         ASTNode* child = x->child[0];
         name = child->attribute.name;
@@ -205,10 +215,13 @@ void Interpreter::declareVariable(ASTNode* x) {
         addr = memStore.allocate(size);
         say("Declaring Array: " + name + " of size " + to_string(size) + " at address " + to_string(addr));
     } else if (x->child[0]->type.expr == INITREC_EXPR) {
-        initializeRecord(x->child[0]);
+        obj = initializeRecord(x->child[0]);
+        name = obj.data.recordValue()->name;
+        addr = variables[name];
+        say("record: " + name + " initialized.");
     } else {
         name = x->child[0]->attribute.name;
-        Object obj = interpretExpression(x->child[1]);
+        obj = interpretExpression(x->child[1]);
         addr = memStore.storeAtNextFree(obj);
         say("Declaring Variable: " + name + " with value " + obj.toString() + " type: " + rtTypeAsStr[obj.type]);
     }

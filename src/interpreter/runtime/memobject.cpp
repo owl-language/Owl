@@ -42,10 +42,18 @@ Object::Object(double val) {
     type = REAL;
 }
 
+Object::Object(Record* rec) {
+    data._value = "(hashobject)";
+    data._record = rec;
+    attr.isLive = true;
+    attr.size = 1;
+    type = HASH;
+}
 
 Object& Object::operator=(const Object& o) {
     type = o.type;
     data._value = o.data._value;
+    data._record = o.data._record;
     attr.size = o.attr.size;
     attr.isLive = o.attr.isLive;
     return *this;
