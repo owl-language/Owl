@@ -47,6 +47,7 @@ class Interpreter {
         void compilerDirective(ASTNode* x);
         void assignLocalSymbols(ASTNode* node, StackFrame* nsf);
         int resolveNameToAddress(string name);
+        Object resolveRecordFieldName(ASTNode* x, Record* rec);
         int calculateArrayIndex(ASTNode* x);
         StackFrame* prepStackFrame(StackFrame* x);
         Object Dispatch(ASTNode* x, StackFrame* nsf);

@@ -9,12 +9,14 @@ Abstract Syntax Tree:
     [VARDECL] let
       [ID_EXPR] next 
 [VARDECL] let
-  [ID_EXPR] z 
-  [CONST_EXPR] 1 
+  [INITREC_EXPR] node - z 
 [VARDECL] let
   [INITREC_EXPR] node - x 
 [VARDECL] let
   [INITREC_EXPR] node - y 
+[VARDECL] let
+  [ID_EXPR] it 
+  [CONST_EXPR] 2 
 [ASSIGNSTM] :=
   [ID_EXPR] x 
     [ID_EXPR] info 
@@ -29,21 +31,42 @@ Abstract Syntax Tree:
   [ID_EXPR] y 
 [ASSIGNSTM] :=
   [ID_EXPR] z 
-  [ID_EXPR] x 
-[PRINTSTMT] print
+    [ID_EXPR] next 
+  [CONST_EXPR] 666 
+[ASSIGNSTM] :=
+  [ID_EXPR] y 
+    [ID_EXPR] next 
   [ID_EXPR] z 
-    [ID_EXPR] info 
-[PRINTSTMT] print
-  [CONST_STR] 
- 
 [ASSIGNSTM] :=
   [ID_EXPR] z 
-  [ID_EXPR] z 
-    [ID_EXPR] next 
-[PRINTSTMT] print
-  [ID_EXPR] z 
     [ID_EXPR] info 
+  [CONST_EXPR] 1 
 [PRINTSTMT] print
-  [CONST_STR] 
- 
+  [OP_EXPR] +  - PLUS
+    [ID_EXPR] z 
+      [ID_EXPR] info 
+    [ID_EXPR] y 
+      [ID_EXPR] info 
+[PRINTSTMT] print
+  [ID_EXPR] x 
+    [ID_EXPR] info 
+[ASSIGNSTM] :=
+  [ID_EXPR] it 
+  [ID_EXPR] x 
+[WHILESTM] while
+  [ID_EXPR] it 
+    [OP_EXPR] !=  - NOTEQUAL
+      [ID_EXPR] next 
+      [CONST_EXPR] 666 
+  [PRINTSTMT] print
+    [ID_EXPR] it 
+      [ID_EXPR] info 
+  [PRINTSTMT] print
+    [CONST_STR]   
+  [ASSIGNSTM] :=
+    [ID_EXPR] it 
+    [ID_EXPR] it 
+      [ID_EXPR] next 
 [Running Program]
+                                                                                                                              
+Trace Complete.

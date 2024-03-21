@@ -380,6 +380,7 @@ ASTNode* OwlParser::expression() {
             exp->child[0] = node;
             node = exp;
         }
+        cout<<"Now match on "<<lookahead().tokenval<<endl;
         match(lookahead().tokenval);
         if ( node != nullptr)
             node->child[1] = simpleExpression();
@@ -477,7 +478,7 @@ ASTNode* OwlParser::var() {
         node = replace;
     } else if (lookahead().tokenval == PERIOD) {
         match(PERIOD);
-        node->child[0] = expression();
+        node->child[2] = expression();
     }
     onExit("var");
     return node;

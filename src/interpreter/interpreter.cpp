@@ -58,6 +58,24 @@ int Interpreter::calculateArrayIndex(ASTNode* x) {
     return offset;
 }
 
+Object Interpreter::resolveRecordFieldName(ASTNode* x, Record* rec) {
+    Object retVal;
+    if (x->child[2] && x->child[2]->type.expr == ID_EXPR) {
+        string fieldName = x->child[2]->attribute.name;
+        say("field: " + fieldName);
+        if (rec->fieldAddrs.find(fieldName) != rec->fieldAddrs.end()) {
+            int nextAddr = rec->fieldAddrs[fieldName];
+            say("address: " + to_string(nextAddr));
+            retVal = memStore.get(nextAddr);
+        } else {
+            logError("Invalid field name specified");
+        }
+    } else {
+        say("Returning instance.");
+    }
+    return retVal;
+}
+
 
 Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
     onEnter("retrieveFromMemoryByName");
@@ -73,18 +91,8 @@ Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
     }
     retVal = memStore.get(addr + offset);
     say("ID: " + x->attribute.name + ", Address: " + to_string(addr) + ", offset: " +to_string(offset) + ", value: " + retVal.toString() + ", type: " + rtTypeAsStr[retVal.type]);
-    if (retVal.type == HASH && x->child[0]) {
-        string fieldName = x->child[0]->attribute.name;
-        say("Its a hash! do we have a field name? " + fieldName);
-        if (retVal.data.recordValue()->fieldAddrs.find(fieldName) != retVal.data.recordValue()->fieldAddrs.end()) {
-            say("ok found.");
-            int nextAddr = retVal.data.recordValue()->fieldAddrs[fieldName];
-            say("address: " + to_string(nextAddr));
-            auto nr = memStore.get(nextAddr);
-            retVal = nr;
-        } else {
-            logError("Invalid field name specified");
-        }
+    if (retVal.type == HASH && x->child[2]) {
+        retVal = resolveRecordFieldName(x, retVal.data.recordValue());
     }
     onExit();
     return retVal;
@@ -98,8 +106,8 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
     Object valToAssign = interpretExpression(x->child[1]);   //value to assign
     int offset = 0, addr = 0;
     addr = resolveNameToAddress(varname);
-    if (x->child[0]->child[0] && memStore.get(addr).type == HASH) {
-        fieldName = x->child[0]->child[0]->attribute.name;
+    if (x->child[0]->child[2] && memStore.get(addr).type == HASH) {
+        fieldName = x->child[0]->child[2]->attribute.name;
         Record* ht = memStore.get(addr).data.recordValue();
         say("field: " + fieldName);
         addr = ht->fieldAddrs[fieldName];
@@ -173,22 +181,25 @@ Object Interpreter::interpretExpression(ASTNode* x) {
             else if (x->attribute.type == as_real)
                 retVal = Object(stof(x->attribute.name));
             say(ExprKindStr[x->type.expr] + " value: " + retVal.toString());
+            onExit();
             return retVal;
         case CONST_STR:
             retVal = Object(x->attribute.name);
             retVal.type = STRING;
+            onExit();
             return retVal;
         case RAND_EXPR:
             rbound = x->child[0]->attribute.intValue;
             retVal =  Object(rand() % (rbound - 1) + 1);
+            onExit();
             return retVal;
         case SUBSCRIPT_EXPR:
         case ID_EXPR:
+            onExit();
             return retrieveFromMemoryByName(x);
-            break; 
         case PROCDCALL:
+            onExit();
             return doProcedureCall(x);
-            break;
         case OP_EXPR:
             retVal = eval(x);
             if (x->attribute.op == LESS || x->attribute.op == EQUAL || x->attribute.op == NOTEQUAL) {

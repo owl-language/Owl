@@ -4,16 +4,22 @@ begin
         let info;
         let next;
     end
-    let z := 1;
+    let z := make node;
     let x := make node;
     let y := make node;
+    let it := 2;
     x.info := 13;
     y.info := 42;
     x.next := y;
-    z := x;
-    print (z.info);
-    print "\n";
-    z := z.next;
-    print (z.info);
-    print "\n";
+    z.next := 666;
+    y.next := z;
+    z.info := 1;
+    print ((z.info) + (y.info));
+    print (x.info);
+    it := x;
+    while (it.next != 666) begin 
+        print it.info;
+        print " ";
+        it := it.next;
+    end;
 end
