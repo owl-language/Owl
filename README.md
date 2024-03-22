@@ -1,6 +1,7 @@
 # Owl v0.5a  (\\^(OvO)^/)
 
-Owl is an interpreted, dynamically typed, procedural language. With full support for recursive procedures implementing you're favorite algorithms is a breeze, while user defined records and dynamically typed arrays 
+Owl is an interpreted, dynamically typed, lexically scoped procedural language. With full support for recursive 
+procedures implementing you're favorite algorithms is a breeze, while user defined records and dynamically typed arrays 
 facilitate powerful abstractions.
 
 Owl's Mascot (\\^(OvO)^/) is named Flaco. Named in dedication to the memory of Flaco the Owl who came
