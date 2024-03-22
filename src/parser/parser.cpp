@@ -469,7 +469,7 @@ ASTNode* OwlParser::var() {
         node->child[0] = expression();
         match(RSQBRACKET);
         node->type.expr = SUBSCRIPT_EXPR;
-    }else if (lookahead().tokenval == LPAREN) {
+    } else if (lookahead().tokenval == LPAREN) {
         ASTNode* replace = procedureCall();
         replace->attribute.name = node->attribute.name;
         delete node;

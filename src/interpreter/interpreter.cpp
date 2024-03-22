@@ -33,14 +33,18 @@ Object Interpreter::eval(ASTNode* x) {
 int Interpreter::resolveNameToAddress(string varname) {
     int addr = 0;
     if (callStack.size() && callStack.top()->symbolTable.find(varname) != callStack.top()->symbolTable.end()) {
-        addr = callStack.top()->symbolTable[varname].addr;
-    } else if (callStack.size() > 1 && callStack.top()->staticLink->symbolTable.find(varname) != callStack.top()->staticLink->symbolTable.end()) {
-        addr = callStack.top()->staticLink->symbolTable[varname].addr;
-    } else  if (variables.find(varname) != variables.end()) {
-        addr = variables[varname];
-    } else {
-        logError("Hoot! couldnt find: " + varname);
+        return callStack.top()->symbolTable[varname].addr;
     }
+    if (callStack.size() > 1 ) {
+        if (callStack.top()->staticLink->symbolTable.find(varname) != callStack.top()->staticLink->symbolTable.end()) {
+            return callStack.top()->staticLink->symbolTable[varname].addr;
+        }
+    }
+    if (variables.find(varname) != variables.end()) {
+        return variables[varname];
+    } 
+    logError("Hoot! couldnt find: " + varname);
+    
     return addr;
 }
 

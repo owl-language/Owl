@@ -1,14 +1,11 @@
 program 'nested';
 begin
-    record link begin 
-        let x;
-        let m;
-    end
     func outter(x: int) begin 
         func inner(y: int) begin
             return (x + y);
         end
-        return inner(x);
+        let m := inner(x);
+        return m;
     end
     print (outter(7) + "\n");
 end
