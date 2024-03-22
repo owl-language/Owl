@@ -15,8 +15,6 @@ void OwlREPL::clear_screen() {
 
 void OwlREPL::repl() {
     cout<<"[Owl REPL v0.1 (\\^(OvO)^/)]"<<endl;
-    Interpreter interpreter;
-    ASTBuilder astbuiler;
     string input;
     while (input != "exit") {
         cout<<"Owl> ";
@@ -25,20 +23,28 @@ void OwlREPL::repl() {
             break;
         } else if (input == "clear") {
             clear_screen();
-            continue;
-        }
-        if (!input.empty()) {
-            cout<<"-> "<<input<<endl;
-            auto ast = astbuiler.translate(input);
-            bool newline = false;
+        } else if (input == ".ast") {
             printTree(ast);
-            if (ast->type.stmt == PRINTSTM) {
-                newline = true;
-            }
-            interpreter.Execute(ast);
-            if (newline) {
-                cout<<endl;
-            }
+        } else if (input == ".memory") {
+            interpreter.memoryUsage();
+        } else {
+            parseInput(input);
         }
+    }
+}
+
+void OwlREPL::parseInput(string input) {
+     if (!input.empty()) {
+        cout<<"-> "<<input<<endl;
+        ast = astBuilder.translate(input);
+        bool newline = false;
+        printTree(ast);
+        if (ast->type.stmt == PRINTSTM) {
+            newline = true;
+        }
+        if (newline) {
+            cout<<endl;
+        }
+        interpreter.Execute(ast);
     }
 }

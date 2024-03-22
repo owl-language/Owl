@@ -3,6 +3,9 @@ begin
     record node begin
         let info;
         let next;
+    end;
+    func printNode(q: int) begin 
+        print ((q.info) + " ");
     end
     let m := make node;
     let n := make node;
@@ -25,8 +28,7 @@ begin
     z.next := 66;
     it := m;
     while ((it.info) != 66) begin 
-        print it.info;
-        print " ";
+        printNode(it);
         it := it.next;
     end;
     print ((it.info) + "\n");

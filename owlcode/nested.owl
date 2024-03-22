@@ -4,8 +4,8 @@ begin
         func inner(y: int) begin
             return (x + y);
         end
-        let m := inner(x);
-        return m;
+        return inner(x);
     end
     print (outter(7) + "\n");
+    print (inner(5) + "\n");
 end

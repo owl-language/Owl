@@ -12,6 +12,10 @@ using std::string;
 class OwlREPL {
     private:
         void clear_screen();
+        ASTNode* ast;
+        ASTBuilder astBuilder;
+        Interpreter interpreter;
+        void parseInput(string input);
     public:
         OwlREPL();
         void repl();

@@ -1,0 +1,19 @@
+program 'bst';
+begin 
+    record node begin 
+        let info;
+        let left;
+        let right;
+    end;
+    let a := make node;
+    let b := make node;
+    let c := make node;
+    let d := make node;
+    a.info := 4;
+    a.left := b;
+    a.right := c;
+    b.info := 1;
+    c.info := 7;
+    d.info := 5;
+    c.right := d;
+end
