@@ -119,6 +119,9 @@ ASTNode* OwlParser::statement() {
         case RETURN: 
             node = returnStatement();
             break;
+        case LPAREN:
+            node = expression();
+            break;
         default:
             cout<<"Hoot!, invalid statement on line "<<lookahead().lineno<<": "<<tokenString[lookahead().tokenval]<<endl;
             reSync();

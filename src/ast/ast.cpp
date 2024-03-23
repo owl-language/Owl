@@ -45,10 +45,14 @@ void printTree(ASTNode* node) {
     if (node != nullptr) {
         for (int i = 0; i < rd; i++) cout<<"  ";
         printNode(node);
-        for (int i = 0; i < MAX_CHILDREN; i++)
+        for (int i = 0; i < MAX_CHILDREN; i++) {
             printTree(node->child[i]);
+        }
         
-        if (node->sibling) --rd;
+        if (node->sibling) { 
+            --rd;
+            cout<<"-> ";
+        }
         printTree(node->sibling);
     }
     --rd;

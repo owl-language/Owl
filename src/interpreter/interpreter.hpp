@@ -52,6 +52,8 @@ class Interpreter {
         StackFrame* prepStackFrame(StackFrame* x);
         Object Dispatch(ASTNode* x, StackFrame* nsf);
         void importLibrary(string libName);
+        bool checkExprNodeType(ASTNode* x, ExprKind nt);
+        bool checkStmtNodeType(ASTNode* x, StmtKind nt);
     public:
         void Execute(ASTNode* x);
         void memoryUsage() {

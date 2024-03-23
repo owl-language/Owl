@@ -44,13 +44,11 @@ int Interpreter::resolveNameToAddress(string varname) {
         return variables[varname];
     } 
     logError("Hoot! couldnt find: " + varname);
-    
     return addr;
 }
 
 int Interpreter::calculateArrayIndex(ASTNode* x) {
     int offset = 0;
-
     say("Calculating Offset.");
     offset = interpretExpression(x).data.intValue();
     if (offset < 0) {
@@ -58,13 +56,12 @@ int Interpreter::calculateArrayIndex(ASTNode* x) {
         return 0;
     }
     say("Array Reference, offset: " + to_string(offset));
-
     return offset;
 }
 
 Object Interpreter::resolveRecordFieldName(ASTNode* x, Record* rec) {
     Object retVal;
-    if (x->child[2] && x->child[2]->type.expr == ID_EXPR) {
+    if (x->child[2] && checkExprNodeType(x->child[2], ID_EXPR)) {
         string fieldName = x->child[2]->attribute.name;
         say("field: " + fieldName);
         if (rec->fieldAddrs.find(fieldName) != rec->fieldAddrs.end()) {
@@ -85,7 +82,7 @@ Object Interpreter::retrieveFromMemoryByName(ASTNode* x) {
     onEnter("retrieveFromMemoryByName");
     Object retVal;
     int offset = 0, addr = resolveNameToAddress(x->attribute.name);
-    if (x->kind == EXPRNODE && x->type.expr == SUBSCRIPT_EXPR) {
+    if (x->kind == EXPRNODE && checkExprNodeType(x, SUBSCRIPT_EXPR)) {
         offset = calculateArrayIndex(x->child[0]);
         if (offset > 0 && offset > memStore.get(addr).attr.size) {
             logError("Hoot! Index " + to_string(offset) + " out of range for array " + x->attribute.name + " of size " + to_string(memStore.get(addr).attr.size) + + " at address " + to_string(addr));
@@ -120,7 +117,7 @@ void Interpreter::storeToMemoryByName(ASTNode* x) {
             logError("Invalid field for record: " + fieldName);
         }
     }
-    if (x->child[0]->kind == EXPRNODE && x->child[0]->type.expr == SUBSCRIPT_EXPR) {
+    if (x->child[0]->kind == EXPRNODE && checkExprNodeType(x->child[0], SUBSCRIPT_EXPR)) {
         offset = calculateArrayIndex(x->child[0]->child[0]);
         if (offset > 0 && offset > memStore.get(addr).attr.size) {
             logError("Hoot! Index " + to_string(offset) + " out of range for array " + varname + " of size " + to_string(memStore.get(addr).attr.size) + + " at address " + to_string(addr));
@@ -166,8 +163,7 @@ Object Interpreter::initializeRecord(ASTNode* x) {
     Record* recDef = recordDefinitions[recName];
     Record* nRec = new Record(instanceName);
     for (auto entries : recDef->fieldAddrs) {
-        int taddr = memStore.allocate(1);
-        nRec->fieldAddrs[entries.first] = taddr; 
+        nRec->fieldAddrs[entries.first] = memStore.allocate(1);
     }
     say("Record " + instanceName + " of type " + recName + " instantiated");
     recordInstances.push_back(nRec);
@@ -180,7 +176,7 @@ Object Interpreter::initializeRecord(ASTNode* x) {
 }
 
 Object Interpreter::interpretExpression(ASTNode* x) {
-    Object retVal; int rbound = 1;
+    Object retVal; int rbound = 1, addr = 0;
     string msg, result;
     onEnter("Expression " + ExprKindStr[x->type.expr]);
     switch (x->type.expr) {
@@ -214,6 +210,14 @@ Object Interpreter::interpretExpression(ASTNode* x) {
             } else
                 say("value: " + retVal.toString());
             return retVal;
+        case INITREC_EXPR:
+            retVal = initializeRecord(x->child[0]);
+            msg = retVal.data.recordValue()->name;
+            addr = variables[msg];
+            say("record: " + msg + " initialized at address" + to_string(addr));
+            break;
+        default:
+            break;
     }
     onExit();
     return retVal;
@@ -223,17 +227,21 @@ void Interpreter::declareVariable(ASTNode* x) {
     string name;
     int addr;
     Object obj;
-    if (x->child[0]->type.expr == SUBSCRIPT_EXPR) {
+    if (checkExprNodeType(x->child[0], SUBSCRIPT_EXPR)) {
         ASTNode* child = x->child[0];
         name = child->attribute.name;
         int size = child->child[0]->attribute.intValue;
         addr = memStore.allocate(size);
         say("Declaring Array: " + name + " of size " + to_string(size) + " at address " + to_string(addr));
-    } else if (x->child[0]->type.expr == INITREC_EXPR) {
+    } else if (checkExprNodeType(x->child[0], INITREC_EXPR)) {
         obj = initializeRecord(x->child[0]);
-        name = obj.data.recordValue()->name;
-        addr = variables[name];
-        say("record: " + name + " initialized.");
+        if (obj.type == HASH) {
+            name = obj.data.recordValue()->name;
+            addr = variables[name];
+            say("record: " + name + " initialized.");
+        } else {
+            logError("Record Initialization failed.");
+        }
     } else {
         name = x->child[0]->attribute.name;
         obj = interpretExpression(x->child[1]);
@@ -287,11 +295,9 @@ void Interpreter::declareFunction(ASTNode* node) {
 
 void Interpreter::doPrintStatement(ASTNode* node) {
     onEnter("[PRINT]");
-    if (node->type.expr == CONST_STR) {
-        say("Respecting Const String's Authoritah");
+    if (checkExprNodeType(node, CONST_STR)) {
         cout<<node->attribute.name;
     } else {
-        say("Evaluating");
         cout<<interpretExpression(node).toString();
     }
     onExit();
@@ -497,4 +503,12 @@ void Interpreter::importLibrary(string libName) {
     ASTBuilder libBuilder;
     libAst = libBuilder.build("./" + libName + ".owl");
     Execute(libAst);
+}
+
+bool Interpreter::checkExprNodeType(ASTNode* x, ExprKind nodeType) {
+    return x->type.expr == nodeType;
+}
+
+bool Interpreter::checkStmtNodeType(ASTNode* x, StmtKind nodeType) {
+    return x->type.stmt == nodeType;
 }
